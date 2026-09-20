@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 2 of 10. A block is a record with index, timestamp, data, prev, nonce and hash. The hash is taken over the whole assembled block, the genesis prev is 64 zeros by convention, and makeChain produces the six block Harbourgate register.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Building the chain - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 2 of 10. Assemble the Harbourgate register block by block and watch the previous hash field carry the structure.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p2-building-the-chain.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Building the chain - learn blockchain with phoebe">
+<meta name="twitter:description" content="The hash covers the whole assembled block, not the entry text. That one fact explains the register.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 2 · Building the chain - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 2 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 2 of 10</div>
+    <h1>Building <span class="accent">the chain</span></h1>
+    <p class="sub">Session 1 left you with a function and a warning: the digest of an entry's text is not the entry's block hash. Tonight the block arrives and the warning is cashed in. Six fields, five of which are joined and hashed, one of which is the result. A first block whose predecessor field is filled with zeros because there is nothing to fill it with. And six real hashes, from 608eba0870199b95 to 1e9fa1742f98715d, that you can reproduce on your own machine in a second.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone who will build or audit one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · The block</span>
+      <span class="a3" style="flex:3">16-28 · Genesis and assembly</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where session 2 sits in the ten</h2>
+    </div>
+    <p class="lede">The practitioner track works through one engine in a fixed order: the primitive, the structure, the attack, the cost of the attack, then the things built on top, and finally a bench where all of it runs at once. Session 2 is the structure. Everything from session 3 onwards attacks it, prices it, or extends it, so a shaky picture here shows up four times later.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 326" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The ten practitioner sessions in two rows of five. Session 1, hashing hands on, complete. Session 2, building the chain, current. Session 3, breaking the chain. Session 4, mining. Session 5, the cost of a rewrite. Session 6, merkle trees. Session 7, signatures and identity. Session 8, consensus. Session 9, smart contracts mechanically. Session 10, the chain bench. A bar beneath groups them: sessions 1 and 2 are the primitive and the structure, sessions 3 to 5 are the attack and what it costs, sessions 6 and 7 are proving and permitting, sessions 8 and 9 are agreeing and executing, and session 10 runs all of it live.">
+        <style>
+          .p2aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p2aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p2aN { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p2aB { font: 700 11px Inter, sans-serif; fill: #141C22; }
+          .p2aW { font: 800 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p2aV { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p2aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p2aH" x="14" y="20">Ten sessions, one engine</text>
+        <text class="p2aM" x="14" y="38">Session 1 is done. Session 2 is the one you are reading.</text>
+
+        <rect x="14" y="48" width="162" height="76" rx="9" fill="#CBDDE9" stroke="#93B4CA"></rect>
+        <text class="p2aN" x="28" y="70">SESSION 1 · DONE</text>
+        <text class="p2aB" x="28" y="92">Hashing,</text>
+        <text class="p2aB" x="28" y="110">hands on</text>
+
+        <rect x="184" y="48" width="162" height="76" rx="9" fill="#0E2C3F"></rect>
+        <text class="p2aW" x="198" y="70">SESSION 2 · HERE</text>
+        <text class="p2aV" x="198" y="92">Building</text>
+        <text class="p2aV" x="198" y="110">the chain</text>
+
+        <rect x="354" y="48" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="368" y="70">SESSION 3</text>
+        <text class="p2aB" x="368" y="92">Breaking</text>
+        <text class="p2aB" x="368" y="110">the chain</text>
+
+        <rect x="524" y="48" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="538" y="70">SESSION 4</text>
+        <text class="p2aB" x="538" y="92">Mining</text>
+
+        <rect x="694" y="48" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="708" y="70">SESSION 5</text>
+        <text class="p2aB" x="708" y="92">The cost of</text>
+        <text class="p2aB" x="708" y="110">a rewrite</text>
+
+        <rect x="14" y="136" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="28" y="158">SESSION 6</text>
+        <text class="p2aB" x="28" y="180">Merkle trees</text>
+
+        <rect x="184" y="136" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="198" y="158">SESSION 7</text>
+        <text class="p2aB" x="198" y="180">Signatures</text>
+        <text class="p2aB" x="198" y="198">and identity</text>
+
+        <rect x="354" y="136" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="368" y="158">SESSION 8</text>
+        <text class="p2aB" x="368" y="180">Consensus</text>
+
+        <rect x="524" y="136" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="538" y="158">SESSION 9</text>
+        <text class="p2aB" x="538" y="180">Smart contracts,</text>
+        <text class="p2aB" x="538" y="198">mechanically</text>
+
+        <rect x="694" y="136" width="162" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2aN" x="708" y="158">SESSION 10</text>
+        <text class="p2aB" x="708" y="180">The chain</text>
+        <text class="p2aB" x="708" y="198">bench</text>
+
+        <rect x="14" y="228" width="852" height="84" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p2aK" x="30" y="252">1 and 2 the primitive and the structure · 3 to 5 the attack and what it costs</text>
+        <text class="p2aK" x="30" y="274">6 and 7 proving and permitting · 8 and 9 agreeing and executing · 10 all of it at once</text>
+        <text class="p2aM" x="30" y="296">Sessions 3, 5, 6 and 10 all reach back into the block object assembled tonight, so this is the one to get right.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the order is not arbitrary. Each group needs the one before it, and the bench needs all of them.</figcaption>
+    </figure>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The six fields of a block, in order, and which five of them are hashed. The reason the genesis block's previous hash is a row of zeros rather than a computed value. And the Harbourgate register assembled in front of you, with the same six hashes any correct run produces.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Block.</strong> One record: <code>index</code>, <code>timestamp</code>, <code>data</code>, <code>prev</code>, <code>nonce</code>, <code>hash</code>.</li>
+          <li><strong>prev.</strong> The field holding the previous block's hash, all 64 characters of it.</li>
+          <li><strong>Genesis block.</strong> Block 0, whose <code>prev</code> is 64 zero characters by convention.</li>
+          <li><strong>Block hash.</strong> The digest of the whole assembled block. Not the digest of the entry text.</li>
+          <li><strong>Nonce.</strong> A field that can change without changing what the block says. Idle at difficulty 0, and the subject of session 4.</li>
+          <li><strong>Difficulty.</strong> How many leading zeros a block hash must have. Zero for the Harbourgate register.</li>
+          <li><strong>Reproducible.</strong> Rebuilt from the same entries, the register gives the same six hashes, because the timestamps are fixed.</li>
+          <li><strong>verify.</strong> Recompute every hash and check every link. Returns ok on the untampered register, and session 3 breaks it.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the block</span>
+      <h2>Six fields, five of them hashed</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">A block is an ordinary record. The interesting part is not any one field but the fact that the digest is taken over all five of the stored fields joined together, in a fixed order, rather than over the entry text on its own. The sixth field, the hash itself, is the output and cannot be an input.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 452" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Block 2 of the Harbourgate register broken into five fields: index 2, timestamp 1758001200, data Consignment 41 inspected seal intact, prev beginning 86202a0bab83df26, and nonce 0. The five are joined in order with a separator between them, the joined string is passed through SHA-256, and the result is the block's hash, beginning f325e5d96bee6a1d. A closing bar says the hash is the sixth field and it is an output rather than an input, so a block cannot contain its own hash while it is being hashed, and that changing any one of the five changes the digest completely.">
+        <style>
+          .p2bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p2bT { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p2bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2bV { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p2bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p2bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p2bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p2bX { font: 700 9px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p2bZ { font: 400 10px "SF Mono", Menlo, monospace; fill: #FFFFFF; }
+        </style>
+        <defs>
+          <marker id="p2bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p2bH" x="14" y="20">Block 2 of the Harbourgate register, taken apart</text>
+
+        <rect x="14" y="34" width="164" height="78" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2bT" x="28" y="56">index</text>
+        <text class="p2bX" x="28" y="78">2</text>
+        <text class="p2bM" x="28" y="98">its position</text>
+
+        <rect x="186" y="34" width="164" height="78" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2bT" x="200" y="56">timestamp</text>
+        <text class="p2bX" x="200" y="78">1758001200</text>
+        <text class="p2bM" x="200" y="98">fixed, not a clock</text>
+
+        <rect x="358" y="34" width="164" height="78" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2bT" x="372" y="56">data</text>
+        <text class="p2bX" x="372" y="78">Consignment 41</text>
+        <text class="p2bX" x="372" y="92">inspected, seal intact</text>
+        <text class="p2bM" x="372" y="106">the entry itself</text>
+
+        <rect x="530" y="34" width="164" height="78" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2bT" x="544" y="56">prev</text>
+        <text class="p2bX" x="544" y="78">86202a0bab83df26</text>
+        <text class="p2bM" x="544" y="98">and 48 more characters</text>
+
+        <rect x="702" y="34" width="164" height="78" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2bT" x="716" y="56">nonce</text>
+        <text class="p2bX" x="716" y="78">0</text>
+        <text class="p2bM" x="716" y="98">idle at difficulty 0</text>
+
+        <text class="p2bM" x="14" y="134">The five stored fields, joined in that order with a separator between them</text>
+
+        <rect x="14" y="144" width="852" height="46" rx="9" fill="#0E2C3F"></rect>
+        <text class="p2bZ" x="30" y="173">2 | 1758001200 | Consignment 41 inspected, seal intact | 86202a0bab83df26 and 48 more | 0</text>
+
+        <path d="M 440 192 L 440 216" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p2bAr)"></path>
+
+        <rect x="340" y="222" width="200" height="46" rx="9" fill="#1E4D6B"></rect>
+        <text class="p2bW" x="356" y="251">SHA-256</text>
+
+        <path d="M 440 270 L 440 294" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p2bAr)"></path>
+
+        <rect x="240" y="300" width="400" height="60" rx="9" fill="#0E2C3F"></rect>
+        <text class="p2bV" x="256" y="324">hash, the sixth field</text>
+        <text class="p2bW" x="256" y="346">f325e5d96bee6a1d</text>
+
+        <rect x="14" y="376" width="852" height="62" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p2bK" x="30" y="400">The hash is an output, so it cannot also be an input.</text>
+        <text class="p2bB" x="30" y="422">Change the index, the timestamp, the entry, the previous hash or the nonce, and the digest is unrecognisable.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the entry text is one of five things in the digest, which is why the block hash and the entry's own digest are different values.</figcaption>
+    </figure>
+
+    <div class="wk" id="p2-fields">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Block 2 rehashed in this page with one field nudged. Block hashes are shown at their first 16 characters.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p2-btns" id="p2-fbtns">
+          <button class="btn primary" type="button" data-nudge="none">As recorded</button>
+          <button class="btn" type="button" data-nudge="data">Entry: one capital letter</button>
+          <button class="btn" type="button" data-nudge="timestamp">Timestamp: one second later</button>
+          <button class="btn" type="button" data-nudge="nonce">Nonce: 0 becomes 1</button>
+          <button class="btn" type="button" data-nudge="index">Index: 2 becomes 3</button>
+        </div>
+        <div class="p2-grid" id="p2-fgrid"></div>
+        <p class="sql-note" id="p2-fnote">...</p>
+      </div>
+      <div class="wk-foot" id="p2-ffoot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the position and the timestamp are inside the digest<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>If only the entry text were hashed, two identical entries would produce identical digests and could be swapped, duplicated or reordered without leaving a mark. Putting the index in the digest fixes the block to a position. Putting the timestamp in fixes it to a moment. Putting the previous hash in fixes it to a history.</p>
+        <p>So a block hash is a statement about five things at once, and any claim you make from a matching hash inherits all five. That is stronger than people expect and still narrower than the word immutable suggests.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The nonce is doing nothing, on purpose<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every block in the register carries a nonce of 0, and at difficulty 0 nothing ever changes it. It is in the record because a block needs one field that can be varied freely without altering what the block says, so that a hash can be searched for rather than merely computed.</p>
+        <p>Press the nonce button in the box above and watch the digest move completely for a change from 0 to 1 that alters nothing anybody would read. Session 4 turns that uselessness into the entire cost model of mining.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Field order is part of the format<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The five fields are joined in a fixed order with a separator before they are hashed. Any other order, or any other separator, produces different digests for the same register, which would still be perfectly self consistent and would disagree with every other implementation.</p>
+        <p>That is the unglamorous reason serialisation formats get specified to the byte in real systems. A verifier and a writer that disagree about field order do not fail loudly. They just never agree on a hash, and the register looks permanently tampered with.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers genesis</span>
+      <h2>The first block has nothing to point at</h2>
+      <span class="tag concept">7 min live</span>
+    </div>
+    <p class="lede">Every block's previous hash field holds a computed value: the hash of the block above it, all 64 characters. Block 0 has no block above it, so the field is filled with 64 zero characters. That value was not computed by anything. It is a convention, and knowing that it is a convention is the point.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 294" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. On the left, blocks 1 to 5: the prev field holds a computed value, the full 64 character hash of the block above, shown as block 1's hash beginning 86202a0bab83df26 flowing into block 2's prev field. On the right, block 0: the prev field holds 64 zero characters, written out in full, which is a convention rather than a computed value. A bar beneath says the zeros are what make block 0 identifiable as the start of the register, and that the structure carries confidence forward from block 0 but cannot manufacture any at block 0.">
+        <style>
+          .p2cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p2cT { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p2cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p2cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p2cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p2cX { font: 700 10px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p2cZ { font: 700 9px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p2cW { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .p2cV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p2cS { font: 400 11px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+        <defs>
+          <marker id="p2cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p2cH" x="14" y="20">A computed field, and a field filled by agreement</text>
+
+        <rect x="14" y="32" width="422" height="146" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2cT" x="30" y="56">Blocks 1 to 5 · prev is computed</text>
+        <rect x="30" y="68" width="180" height="42" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p2cM" x="44" y="86">block 1 hash</text>
+        <text class="p2cX" x="44" y="102">86202a0bab83df26</text>
+        <path d="M 216 89 L 246 89" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p2cAr)"></path>
+        <rect x="252" y="68" width="170" height="42" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p2cM" x="266" y="86">block 2 prev</text>
+        <text class="p2cX" x="266" y="102">86202a0bab83df26</text>
+        <text class="p2cM" x="30" y="132">The same 64 characters, copied into the next block when it is written.</text>
+        <text class="p2cM" x="30" y="152">Shown here at 16 characters, as every hash in the register is.</text>
+
+        <rect x="444" y="32" width="422" height="146" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p2cK" x="460" y="56">Block 0 · prev is a convention</text>
+        <text class="p2cB" x="460" y="80">64 zero characters, standing in for a block that does not exist:</text>
+        <rect x="460" y="90" width="390" height="30" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p2cZ" x="472" y="110">0000000000000000000000000000000000000000000000000000000000000000</text>
+        <text class="p2cM" x="460" y="140">No hash function produced that value and none can check it.</text>
+        <text class="p2cM" x="460" y="160">It is written there because the field has to hold something.</text>
+
+        <rect x="14" y="196" width="852" height="84" rx="10" fill="#0E2C3F"></rect>
+        <text class="p2cW" x="30" y="220">What the zeros buy, and what they cannot.</text>
+        <text class="p2cV" x="30" y="242">They make block 0 identifiable as the start of the register, so nobody can quietly graft an earlier history onto it.</text>
+        <text class="p2cS" x="30" y="264">They cannot supply any confidence in block 0 itself. Whoever wrote it, and who was watching, is where that comes from.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left panel is arithmetic. The right panel is an agreement, and the difference between those two is worth saying out loud.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why not hash something real into block 0<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Some registers do exactly that. They put a newspaper headline, a court filing reference or a published document digest into the first block, so the start of the register can be dated from outside the system. It is a genuinely useful trick, and it does not change the structure at all, because that value still enters the block as data rather than as a verified link.</p>
+        <p>The zeros are the honest default. They announce that nothing precedes this block and make no claim at all about when it was written or by whom, which keeps the unanswered question visible instead of dressing it up.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What a verifier does with the zeros<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Verification walks the register recomputing each block's hash from its own fields, and comparing each block's prev field against the hash of the block above. Block 0 has no block above it, so the link check simply does not run there, and only the hash check applies.</p>
+        <p>That asymmetry is worth holding on to. Block 0 is the one block whose position in history rests on nothing inside the register, which is why an attacker who can replace the whole register from block 0 onwards is a different threat from the one in session 3, and a much harder one to reason about.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that batching entries into blocks is an accident of network economics. If every entry simply carried the hash of the entry before it, you would get the same tamper evidence with less machinery, no block assembly, no batching delay, and a structure a reader can hold in their head. On this view the block is an optimisation that leaked into the conceptual model and then got taught as though it were the idea.</p>
+        <p>The other camp holds that the block is the unit of agreement, and that without it there is nothing to agree on. A batch is what participants vote on, what work is attached to, and what gets accepted or rejected as a whole. Remove the block and the tamper evidence survives but the mechanism for many parties converging on one history does not.</p>
+        <p>Both are right about different things, which is why the argument survives. Notice that a single organisation keeping one register has no need of the second camp's answer, and that is the shape most internal projects actually have.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the register</span>
+      <h2>makeChain, and the six blocks it produces</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">Assembly is a loop with one carried variable. Start with the previous hash set to 64 zeros, build a block from the next entry, hash it, store the hash, and carry that hash forward as the next block's previous hash. Six entries in, six blocks out, and the hashes below are what any correct run produces.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 444" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Harbourgate register as assembled by makeChain, six rows with index, timestamp, entry, the first 16 characters of the block hash and the first 16 characters of the previous hash it records. Block 0 at timestamp 1758000000, Harbourgate opens the register, hash 608eba0870199b95, prev 64 zeros by convention. Block 1 at 1758000600, consignment 41 signed over to Pell and Sons, hash 86202a0bab83df26, prev 608eba0870199b95. Block 2 at 1758001200, consignment 41 inspected seal intact, hash f325e5d96bee6a1d, prev 86202a0bab83df26. Block 3 at 1758001800, consignment 42 signed over to Ardwick Cold Store, hash fc189d9dba7c4311, prev f325e5d96bee6a1d. Block 4 at 1758002400, consignment 41 released to the buyer, hash e5526e6e0bbc1aed, prev fc189d9dba7c4311. Block 5 at 1758003000, consignment 42 inspected seal broken, hash 1e9fa1742f98715d, prev e5526e6e0bbc1aed. A bar beneath notes the timestamps start at 1758000000 and advance 600 seconds per block, which is what makes the register reproducible, and that a real register takes its timestamps from a clock instead.">
+        <style>
+          .p2dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p2dL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p2dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p2dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p2dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p2dN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p2dX { font: 700 10px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p2dT { font: 400 10px "SF Mono", Menlo, monospace; fill: #566670; }
+        </style>
+
+        <text class="p2dH" x="14" y="20">makeChain(entries, { difficulty: 0 })</text>
+
+        <text class="p2dL" x="22" y="42">BLOCK</text>
+        <text class="p2dL" x="70" y="42">TIMESTAMP</text>
+        <text class="p2dL" x="150" y="42">ENTRY</text>
+        <text class="p2dL" x="560" y="42">HASH</text>
+        <text class="p2dL" x="712" y="42">PREV IT RECORDS</text>
+
+        <rect x="14" y="50" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="60" width="28" height="24" rx="6" fill="#0E2C3F"></rect>
+        <text class="p2dN" x="31" y="77">0</text>
+        <text class="p2dT" x="70" y="77">1758000000</text>
+        <text class="p2dB" x="150" y="77">Harbourgate opens the register</text>
+        <text class="p2dX" x="560" y="77">608eba0870199b95</text>
+        <text class="p2dT" x="712" y="77">64 zeros, by convention</text>
+
+        <rect x="14" y="98" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="108" width="28" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p2dN" x="31" y="125">1</text>
+        <text class="p2dT" x="70" y="125">1758000600</text>
+        <text class="p2dB" x="150" y="125">Consignment 41 signed over to Pell and Sons</text>
+        <text class="p2dX" x="560" y="125">86202a0bab83df26</text>
+        <text class="p2dX" x="712" y="125">608eba0870199b95</text>
+
+        <rect x="14" y="146" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="156" width="28" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p2dN" x="31" y="173">2</text>
+        <text class="p2dT" x="70" y="173">1758001200</text>
+        <text class="p2dB" x="150" y="173">Consignment 41 inspected, seal intact</text>
+        <text class="p2dX" x="560" y="173">f325e5d96bee6a1d</text>
+        <text class="p2dX" x="712" y="173">86202a0bab83df26</text>
+
+        <rect x="14" y="194" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="204" width="28" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p2dN" x="31" y="221">3</text>
+        <text class="p2dT" x="70" y="221">1758001800</text>
+        <text class="p2dB" x="150" y="221">Consignment 42 signed over to Ardwick Cold Store</text>
+        <text class="p2dX" x="560" y="221">fc189d9dba7c4311</text>
+        <text class="p2dX" x="712" y="221">f325e5d96bee6a1d</text>
+
+        <rect x="14" y="242" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="252" width="28" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p2dN" x="31" y="269">4</text>
+        <text class="p2dT" x="70" y="269">1758002400</text>
+        <text class="p2dB" x="150" y="269">Consignment 41 released to the buyer</text>
+        <text class="p2dX" x="560" y="269">e5526e6e0bbc1aed</text>
+        <text class="p2dX" x="712" y="269">fc189d9dba7c4311</text>
+
+        <rect x="14" y="290" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="300" width="28" height="24" rx="6" fill="#B45309"></rect>
+        <text class="p2dN" x="31" y="317">5</text>
+        <text class="p2dT" x="70" y="317">1758003000</text>
+        <text class="p2dB" x="150" y="317">Consignment 42 inspected, seal broken</text>
+        <text class="p2dX" x="560" y="317">1e9fa1742f98715d</text>
+        <text class="p2dX" x="712" y="317">e5526e6e0bbc1aed</text>
+
+        <rect x="14" y="350" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p2dK" x="30" y="374">Fixed timestamps: 1758000000, advancing 600 seconds a block.</text>
+        <text class="p2dB" x="30" y="396">That is what makes these six hashes reproducible on your machine, and it is a property of this teaching</text>
+        <text class="p2dM" x="30" y="416">model rather than of a real register, which takes its timestamps from a clock and never repeats a run.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the hash column and the prev column hold the same values, shifted down one row. That shift is the chain.</figcaption>
+    </figure>
+
+    <div class="wk" id="p2-build">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">makeChain running in this page. Add one entry at a time and watch the previous hash field carry forward.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p2-btns">
+          <button class="btn primary" type="button" id="p2-next">Add the next entry</button>
+          <button class="btn" type="button" id="p2-all">Build all six</button>
+          <button class="btn" type="button" id="p2-reset">Start again</button>
+        </div>
+        <div class="p2-blocks" id="p2-blocks"></div>
+        <p class="sql-note" id="p2-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p2-bfoot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the register is reproducible, and why that is artificial<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The timestamps are set by the loop, starting at 1758000000 and advancing 600 seconds per block, so rebuilding the register from the same six entries produces the same six hashes every time. That is what lets a number in a diagram be checked against a number on your screen, and it is the only reason these pages can quote hashes at all.</p>
+        <p>A real register reads a clock, so two runs never agree, and the hashes are unique to the moment. Take the reproducibility here as a property of the teaching model. Everything else on this page survives the switch to a real clock. That one does not.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The loop is four lines, and one of them is the whole idea<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Build a block from the entry. Set its prev to the carried value. Hash it. Carry that hash forward. The third and fourth lines are ordinary; the second is the structure. Everything sessions 3 and 5 do is an attempt to survive that one assignment being wrong for a single block.</p>
+        <p>Notice also what the loop does not do. It does not check the entry, it does not ask who submitted it, and it does not compare it with anything. Those are sessions 7 and beyond, and none of them are supplied by the arrangement you are looking at.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Difficulty 0 is a deliberate choice here<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Assembly takes a difficulty option, and the register uses 0, meaning each block's hash is computed once and accepted. Every structural property on this page holds exactly as it would at any difficulty: the fields, the link, the genesis convention, the reproducibility.</p>
+        <p>Raising the difficulty changes one thing only, which is how much a block costs to produce and therefore to redo. It is worth seeing the structure work with no cost attached at all, so that when session 4 attaches one you can say precisely what it bought.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · build-along</span>
+      <h2>Assemble it yourself</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. The same six entries, the same engine, and the hashes in the table above are what you should get back.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>var ENTRIES = [
+  "Harbourgate opens the register",
+  "Consignment 41 signed over to Pell and Sons",
+  "Consignment 41 inspected, seal intact",
+  "Consignment 42 signed over to Ardwick Cold Store",
+  "Consignment 41 released to the buyer",
+  "Consignment 42 inspected, seal broken"
+];
+var chain = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+chain.map(function (b) { return b.index + " " + b.hash.slice(0, 16); })
+chain[0].prev
+CHAIN.hashBlock(chain[2]) === chain[2].hash
+CHAIN.verify(chain).ok</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Check the hash before you read the chain</h4>
+        <p>Run <code>CHAIN.selfTest().ok</code> first, as in session 1. Then build the chain and compare the six truncated hashes with the table above. If the first one is not 608eba0870199b95, stop and find out why before going further.</p>
+      </div>
+      <div class="step">
+        <h4>Look at block 0's prev</h4>
+        <p>Print <code>chain[0].prev</code> and count the characters. Then say, out loud, which part of the engine decided that value and what would happen if a second register used a different convention.</p>
+      </div>
+      <div class="step">
+        <h4>Rehash a block and compare</h4>
+        <p><code>CHAIN.hashBlock(chain[2]) === chain[2].hash</code> should be true. That single comparison is what verification does six times, and it is the whole of tamper detection before an attacker gets clever.</p>
+      </div>
+      <div class="step">
+        <h4>Prove the entry digest is not the block hash</h4>
+        <p>Compare <code>CHAIN.sha256(chain[2].data)</code> with <code>chain[2].hash</code>. Two different values for the same entry. Write one sentence explaining why, using the word fields, and keep it for session 3.</p>
+      </div>
+      <div class="step">
+        <h4>Move the clock by one second</h4>
+        <p>Copy block 4, add 1 to its timestamp, and rehash it. Count how many of the 64 characters moved for a change nobody in a cold store would notice. Then say what that implies for any register whose timestamps come from more than one machine.</p>
+      </div>
+      <div class="step">
+        <h4>Break a link on purpose</h4>
+        <p>Set <code>chain[3].prev</code> to block 1's hash instead of block 2's and run <code>CHAIN.verify(chain)</code>. Read what comes back, including which index it names. Session 3 starts from exactly this output, with an attacker who is trying to make it go away.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When you are handed a register, recompute one block's hash from its own fields before you believe anything else about it. If that single check fails, no argument about consensus, mining or governance is worth having yet.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">What is a block's hash taken over?</p>
+      <div class="qopt">A · The entry text only, which is why the entry can be read straight out of the digest</div>
+      <div class="qopt">B · The entry text and the previous hash, with the other fields stored alongside but not hashed</div>
+      <div class="qopt">C · The whole assembled block: index, timestamp, data, prev and nonce, joined in a fixed order</div>
+      <q class="qwhy">Five stored fields go in and the hash comes out, which is why the sixth field cannot be one of the inputs. It also explains why the digest of "Consignment 41 inspected, seal intact" is not block 2's hash: the entry is one of five things in the digest, not the only thing.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">The genesis block's prev field holds 64 zero characters. Where did that value come from?</p>
+      <div class="qopt">A · From hashing the empty string, which is the natural choice for a block with no predecessor</div>
+      <div class="qopt">B · From a convention. Nothing computed it, and no verifier can check it against anything</div>
+      <div class="qopt">C · From hashing the first entry before the block was assembled</div>
+      <q class="qwhy">The hash of the empty string is e3b0c442 and so on, and it is not what sits in block 0. The zeros are written there because the field has to hold something and there is nothing to put in it. That makes block 0 identifiable as the start, and supplies no confidence in block 0 itself.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Rebuilding the Harbourgate register from the same six entries gives the same six hashes every time. Why, and what should you conclude about real registers?</p>
+      <div class="qopt">A · Because the timestamps are fixed by the assembly loop; a real register reads a clock, so its hashes are unique to the moment and cannot be reproduced this way</div>
+      <div class="qopt">B · Because SHA-256 ignores timestamps, so any register is reproducible from its entries alone</div>
+      <div class="qopt">C · Because difficulty 0 removes the nonce from the digest, and the nonce is the only source of variation</div>
+      <q class="qwhy">Timestamps start at 1758000000 and advance 600 seconds per block, which is what lets a printed hash be checked against your screen. It is a property of the teaching model. Every other property on this page survives a real clock; this one does not.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty five minutes, writing a register of your own rather than reading one.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Build a register from your own records</h4>
+        <p>Take six real rows from a log or audit trail you work with and assemble them the way the loop does: fixed timestamps, prev carried forward, 64 zeros in the first block. Confirm your own verification passes on the result.</p>
+      </div>
+      <div class="step">
+        <h4>Decide what your fields are</h4>
+        <p>Write down which fields you chose to hash and which you left out, and why. Bring the list to session 3, which attacks it. Anything you left out of the digest is something an attacker can change for free, and that is the sentence worth arriving with.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The block as a record</span><span class="note">index, timestamp, data, prev, nonce and hash, and which five of them are hashed.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The hash covers the whole assembled block</span><span class="note">Not the entry text, which is why block 2's hash is f325e5d96bee6a1d and the entry's own digest is not.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The genesis convention</span><span class="note">64 zero characters in block 0's prev, written by agreement rather than computed by anything.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">makeChain and the six block register</span><span class="note">Assembled live, from 608eba0870199b95 to 1e9fa1742f98715d, with fixed timestamps and difficulty 0.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Reading verify() when it fails</span><span class="note">Named tonight in the last build-along step. Worked through in session 3.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">What the nonce is for</span><span class="note">Idle at difficulty 0 and demonstrated as a free variable. Session 4 gives it a job.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Who is allowed to add an entry</span><span class="note">Nothing in the assembly loop asks. Signatures and identity are session 7.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism on this page depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The block.</strong> <code>index</code>, <code>timestamp</code>, <code>data</code>, <code>prev</code>, <code>nonce</code>, <code>hash</code>.</div>
+      <div class="cheat-item"><strong>Hashed.</strong> The first five, joined in a fixed order. The sixth is the result.</div>
+      <div class="cheat-item"><strong>The trap.</strong> The digest of an entry's text is not that block's hash, and never will be.</div>
+      <div class="cheat-item"><strong>Genesis.</strong> Block 0's prev is 64 zero characters, by convention rather than by computation.</div>
+      <div class="cheat-item"><strong>The loop.</strong> Build, set prev to the carried hash, hash, carry forward. One line of the four is the idea.</div>
+      <div class="cheat-item"><strong>The register.</strong> Six entries, difficulty 0, 608eba0870199b95 first and 1e9fa1742f98715d last.</div>
+      <div class="cheat-item"><strong>Reproducible.</strong> Timestamps from 1758000000, 600 seconds apart. True here, not true of a real clock.</div>
+      <div class="cheat-item"><strong>The one check.</strong> Rehash a block from its own fields and compare. Everything else comes after that passes.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 2 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p1-hashing-hands-on.html">← Practitioner session 1 · Hashing, hands on</a>
+        <a href="p3-breaking-the-chain.html">Practitioner session 3 · Breaking the chain →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var base = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+  function cut(h) { return h.slice(0, 16); }
+  function clone(b) { var o = {}; for (var k in b) o[k] = b[k]; return o; }
+
+  /* ---------- one field nudged ---------- */
+  var fbox = document.getElementById("p2-fields");
+  if (fbox) {
+    var fgrid = document.getElementById("p2-fgrid");
+    var fnote = document.getElementById("p2-fnote");
+    var ffoot = document.getElementById("p2-ffoot");
+    var fbtns = fbox.querySelectorAll("#p2-fbtns button");
+
+    var LABELS = {
+      none: "Block 2 exactly as the register records it.",
+      data: "One letter of the entry capitalised. Nothing else touched.",
+      timestamp: "The timestamp one second later. The entry is unchanged.",
+      nonce: "The nonce raised from 0 to 1. Nothing a reader would notice.",
+      index: "The block moved from position 2 to position 3."
+    };
+
+    function nudged(kind) {
+      var b = clone(base[2]);
+      if (kind === "data") b.data = "Consignment 41 inspected, seal Intact";
+      if (kind === "timestamp") b.timestamp = b.timestamp + 1;
+      if (kind === "nonce") b.nonce = 1;
+      if (kind === "index") b.index = 3;
+      return b;
+    }
+
+    function showField(kind) {
+      var b = nudged(kind);
+      var h = CHAIN.hashBlock(b);
+      var moved = 0, i;
+      for (i = 0; i < 64; i++) if (h.charAt(i) !== base[2].hash.charAt(i)) moved++;
+
+      var rows = [
+        ["index", String(b.index), b.index !== base[2].index],
+        ["timestamp", String(b.timestamp), b.timestamp !== base[2].timestamp],
+        ["data", b.data, b.data !== base[2].data],
+        ["prev", cut(b.prev), false],
+        ["nonce", String(b.nonce), b.nonce !== base[2].nonce],
+        ["hash", cut(h), h !== base[2].hash]
+      ];
+      fgrid.innerHTML = "";
+      rows.forEach(function (r) {
+        var d = document.createElement("div");
+        d.className = "p2-cell" + (r[2] ? " ch" : "") + (r[0] === "hash" ? " out" : "");
+        d.innerHTML = "<b>" + r[0] + "</b><span>" + r[1] + "</span>";
+        fgrid.appendChild(d);
+      });
+
+      fnote.textContent = LABELS[kind] + (kind === "none"
+        ? " Rehashing those five fields returns f325e5d96bee6a1d, the value the register stores."
+        : " " + moved + " of the 64 hash characters moved.");
+      ffoot.textContent = kind === "none"
+        ? "Recomputing the block from its own five fields returns the hash the register stores, which is what verification checks."
+        : "One field changed, and the hash is unrecognisable. The digest is a statement about all five fields at once.";
+
+      for (var j = 0; j < fbtns.length; j++) {
+        fbtns[j].className = (fbtns[j].getAttribute("data-nudge") === kind) ? "btn primary" : "btn";
+      }
+    }
+    for (var fi = 0; fi < fbtns.length; fi++) {
+      fbtns[fi].addEventListener("click", function () { showField(this.getAttribute("data-nudge")); });
+    }
+    showField("none");
+  }
+
+  /* ---------- assemble the register ---------- */
+  var bbox = document.getElementById("p2-build");
+  if (bbox) {
+    var blocksEl = document.getElementById("p2-blocks");
+    var verdictEl = document.getElementById("p2-verdict");
+    var bfootEl = document.getElementById("p2-bfoot");
+    var shown = 0;
+
+    function draw() {
+      blocksEl.innerHTML = "";
+      for (var i = 0; i < shown; i++) {
+        var b = base[i];
+        var d = document.createElement("div");
+        d.className = "p2-blk" + (i === shown - 1 ? " last" : "");
+        d.innerHTML = "<b>block " + b.index + " · " + b.timestamp + "</b>"
+          + "<span>" + b.data + "</span>"
+          + "<em>prev " + (i === 0 ? "64 zeros, by convention" : cut(b.prev)) + "</em>"
+          + "<em>hash " + cut(b.hash) + "</em>";
+        blocksEl.appendChild(d);
+      }
+      if (shown === 0) {
+        verdictEl.textContent = "Nothing built yet. The carried previous hash starts as 64 zero characters.";
+        bfootEl.textContent = "Press add to run one turn of the assembly loop.";
+        return;
+      }
+      var part = base.slice(0, shown);
+      var r = CHAIN.verify(part);
+      verdictEl.textContent = shown + " of 6 blocks built. verify(): "
+        + (r.ok ? "no problems." : r.problems.length + " problem(s).");
+      bfootEl.textContent = shown < 6
+        ? "The hash of block " + (shown - 1) + " is the value carried into block " + shown + "'s prev field."
+        : "Six blocks, first hash 608eba0870199b95, last hash 1e9fa1742f98715d, and verification returns ok.";
+    }
+
+    document.getElementById("p2-next").addEventListener("click", function () {
+      if (shown < base.length) shown++;
+      draw();
+    });
+    document.getElementById("p2-all").addEventListener("click", function () {
+      shown = base.length;
+      draw();
+    });
+    document.getElementById("p2-reset").addEventListener("click", function () {
+      shown = 0;
+      draw();
+    });
+    draw();
+  }
+})();
+</script>
+<style>
+  #p2-fields .p2-btns, #p2-build .p2-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #p2-fields .p2-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem; }
+  #p2-fields .p2-cell {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+  }
+  #p2-fields .p2-cell b {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .72rem;
+    color: var(--indigo);
+  }
+  #p2-fields .p2-cell span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .74rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+  }
+  #p2-fields .p2-cell.ch { background: var(--amber-50); border-color: var(--amber); }
+  #p2-fields .p2-cell.out { background: #FFFFFF; border-color: var(--indigo-mid); }
+  #p2-build .p2-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .5rem; }
+  #p2-build .p2-blk {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+    line-height: 1.5;
+  }
+  #p2-build .p2-blk.last { border-color: var(--amber); background: var(--amber-50); }
+  #p2-build .p2-blk b { display: block; font-size: .76rem; color: var(--indigo-deep); }
+  #p2-build .p2-blk span { display: block; font-size: .74rem; color: var(--muted); }
+  #p2-build .p2-blk em {
+    display: block;
+    font-style: normal;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .7rem;
+    color: var(--indigo);
+  }
+</style>
+</body>
+</html>

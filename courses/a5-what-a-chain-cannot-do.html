@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 5 of 6. A chain does not make an entry true, it does not know anything about the physical world that a person or a sensor did not put there, and it does not decide who may write. A false entry verifies clean forever.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="What a chain cannot do for you - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 5 of 6. Three limits, each with somewhere else it has to be solved, and the failure that verification will never catch.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a5-what-a-chain-cannot-do.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What a chain cannot do for you - learn blockchain with phoebe">
+<meta name="twitter:description" content="A false entry, faithfully preserved forever, is the normal failure. Verification reports nothing.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 5 · What a chain cannot do for you - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 5 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 5 of 6</div>
+    <h1>What a chain <span class="accent">cannot do for you</span></h1>
+    <p class="sub">Block 2 of the Harbourgate register says consignment 41 was inspected and the seal was intact. Suppose the inspector never opened the door. Nobody edits anything, nobody attacks anything, and the register verifies perfectly tonight and every night after. That is a chain working exactly as designed, preserving a false sentence with the same care it gives a true one. Three limits follow from it, and each one is answered somewhere other than the chain.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · Truth at the point of entry</span>
+      <span class="a3" style="flex:3">18-27 · Who may write, and living with append only</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The failure that looks exactly like success</h2>
+    </div>
+    <p class="lede">The interesting failures in a register are not the ones verification catches. Verification catches somebody changing a line after the fact, loudly and at a known index. The ordinary failure is a line that was already wrong when it was written, and against that the structure has nothing to say. It preserves the wrong line faithfully, reports no problems, and hands the reader a clean result.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Three sentences you can say to anyone selling you a register. It does not make an entry true. It knows nothing about the world that a person or a sensor did not type into it. It does not decide who may write. Plus the practical consequence that catches people out later: a mistake is kept as carefully as a fact, so correcting one means adding to the register rather than repairing it.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the guarantee actually says<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hold the promise still and read it slowly. Each block contains the previous block's hash, so anyone holding a copy can establish that these entries are byte for byte the entries that were written, in this order. Every word of that is about bytes. None of it is about the cold store, the container, the inspector or the clock.</p>
+        <p>The gap between "unaltered since written" and "accurate" is where nearly every disappointed expectation lives. It is not a flaw in the design. The design never claimed to close it, and it cannot be closed by any amount of hashing, because the only place it can be closed is at the moment the entry is made.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>A buyer recomputes all six Harbourgate hashes and every link matches. What they have established is that nobody has touched the register since it was written. Whether consignment 41's seal was inspected at all is a question about a person in a cold store, and it is exactly as open as it was before the register existed.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Point of entry.</strong> The moment a fact about the world becomes a sentence in the register. The weakest link in every provenance system, and the one the chain does not touch.</li>
+          <li><strong>Oracle.</strong> Whatever puts outside information onto the chain: a person typing, a sensor reporting, a system feeding in readings. Trusted exactly as much as it would be trusted without a chain.</li>
+          <li><strong>Garbage in stays garbage.</strong> An inaccurate entry verifies as cleanly as an accurate one, and keeps doing so indefinitely.</li>
+          <li><strong>Write access.</strong> Who is permitted to add an entry at all. Decided outside the chain, before the chain sees anything.</li>
+          <li><strong>Append only.</strong> New entries go on the end; nothing already in the register is replaced.</li>
+          <li><strong>Correction entry.</strong> A later block that says an earlier block was wrong. The only correction mechanism an append only register has.</li>
+          <li><strong>Key management.</strong> Issuing, holding, rotating and withdrawing the secrets that let somebody write. A discipline of its own, covered in the security and access control courses rather than here.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers accuracy and the oracle</span>
+      <h2>Unaltered since written is not the same as true</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">Three limits, and the useful move with each of them is to ask where the answer does live, because in every case it lives somewhere and somebody owns it. The first two both sit at the point of entry, which is why they are taken together.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 368" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table of three limits. First, it does not make an entry true: the chain still guarantees the entry has not been altered since it was written and anyone can check that, and the answer lives with whoever writes the entry and whatever checks entries at the point of entry. Second, it knows nothing about the physical world: the chain still guarantees that the reading it was given is the reading it kept, and the answer lives with the person or sensor that produced the reading. Third, it does not decide who may write: the chain still guarantees that whatever was written is linked and checkable, and the answer lives in identity and access control outside the chain. A closing note says a chain is a statement about bytes, not about the world.">
+        <style>
+          .a5aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a5aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a5aN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a5aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a5aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a5aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="a5aH" x="14" y="20">Three limits, and where each one is actually answered</text>
+
+        <text class="a5aL" x="30" y="42">THE LIMIT</text>
+        <text class="a5aL" x="292" y="42">WHAT THE CHAIN STILL GUARANTEES</text>
+        <text class="a5aL" x="604" y="42">WHERE THE ANSWER LIVES</text>
+
+        <rect x="14" y="50" width="852" height="66" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="276" y1="58" x2="276" y2="108" stroke="#DBE4EB"></line>
+        <line x1="588" y1="58" x2="588" y2="108" stroke="#DBE4EB"></line>
+        <text class="a5aN" x="30" y="78">It does not make an entry true</text>
+        <text class="a5aM" x="30" y="98">accuracy is a separate question</text>
+        <text class="a5aB" x="292" y="78">The entry is byte for byte what was</text>
+        <text class="a5aB" x="292" y="98">written, and anyone can check that</text>
+        <text class="a5aB" x="604" y="78">Whoever writes the entry, and</text>
+        <text class="a5aB" x="604" y="98">whatever checks it as it arrives</text>
+
+        <rect x="14" y="122" width="852" height="66" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="276" y1="130" x2="276" y2="180" stroke="#DBE4EB"></line>
+        <line x1="588" y1="130" x2="588" y2="180" stroke="#DBE4EB"></line>
+        <text class="a5aN" x="30" y="150">It knows nothing of the world</text>
+        <text class="a5aM" x="30" y="170">somebody or something told it</text>
+        <text class="a5aB" x="292" y="150">The reading it was given is the</text>
+        <text class="a5aB" x="292" y="170">reading it has kept ever since</text>
+        <text class="a5aB" x="604" y="150">The person or the sensor that</text>
+        <text class="a5aB" x="604" y="170">produced the reading</text>
+
+        <rect x="14" y="194" width="852" height="66" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="276" y1="202" x2="276" y2="252" stroke="#DBE4EB"></line>
+        <line x1="588" y1="202" x2="588" y2="252" stroke="#DBE4EB"></line>
+        <text class="a5aN" x="30" y="222">It does not decide who may write</text>
+        <text class="a5aM" x="30" y="242">that is an access question</text>
+        <text class="a5aB" x="292" y="222">Whatever was written is linked,</text>
+        <text class="a5aB" x="292" y="242">hashed and checkable by anyone</text>
+        <text class="a5aB" x="604" y="222">Identity and access control,</text>
+        <text class="a5aB" x="604" y="242">settled before the chain sees it</text>
+
+        <rect x="14" y="276" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a5aK" x="30" y="300">A chain is a statement about bytes, not about the world.</text>
+        <text class="a5aB" x="30" y="320">All three limits are settled by people and process before the first hash is taken, and not one of them</text>
+        <text class="a5aB" x="30" y="338">improves because the register is arranged as a chain rather than as a table.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the middle column is real and worth having. The right hand column is the one that decides whether the middle column is worth anything.</figcaption>
+    </figure>
+
+    <p class="lede">Put the first two limits on a timeline and they stop being abstract. A register covers the last step of a four step journey, and the three steps before it are where the accuracy of the record is actually decided.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 274" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A three stage timeline. What happened at the container: the seal was intact or it was not, and nothing digital was involved yet. An arrow to what somebody wrote down: an inspector or a sensor on the door produced one sentence about it. An arrow to what the register preserves: that sentence, unaltered, checkable by anyone, for as long as the register lives. A bracket under the first two stages is labelled the chain changes nothing about either of these, and a bracket under the third is labelled the chain's whole contribution. A closing note says a false sentence is preserved exactly as carefully as a true one.">
+        <style>
+          .a5bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a5bN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a5bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a5bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a5bK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .a5bG { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+        </style>
+        <defs>
+          <marker id="a5bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a5bH" x="14" y="20">Where accuracy is decided, and where the chain starts caring</text>
+
+        <rect x="14" y="44" width="268" height="84" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a5bN" x="30" y="70">What happened at the container</text>
+        <text class="a5bM" x="30" y="90">The seal was intact, or it was not.</text>
+        <text class="a5bM" x="30" y="106">Nothing digital was involved yet.</text>
+
+        <path d="M 286 86 L 300 86" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a5bAr)"></path>
+
+        <rect x="306" y="44" width="268" height="84" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a5bN" x="322" y="70">What somebody wrote down</text>
+        <text class="a5bM" x="322" y="90">An inspector, or a sensor on the door,</text>
+        <text class="a5bM" x="322" y="106">produced one sentence about it.</text>
+
+        <path d="M 578 86 L 592 86" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a5bAr)"></path>
+
+        <rect x="598" y="44" width="268" height="84" rx="10" fill="#0E2C3F"></rect>
+        <text x="614" y="70" style="font:800 11px Inter, sans-serif; fill:#FFFFFF">What the register preserves</text>
+        <text x="614" y="90" style="font:400 10px Inter, sans-serif; fill:#CBDDE9">That sentence, unaltered, checkable</text>
+        <text x="614" y="106" style="font:400 10px Inter, sans-serif; fill:#CBDDE9">by anyone, for as long as it lives.</text>
+
+        <path d="M 14 136 L 14 146 L 574 146 L 574 136" fill="none" stroke="#B45309" stroke-width="1.6"></path>
+        <path d="M 598 136 L 598 146 L 866 146 L 866 136" fill="none" stroke="#1E4D6B" stroke-width="1.6"></path>
+
+        <text class="a5bK" x="14" y="166">The chain changes nothing about either of these</text>
+        <text class="a5bG" x="598" y="166">The chain's whole contribution</text>
+
+        <rect x="14" y="182" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a5bK" x="30" y="206">A false sentence is preserved exactly as carefully as a true one.</text>
+        <text class="a5bB" x="30" y="226">Verification recomputes hashes. It has no access to the container, the inspector or the sensor, so it returns</text>
+        <text class="a5bB" x="30" y="244">no problems at all on a register made entirely of accurate copies of wrong statements.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two thirds of the journey happens before the first hash exists, and that is the two thirds where a record becomes right or wrong.</figcaption>
+    </figure>
+
+    <div class="wk" id="a5-bench">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The register built four ways in this page. Watch which ones verification objects to.</span>
+      </div>
+      <div class="wk-body">
+        <div class="a5-btns">
+          <button class="btn primary" type="button" data-mode="0">As written</button>
+          <button class="btn" type="button" data-mode="1">False when written</button>
+          <button class="btn" type="button" data-mode="2">Altered afterwards</button>
+          <button class="btn" type="button" data-mode="3">Corrected by appending</button>
+        </div>
+        <p class="a5-caption" id="a5-caption">...</p>
+        <div class="a5-blocks" id="a5-blocks"></div>
+        <p class="sql-note" id="a5-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a5-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A faithful record of a false statement<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Compare the second and third buttons above. In one the register was built with a wrong entry at block 5 from the start. In the other the same wrong text was put there afterwards. The second case is caught immediately and loudly. The first is not caught at all, and never will be, because nothing about it is inconsistent.</p>
+        <p>That asymmetry is the whole of the first limit. The structure defends the boundary between "written" and "now", and there is no structure defending the boundary between "happened" and "written". An organisation that wants its register to be accurate has to spend its money on the second boundary, where hashing does not reach.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The oracle problem, without the jargon<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anything a register knows about the physical world arrived there because a person or a sensor put it there. That step is exactly as trustworthy as it would be with no chain involved. Harbourgate's entry that the seal was intact is worth precisely what the inspector is worth, and if a door sensor reported it instead, it is worth what the sensor and its wiring and its maintenance record are worth.</p>
+        <p>The unhelpful response is to add more chain. The helpful responses are all in the physical world: two people signing off instead of one, a photograph taken at the point of inspection and hashed alongside the entry, a sensor whose readings are compared against a second sensor that would have to fail in the same direction at the same moment. None of those is a blockchain technique. All of them raise the value of the entry, which is the only thing that raises the value of the register.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that the oracle problem is fatal to provenance registers generally. If the entry point can be lied to, a tamper evident record of lies is not an improvement on a mutable record of lies, and the expense buys a feeling of rigour rather than rigour itself.</p>
+        <p>The other camp holds that this misreads what changed. Before, a lie at the entry point could be quietly revised later to fit whatever story was needed; now it is fixed at the moment it is told, by the person who told it, and it cannot be tidied up afterwards when the consequences arrive. Pinning a statement to a time and an author is not nothing, and several kinds of fraud depend on the tidying up rather than on the original lie.</p>
+        <p>Both readings are held by serious people. Notice that they agree on the mechanics and disagree about how much of real world dishonesty happens at the entry point rather than later, which is an empirical question about your own operation and not a question about chains.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers write access and append only</span>
+      <h2>Who may write, and what it costs to be unable to erase</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">The third limit surprises people more than the other two. A chain has no opinion about who is adding entries to it. It will link and hash whatever it is handed, from whoever hands it over, and report that everything checks out.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. On the left, decided before the chain is touched: who is a valid writer at all, which entries each writer may add, how a writer's credential is issued and withdrawn, and who notices when a credential is used at three in the morning. An arrow leads to the right panel, what the chain checks: that the new block records the previous hash, that the block's own hash is what it claims, nothing about whether this writer should be writing, and nothing about whether the entry is accurate. A closing note says access is a separate discipline and names the cyber security and data access control courses.">
+        <style>
+          .a5cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a5cN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a5cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a5cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a5cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a5cW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .a5cS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+        <defs>
+          <marker id="a5cAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a5cH" x="14" y="20">Write access is settled elsewhere, and the chain never asks about it</text>
+
+        <rect x="14" y="40" width="372" height="150" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a5cN" x="30" y="64">Decided before the chain is touched</text>
+        <text class="a5cM" x="30" y="88">Who is a valid writer at all</text>
+        <text class="a5cM" x="30" y="106">Which entries each writer may add</text>
+        <text class="a5cM" x="30" y="124">How a credential is issued and withdrawn</text>
+        <text class="a5cM" x="30" y="142">Who notices a credential used at 3am</text>
+        <text class="a5cM" x="30" y="166">None of this is a property of the register.</text>
+
+        <path d="M 396 115 L 428 115" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a5cAr)"></path>
+
+        <rect x="442" y="40" width="424" height="150" rx="10" fill="#0E2C3F"></rect>
+        <text class="a5cW" x="458" y="64">What the chain checks</text>
+        <text class="a5cS" x="458" y="88">That the new block records the previous hash</text>
+        <text class="a5cS" x="458" y="106">That the block's own hash is what it claims</text>
+        <text class="a5cS" x="458" y="124">Nothing about whether this writer may write</text>
+        <text class="a5cS" x="458" y="142">Nothing about whether the entry is accurate</text>
+        <text class="a5cS" x="458" y="166">A valid block is a well formed block, and no more.</text>
+
+        <rect x="14" y="206" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a5cK" x="30" y="230">Access is a separate discipline, and it is where the protection actually sits.</text>
+        <text class="a5cB" x="30" y="250">Identity, credential issue and withdrawal, custody of a private key and what to do when one is lost are</text>
+        <text class="a5cB" x="30" y="268">covered in learn-cyber-security-with-phoebe and learn-data-access-control-with-phoebe.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - a register with perfect hashing and careless credentials is a well preserved record of whatever anybody felt like writing.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Access is answered before the chain sees anything<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Real registers do restrict who may add an entry, and they do it with signatures: a writer holds a secret, uses it to sign the entry, and everybody else checks the signature against that writer's public key. The checking is arithmetic and it works. What it establishes is narrow and precise. It establishes that the holder of a particular secret produced this entry.</p>
+        <p>Everything difficult is on the other side of that sentence. Who was given the secret, whether they still work here, whether it has been copied, how it is withdrawn the hour somebody leaves, who is watching the log of its use. Those are the questions that decide whether write access means anything, and they are the subject of learn-cyber-security-with-phoebe and learn-data-access-control-with-phoebe rather than of a register design.</p>
+      </div>
+    </details>
+
+    <p class="lede">The last consequence is the one that turns up eighteen months after go live, when somebody finds a mistake. A register that cannot be edited also cannot be repaired, and that changes what reading it means.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 322" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels compared. An editable store: the wrong value is replaced in place, so entry 5 now reads consignment 42 inspected seal broken, the value that was there before is gone, and nobody reading it later can tell it ever said anything else. An append only register: nothing is replaced and a correction is a new entry, so block 5 still reads consignment 42 inspected seal intact and block 6 reads correction, the seal on 42 was broken. Both statements are in the register and neither removes the other. A closing note says correcting a record means adding to it, which changes how the record has to be read.">
+        <style>
+          .a5dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a5dN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a5dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a5dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a5dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a5dR { font: 700 10px Inter, sans-serif; fill: #0E2C3F; }
+        </style>
+
+        <text class="a5dH" x="14" y="20">Two ways to deal with an entry that turned out to be wrong</text>
+
+        <rect x="14" y="40" width="416" height="172" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a5dN" x="30" y="64">An editable store</text>
+        <text class="a5dM" x="30" y="82">The wrong value is replaced in place.</text>
+        <rect x="30" y="94" width="384" height="48" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a5dR" x="44" y="114">entry 5 · Consignment 42 inspected, seal broken</text>
+        <text class="a5dM" x="44" y="132">the value that used to be here is gone</text>
+        <text class="a5dM" x="30" y="168">Nobody reading it later can tell that it ever</text>
+        <text class="a5dM" x="30" y="186">said anything else, or that anyone changed it.</text>
+
+        <rect x="450" y="40" width="416" height="172" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a5dN" x="466" y="64">An append only register</text>
+        <text class="a5dM" x="466" y="82">Nothing is replaced. A correction is a new entry.</text>
+        <rect x="466" y="92" width="384" height="32" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a5dR" x="480" y="112">block 5 · Consignment 42 inspected, seal intact</text>
+        <rect x="466" y="130" width="384" height="32" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a5dR" x="480" y="150">block 6 · Correction: the seal on 42 was broken</text>
+        <text class="a5dM" x="466" y="180">Both statements are in the register and neither</text>
+        <text class="a5dM" x="466" y="198">removes the other. The record is the whole list.</text>
+
+        <rect x="14" y="228" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a5dK" x="30" y="252">Correcting a record means adding to it, which changes how the record has to be read.</text>
+        <text class="a5dB" x="30" y="272">Anyone asking whether the seal on consignment 42 was intact has to read forward to the end of the register,</text>
+        <text class="a5dB" x="30" y="290">because the last word on a subject is never the entry that first mentioned it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left panel loses the history and the right panel loses the ability to be concise. Neither is free.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A mistake is preserved as faithfully as a fact<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Immutability is sold as protection and it arrives as an obligation. The property that stops a hostile party quietly revising last year's entry is the same property that stops your own team quietly fixing this morning's typo, and there is no version of the design that grants one without the other.</p>
+        <p>So the correction procedure is not a detail to be worked out later. It is the part of the operating model most likely to be missing on the day it is needed. Somebody has to decide what a correction entry looks like, how it names the block it is correcting, who is allowed to issue one, and how an ordinary reader is supposed to notice it exists.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What this does to everyone who reads the record<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In an editable store, the current state is the answer. Look up consignment 42, read the row, done. In an append only register there is no row to look up: the answer is a conclusion drawn from every entry that mentions consignment 42, in order, with later entries overriding earlier ones according to a rule somebody had to write down.</p>
+        <p>That rule is real work and it is usually underestimated. It has to handle a correction of a correction, an entry that contradicts an earlier one without saying so, and the question of what a reader sees if they stop reading halfway. Every organisation running an append only register ends up building the summarised current view that the register deliberately refuses to keep, and then has to keep that view honest.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What must be decided before the first entry<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Anything written cannot be unwritten, which makes the decision about what goes in a decision that has to be made once, in advance, and correctly. Personal details, commercially sensitive prices, anything a counterparty would object to seeing preserved permanently in every copy held by every participant: once entered, those are in every copy forever, and no amount of goodwill afterwards retrieves them.</p>
+        <p>The usual answer is to put a hash of a document on the register rather than the document, so that the register can prove the document has not changed while the document itself lives somewhere it can be withheld or destroyed. That works, and it moves the problem rather than solving it, because now the register's value depends on somebody still holding the document the hash refers to.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Take the three limits to your own register</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps on the register you picked earlier, done out loud. The aim is to leave with a written list of the things a chain would not fix, so that nobody has to discover them during implementation.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Name your inspector</h4>
+        <p>For one field in your register, name the person or the device that decides what value goes in. Not the team, the individual role. Then say what would happen if that role wrote something convenient rather than something true, and who would ever know.</p>
+      </div>
+      <div class="step">
+        <h4>Separate the two boundaries</h4>
+        <p>Write two headings: what happened, and what was written. List your existing controls under each. Most organisations find every control they have sits under the second heading, which is the one hashing already covers.</p>
+      </div>
+      <div class="step">
+        <h4>Price the entry point instead</h4>
+        <p>Pick the one change at the point of entry that would most improve the accuracy of your records. A second signature, a photograph, a cross checked reading. Estimate its cost and compare that to the cost of a register project.</p>
+      </div>
+      <div class="step">
+        <h4>Say who may write, out loud</h4>
+        <p>Name every party that can add an entry today, and how their permission is withdrawn on the day they leave. If withdrawal is a ticket somebody has to remember to raise, write that down as a finding.</p>
+      </div>
+      <div class="step">
+        <h4>Write a correction entry</h4>
+        <p>Assume the entry you care most about is wrong. Write the exact text of the correction, including how it identifies what it is correcting, and then say how somebody querying that subject next year would find it.</p>
+      </div>
+      <div class="step">
+        <h4>List what must never be written</h4>
+        <p>Name the fields that would be unacceptable to preserve permanently in every copy held by every participant. Decide for each whether it stays out entirely or goes in as a hash of something held elsewhere.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody proposes putting a record on a chain, ask what changes at the point of entry. If the answer is nothing, the proposal improves how well the record is kept and does not improve how right it is, and those are different products sold at very different prices.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">An inspector writes that the seal was intact without opening the container, and the entry is added to the register normally. What does verification report?</p>
+      <div class="qopt">A · A hash mismatch, because the entry does not describe what happened</div>
+      <div class="qopt">B · A link mismatch at the following block, since the false entry breaks the sequence</div>
+      <div class="qopt">C · Nothing at all, because the register is internally consistent and has no access to the container</div>
+      <q class="qwhy">The false entry was written normally, hashed normally and linked normally, so every check passes. A register full of accurate copies of wrong statements verifies exactly as cleanly as a truthful one, and that is the failure that no amount of hashing catches.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A door sensor reports whether a container was opened, and its readings go straight onto the register. What has the register added to the trustworthiness of those readings?</p>
+      <div class="qopt">A · A great deal, because a reading on a chain cannot be disputed</div>
+      <div class="qopt">B · Nothing, because the reading is worth what the sensor is worth, and the register only preserves what it was handed</div>
+      <div class="qopt">C · It depends on the difficulty setting, since more work makes an entry more reliable</div>
+      <q class="qwhy">Whatever a register knows about the physical world got there because a person or a device put it there, and that step is exactly as trustworthy as it would be with no register at all. Improving the sensor improves the record. Hashing the sensor's output does not.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Block 5 is found to be wrong. What does correcting it look like, and what does a reader now have to do?</p>
+      <div class="qopt">A · A new entry is appended saying block 5 was wrong; block 5 stays exactly where it is, so answering a question about that subject means reading forward to the end</div>
+      <div class="qopt">B · Block 5 is rewritten with the correct text and re-hashed, which is what append only means in practice</div>
+      <div class="qopt">C · Block 5 is removed and the following blocks are relinked, leaving no trace of the error</div>
+      <q class="qwhy">Immutability cuts both ways. The property that stops a hostile party revising an old entry is the same property that stops your own team repairing a mistake, so correction means appending and the current answer on any subject is a conclusion drawn from the whole register rather than a row to look up.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes. Session 6 puts a decision path in front of you, and it works far better with these two pages in your hand.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Write the limits list for your own case</h4>
+        <p>One page, three headings. What would still be inaccurate, who could still write, and what could never be corrected. Bring it to session 6, where the first question of the decision path assumes you have it.</p>
+      </div>
+      <div class="step">
+        <h4>Find out whether anyone else would hold a copy</h4>
+        <p>For the register you have been working on, list the parties who would actually accept a copy and check it. Names of organisations, not categories. If the list is empty or has one name on it, that finding decides most of session 6 on its own.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">It does not make an entry true</span><span class="note">A false entry written normally verifies clean, and keeps verifying clean indefinitely.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The oracle problem</span><span class="note">Whatever a register knows of the world, a person or a sensor put there, at unchanged trustworthiness.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">It does not decide who may write</span><span class="note">A valid block is a well formed block. Permission is settled before the chain sees anything.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Immutability cuts both ways</span><span class="note">Correction means appending, and a reader has to read forward to the end of the register.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Signatures and what they establish</span><span class="note">Named tonight as the mechanism for write access. Worked through in practitioner session 7.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Whether you need a chain at all</span><span class="note">A decision path built from all five earlier sessions. Session 6.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A chain preserves what was written. It has no opinion about whether it was true.</div>
+      <div class="cheat-item"><strong>Limit one.</strong> A false entry, written normally, verifies clean forever. That is the normal failure.</div>
+      <div class="cheat-item"><strong>Limit two.</strong> The oracle problem: a person or a sensor put it there, at unchanged trustworthiness.</div>
+      <div class="cheat-item"><strong>Limit three.</strong> Who may write is an access question, answered outside the chain.</div>
+      <div class="cheat-item"><strong>Both boundaries.</strong> The chain defends written against now. Nothing defends happened against written.</div>
+      <div class="cheat-item"><strong>Immutability cuts both ways.</strong> A mistake is kept as faithfully as a fact.</div>
+      <div class="cheat-item"><strong>Correction.</strong> Append a new entry. The wrong one stays, so read forward to the end.</div>
+      <div class="cheat-item"><strong>The question to ask.</strong> What changes at the point of entry? If nothing, accuracy is unchanged.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 5 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a4-who-agrees-and-how.html">← Leader session 4 · Who agrees, and how</a>
+        <a href="a6-deciding-whether-you-need-one.html">Leader session 6 · Deciding whether you need one →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("a5-bench");
+  if (!box) return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var FALSE_ENTRY = "Consignment 42 inspected, seal intact";
+  var CORRECTION = "Correction: block 5 is wrong, the seal on 42 was broken";
+
+  var written = ENTRIES.slice(0, 5).concat([FALSE_ENTRY]);
+
+  var base = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+  var falseAtEntry = CHAIN.makeChain(written, { difficulty: 0 });
+  var alteredLater = CHAIN.tamper(base, 5, FALSE_ENTRY);
+  var corrected = CHAIN.makeChain(written.concat([CORRECTION]), { difficulty: 0 });
+
+  var MODES = [
+    {
+      chain: base,
+      wrong: [],
+      caption: "The register as written. Block 5 records that the seal on consignment 42 was broken, which is what happened.",
+      note: "Nothing to see, which is the point of comparison for the three below."
+    },
+    {
+      chain: falseAtEntry,
+      wrong: [5],
+      caption: "Block 5 was written as seal intact, by an inspector who did not look. Nobody has touched the register since.",
+      note: "This is the failure the structure cannot see. It is internally perfect and it is wrong."
+    },
+    {
+      chain: alteredLater,
+      wrong: [5],
+      caption: "The register was written truthfully, and the same false text was put into block 5 afterwards.",
+      note: "Identical text, opposite outcome. The structure defends the boundary between written and now, and only that one."
+    },
+    {
+      chain: corrected,
+      wrong: [5],
+      caption: "The false entry is still block 5. A correction has been appended as block 6, because nothing can be repaired in place.",
+      note: "The wrong line is permanent. Answering a question about consignment 42 now means reading to the end."
+    }
+  ];
+
+  var blocksEl = document.getElementById("a5-blocks");
+  var capEl = document.getElementById("a5-caption");
+  var verdictEl = document.getElementById("a5-verdict");
+  var footEl = document.getElementById("a5-foot");
+  var btns = box.querySelectorAll(".a5-btns button");
+
+  function describe(p) {
+    return (p.kind === "hash" ? "hash mismatch at block " : "link mismatch at block ") + p.index;
+  }
+
+  function show(n) {
+    var mode = MODES[n];
+    var result = CHAIN.verify(mode.chain);
+    var flagged = {};
+    result.problems.forEach(function (p) { flagged[p.index] = p.kind; });
+
+    capEl.textContent = mode.caption;
+    blocksEl.innerHTML = "";
+    mode.chain.forEach(function (b, i) {
+      var isWrong = mode.wrong.indexOf(i) !== -1;
+      var d = document.createElement("div");
+      d.className = "a5-blk" + (flagged[i] ? " bad" : "") + (isWrong && !flagged[i] ? " off" : "");
+      d.innerHTML = "<b>block " + i + "</b><span></span><em></em>";
+      d.querySelector("span").textContent = b.data;
+      d.querySelector("em").textContent = flagged[i]
+        ? flagged[i] + " mismatch"
+        : (isWrong ? "checks out, and is false" : "checks out");
+      blocksEl.appendChild(d);
+    });
+
+    verdictEl.textContent = result.ok
+      ? "verify(): no problems. The register is internally consistent."
+      : "verify(): " + result.problems.length + " problem"
+        + (result.problems.length === 1 ? "" : "s") + " - "
+        + result.problems.map(describe).join(", ");
+
+    footEl.textContent = "Blocks: " + mode.chain.length
+      + ". Problems reported: " + result.problems.length + ". " + mode.note;
+
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].className = (j === n) ? "btn primary" : "btn";
+    }
+  }
+
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].addEventListener("click", function () {
+      show(parseInt(this.getAttribute("data-mode"), 10));
+    });
+  }
+  show(0);
+})();
+</script>
+<style>
+  #a5-bench .a5-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #a5-bench .a5-caption { font-size: .88rem; color: var(--ink); margin: 0 0 .8rem; }
+  #a5-bench .a5-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem; }
+  #a5-bench .a5-blk {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+    line-height: 1.45;
+  }
+  #a5-bench .a5-blk b { display: block; font-size: .78rem; color: var(--indigo-deep); }
+  #a5-bench .a5-blk span { display: block; font-size: .74rem; color: var(--muted); }
+  #a5-bench .a5-blk em { display: block; font-style: normal; font-size: .72rem; font-weight: 700; color: var(--indigo); }
+  #a5-bench .a5-blk.off { border-color: var(--amber); }
+  #a5-bench .a5-blk.off em { color: var(--amber); }
+  #a5-bench .a5-blk.bad { background: var(--amber-50); border-color: var(--amber); }
+  #a5-bench .a5-blk.bad em { color: var(--amber); }
+</style>
+</body>
+</html>

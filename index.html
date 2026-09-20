@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Sixteen sessions on how a blockchain actually works, without the hype. A real SHA-256, a real chain you can tamper with, measured mining costs, and an honest answer about when a database is the better tool. Free.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Learn Blockchain with Phoebe">
+<meta property="og:description" content="A chain makes an edit visible. It does not make it impossible. The difference is the course.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Learn Blockchain with Phoebe">
+<meta name="twitter:description" content="Real SHA-256, a real chain, measured mining costs, and no coins anywhere.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Learn Blockchain with Phoebe</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(30,77,107,.16); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--faint); font-weight: 700; }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff,#EFF5F9); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn with Phoebe · Emerging Tech</div>
+    <h1>Learn <span class="accent">Blockchain</span> with Phoebe</h1>
+    <p class="sub">Harbourgate is a port authority keeping a custody register: who signed for which consignment, who inspected it, and whether the seal was intact. Change one entry in that register and a check fires immediately. Recompute the hash to cover your tracks and the failure does not disappear, it moves one block along. Hide it completely and you have to redo every block that follows. That is the whole mechanism, and it is a genuinely clever one. It is also not magic: a chain preserves what was written and has no opinion whatever on whether it was true. Six leader sessions on the mechanism and its limits, ten practitioner sessions building one, and a real SHA-256 that ships its published test vectors because a hash that is subtly wrong still produces plausible looking hex.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="16">16</b><span>sessions, two tracks</span></div>
+      <div class="stat"><b data-count="3">3</b><span>published test vectors, all passing</span></div>
+      <div class="stat"><b data-count="58">58</b><span>of 64 digest characters change from one letter</span></div>
+      <div class="stat"><b data-count="10">10</b><span>hashes to prove one of 1,024 records</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Leader track 🔗 <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· six sessions, no code</span></h2>
+      <p class="plede">For anyone being asked to approve, fund or explain something built on a chain. What the mechanism actually is, what it guarantees, what it costs to defeat, who has to agree, what it cannot do for you, and how to decide whether you need one at all.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/a1-what-a-chain-actually-is.html" style="--diff:#FBBF24">
+        <span class="cicon">🔗</span>
+        <span class="cnum">Leader session 1 · start here</span>
+        <h3>What a chain actually is</h3>
+        <p>A hash, a link, and why that makes an edit visible. The Harbourgate register, six real blocks.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/a2-tamper-evident-not-tamper-proof.html" style="--diff:#FBBF24">
+        <span class="cicon">🔍</span>
+        <span class="cnum">Leader session 2</span>
+        <h3>Tamper evident is not tamper proof</h3>
+        <p>Edit a block and the check fires. Fix the hash and the failure moves one block along.</p>
+      </a>
+      <a class="course-card" href="courses/a3-the-cost-of-rewriting-history.html" style="--diff:#FB923C">
+        <span class="cicon">⛏️</span>
+        <span class="cnum">Leader session 3</span>
+        <h3>What it costs to rewrite history</h3>
+        <p>Mining as deliberate expense. The mean is known, and a single run tells you almost nothing.</p>
+      </a>
+      <a class="course-card" href="courses/a4-who-agrees-and-how.html" style="--diff:#FB923C">
+        <span class="cicon">🗳️</span>
+        <span class="cnum">Leader session 4</span>
+        <h3>Who agrees, and how</h3>
+        <p>Forks, longest chain, and why decentralised is a spectrum rather than a switch.</p>
+      </a>
+      <a class="course-card" href="courses/a5-what-a-chain-cannot-do.html" style="--diff:#F87171">
+        <span class="cicon">🚧</span>
+        <span class="cnum">Leader session 5</span>
+        <h3>What a chain cannot do for you</h3>
+        <p>It preserves what was written. It has no opinion on whether it was true.</p>
+      </a>
+      <a class="course-card" href="courses/a6-deciding-whether-you-need-one.html" style="--diff:#F87171">
+        <span class="cicon">🧭</span>
+        <span class="cnum">Leader session 6</span>
+        <h3>Deciding whether you need one</h3>
+        <p>Four questions, and the honest answer that a database with an audit log is often better.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths" style="margin-top:0">
+      <h2>Practitioner track 🏗️ <span style="font-size:.85rem;font-weight:600;color:var(--muted)">· ten sessions, hands on</span></h2>
+      <p class="plede">For the people who build and audit one. Hashing, blocks, breaking a chain deliberately, mining, the cost of a rewrite, Merkle proofs, signatures, consensus, smart contracts as a mechanism, and a capstone bench.</p>
+    </div>
+    <div class="course-grid">
+      <a class="course-card" href="courses/p1-hashing-hands-on.html" style="--diff:#FBBF24">
+        <span class="cicon">#️⃣</span>
+        <span class="cnum">Practitioner session 1 · start here</span>
+        <h3>Hashing, hands on</h3>
+        <p>SHA-256 as a function, its published test vectors, and why an implementation ships them.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span></span>
+      </a>
+      <a class="course-card" href="courses/p2-building-the-chain.html" style="--diff:#FBBF24">
+        <span class="cicon">🧱</span>
+        <span class="cnum">Practitioner session 2</span>
+        <h3>Building the chain</h3>
+        <p>Blocks, previous hashes, and the genesis convention of 64 zeros.</p>
+      </a>
+      <a class="course-card" href="courses/p3-breaking-the-chain.html" style="--diff:#FB923C">
+        <span class="cicon">💥</span>
+        <span class="cnum">Practitioner session 3</span>
+        <h3>Breaking the chain</h3>
+        <p>Both stages of the tamper, and reading what verify actually reports.</p>
+      </a>
+      <a class="course-card" href="courses/p4-mining.html" style="--diff:#FB923C">
+        <span class="cicon">⚒️</span>
+        <span class="cnum">Practitioner session 4</span>
+        <h3>Mining</h3>
+        <p>Nonces and difficulty, and measuring attempts properly instead of once.</p>
+      </a>
+      <a class="course-card" href="courses/p5-the-cost-of-a-rewrite.html" style="--diff:#FB923C">
+        <span class="cicon">🔁</span>
+        <span class="cnum">Practitioner session 5</span>
+        <h3>The cost of a rewrite</h3>
+        <p>Reforging from block 2, and what each extra zero buys.</p>
+      </a>
+      <a class="course-card" href="courses/p6-merkle-trees.html" style="--diff:#F87171">
+        <span class="cicon">🌳</span>
+        <span class="cnum">Practitioner session 6</span>
+        <h3>Merkle trees</h3>
+        <p>Prove one record belongs to a set of 1,024 by sending 10 hashes.</p>
+      </a>
+      <a class="course-card" href="courses/p7-signatures-and-identity.html" style="--diff:#F87171">
+        <span class="cicon">✍️</span>
+        <span class="cnum">Practitioner session 7</span>
+        <h3>Signatures and identity</h3>
+        <p>Who may add an entry, and why that question is answered outside the chain.</p>
+      </a>
+      <a class="course-card" href="courses/p8-consensus.html" style="--diff:#F87171">
+        <span class="cicon">🤝</span>
+        <span class="cnum">Practitioner session 8</span>
+        <h3>Consensus</h3>
+        <p>Forks, the longest chain rule, and finality as a probability rather than a fact.</p>
+      </a>
+      <a class="course-card" href="courses/p9-smart-contracts-mechanically.html" style="--diff:#EF4444">
+        <span class="cicon">📜</span>
+        <span class="cnum">Practitioner session 9</span>
+        <h3>Smart contracts, mechanically</h3>
+        <p>Code that runs on the chain, and the guarantees that does not buy you.</p>
+      </a>
+      <a class="course-card" href="courses/p10-the-chain-bench.html" style="--diff:#EF4444">
+        <span class="cicon">🏗️</span>
+        <span class="cnum">Practitioner session 10</span>
+        <h3>The chain bench</h3>
+        <p>Build, tamper, mine, reforge and prove, all live in the page.</p>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#FBBF24"></i>Foundations</span>
+      <span><i style="background:#FB923C"></i>Working depth</span>
+      <span><i style="background:#F87171"></i>Advanced</span>
+      <span><i style="background:#EF4444"></i>Hardest</span>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The whole thing on one page</h2>
+    <p class="mm-lede">Every idea in the course and the session that owns it. Click any node to jump there.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>Three ways through</h2>
+      <p class="plede">Everyone starts at session 1 of their track. These are the shortest useful routes if you cannot take all sixteen.</p>
+      <div class="path"><b>Somebody is selling me one</b>
+        <a class="pstep" href="courses/a1-what-a-chain-actually-is.html">What it is</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a5-what-a-chain-cannot-do.html">What it cannot do</a><span class="parr">→</span>
+        <a class="pstep" href="courses/a6-deciding-whether-you-need-one.html">Do I need one</a>
+      </div>
+      <div class="path"><b>I want the mechanism</b>
+        <a class="pstep" href="courses/p1-hashing-hands-on.html">Hashing</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p2-building-the-chain.html">Building it</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p3-breaking-the-chain.html">Breaking it</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p10-the-chain-bench.html">The bench</a>
+      </div>
+      <div class="path"><b>I care about the guarantees</b>
+        <a class="pstep" href="courses/a2-tamper-evident-not-tamper-proof.html">Tamper evidence</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p6-merkle-trees.html">Merkle proofs</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p8-consensus.html">Consensus</a><span class="parr">→</span>
+        <a class="pstep" href="courses/p9-smart-contracts-mechanically.html">Smart contracts</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="paths">
+      <h2>What is real here</h2>
+      <p class="plede">The hash is a full SHA-256 written from the specification, not a stand-in. Every digest on every page comes out of it.</p>
+      <table class="pp-strip" style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:.5rem 0;font-weight:700">The hash</td><td style="padding:.5rem 0;color:var(--muted)">Ships the three published SHA-256 test vectors and runs them, because a hash that is subtly wrong still produces plausible hex</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">The register</td><td style="padding:.5rem 0;color:var(--muted)">Six real blocks with real hashes, rebuilt in the page, tamperable in two different ways</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">Mining cost</td><td style="padding:.5rem 0;color:var(--muted)">Means over 500, 300, 120 and 150 trials, never a single run: at difficulty 3 the measured range is 40 to 17,343 attempts</td></tr>
+        <tr><td style="padding:.5rem 0;font-weight:700">No coins</td><td style="padding:.5rem 0;color:var(--muted)">No cryptocurrency, no price, no wallet, no token anywhere. Nothing here is investment advice</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span class="meta">part of <a href="https://phoebefu6.github.io/learn-with-phoebe/">Learn with Phoebe ↗</a> · by Phoebe Fu · nothing here is investment advice · key management lives in <a href="https://phoebefu6.github.io/learn-cyber-security-with-phoebe/">learn cyber security ↗</a> and <a href="https://phoebefu6.github.io/learn-data-access-control-with-phoebe/">learn data access control ↗</a></span>
+  </footer>
+
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  "title": "Blockchain",
+  "centerColor": "#0E2C3F",
+  "sessions": [
+    {
+      "label": "What a chain is",
+      "href": "courses/a1-what-a-chain-actually-is.html",
+      "concepts": [
+        {
+          "label": "Hashing",
+          "href": "courses/p1-hashing-hands-on.html"
+        },
+        {
+          "label": "Blocks and links",
+          "href": "courses/p2-building-the-chain.html"
+        },
+        {
+          "label": "The genesis block",
+          "href": "courses/p2-building-the-chain.html"
+        }
+      ]
+    },
+    {
+      "label": "Tamper evidence",
+      "href": "courses/a2-tamper-evident-not-tamper-proof.html",
+      "concepts": [
+        {
+          "label": "Two stage attack",
+          "href": "courses/p3-breaking-the-chain.html"
+        },
+        {
+          "label": "Merkle proofs",
+          "href": "courses/p6-merkle-trees.html"
+        }
+      ]
+    },
+    {
+      "label": "The cost of rewriting",
+      "href": "courses/a3-the-cost-of-rewriting-history.html",
+      "concepts": [
+        {
+          "label": "Mining",
+          "href": "courses/p4-mining.html"
+        },
+        {
+          "label": "Reforging",
+          "href": "courses/p5-the-cost-of-a-rewrite.html"
+        }
+      ]
+    },
+    {
+      "label": "Agreement",
+      "href": "courses/a4-who-agrees-and-how.html",
+      "concepts": [
+        {
+          "label": "Forks",
+          "href": "courses/p8-consensus.html"
+        },
+        {
+          "label": "Who may write",
+          "href": "courses/p7-signatures-and-identity.html"
+        }
+      ]
+    },
+    {
+      "label": "The limits",
+      "href": "courses/a5-what-a-chain-cannot-do.html",
+      "concepts": [
+        {
+          "label": "The oracle problem",
+          "href": "courses/a5-what-a-chain-cannot-do.html"
+        },
+        {
+          "label": "Smart contracts",
+          "href": "courses/p9-smart-contracts-mechanically.html"
+        }
+      ]
+    },
+    {
+      "label": "Do you need one",
+      "href": "courses/a6-deciding-whether-you-need-one.html",
+      "concepts": [
+        {
+          "label": "Four questions",
+          "href": "courses/a6-deciding-whether-you-need-one.html"
+        },
+        {
+          "label": "The bench",
+          "href": "courses/p10-the-chain-bench.html"
+        }
+      ]
+    }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

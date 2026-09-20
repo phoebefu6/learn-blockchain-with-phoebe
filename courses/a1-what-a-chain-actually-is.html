@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 1 of 6. A hash turns any input into a fixed length fingerprint. A chain is a list where each entry records the fingerprint of the one before it. Harbourgate's six block custody register, with its real hashes, is the whole idea.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="What a chain actually is - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 1 of 6. A fingerprint, a link, and why that one arrangement makes an edit visible.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a1-what-a-chain-actually-is.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What a chain actually is - learn blockchain with phoebe">
+<meta name="twitter:description" content="A fingerprint of the entry before it. That is the whole mechanism, and everything else is consequence.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 1 · What a chain actually is - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 1 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 1 of 6</div>
+    <h1>What a chain <span class="accent">actually is</span></h1>
+    <p class="sub">Harbourgate is a port authority. It keeps a custody register for consignments moving through its cold store, and the sixth entry in that register reads "Consignment 42 inspected, seal broken". Somebody would prefer it did not. The register is arranged so that changing that line is not difficult but is impossible to do quietly, and the arrangement is two ideas deep. A fingerprint that changes completely when its input changes at all, and a list in which every entry carries the fingerprint of the one before it. Tonight is those two ideas and the six real hashes they produce.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-17 · A fingerprint</span>
+      <span class="a3" style="flex:3">17-25 · A list of them</span>
+      <span class="a4" style="flex:4">25-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Harbourgate, and what its register has to survive</h2>
+    </div>
+    <p class="lede">A custody register records who held what, and when. Its value is entirely in whether anyone can trust the old lines, because the old lines are what a dispute is argued over. Harbourgate's register holds six entries: the register opening, two consignments signed over to named buyers, two inspections, and one release. Nothing in it is money. It is provenance, which is the plainest thing a chain is good for and the easiest place to see the mechanism working.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A one sentence account of the mechanism that you can say out loud without hedging: each block contains the previous block's hash. The Harbourgate register with its six real hashes, so the structure is a thing you have seen rather than a thing described to you. And the reason the fingerprint has to change completely rather than a little, which is the part that does the actual work.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Without the hype<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A chain is a data structure. It is a list, with one unusual rule about what each element has to contain, and the rule is enforced by arithmetic rather than by permissions. That is genuinely clever, and it is also completely mundane once seen, in the way that double entry bookkeeping is clever and mundane. Nothing in it is magic, nothing in it is new mathematics, and nothing in it knows whether the entry it is protecting is true.</p>
+        <p>The claim worth making about it is narrow and strong: you can hand the whole register to someone who does not trust you, and they can check for themselves that it has not been altered since it was written. The claims worth refusing are the wide ones, and refusing them is easier once the structure fits in one diagram.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Harbourgate's register runs at difficulty 0, which means no work was done to produce any of the six hashes beyond computing them. It is still fully tamper evident. Every property in tonight's session holds with no mining at all, which is worth knowing before mining is introduced, because mining is often described as the thing that makes a chain trustworthy and it is not.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Hash.</strong> A function taking any input and returning a fixed length output. Also called a digest or a fingerprint. Part 1 tonight, and practitioner session 1.</li>
+          <li><strong>SHA-256.</strong> One particular hash function, the one Harbourgate uses. It returns 64 hexadecimal characters no matter what goes in.</li>
+          <li><strong>Block.</strong> One entry in the register, packaged with its position, its timestamp, the previous block's hash, and a number called a nonce.</li>
+          <li><strong>Genesis block.</strong> The first block, which has no predecessor to point at. Part 2 tonight.</li>
+          <li><strong>Avalanche.</strong> The property that a tiny change to the input produces an unrecognisably different digest. Without it the rest does not work.</li>
+          <li><strong>Nonce.</strong> A number a block carries that can be varied freely without changing what the block says. Idle at difficulty 0, and the whole subject of session 3.</li>
+          <li><strong>Merkle root.</strong> One hash standing for a whole set of records. Practitioner session 6.</li>
+          <li><strong>Key management.</strong> Who holds which secret, and how it is rotated and revoked. A discipline of its own, covered in the security courses rather than here.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the hash</span>
+      <h2>A fingerprint, and why it has to change completely</h2>
+      <span class="tag concept">14 min live</span>
+    </div>
+    <p class="lede">A hash takes an input of any size and returns an output of one fixed size. Three characters in, 64 hexadecimal characters out. Three million characters in, 64 hexadecimal characters out. The three inputs below are the published test vectors, and Harbourgate's own implementation is checked against them before any register hash is believed.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 372" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A hash function shown as three stages. Any input of any length enters SHA-256 and one fingerprint of always 64 hexadecimal characters comes out. Below, the three published test vectors with their digests: the input abc gives ba7816bf and so on, the empty string gives e3b0c442 and so on, and a 56 character string gives 248d6a61 and so on. All three are checked before any register hash is used. A closing note says fixed length is the easy half and the hard half is that a one character change produces an unrecognisable digest.">
+        <style>
+          .a1aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a1aT { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a1aS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .a1aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a1aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a1aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a1aK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .a1aX { font: 400 9.5px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .a1aY { font: 700 10px "SF Mono", Menlo, monospace; fill: #141C22; }
+        </style>
+        <defs>
+          <marker id="a1aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a1aH" x="14" y="20">Any input. One fixed size output. Every time.</text>
+
+        <rect x="14" y="32" width="236" height="64" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a1aB" x="30" y="56" style="font-weight:800">Any input</text>
+        <text class="a1aM" x="30" y="76">Three characters or three million</text>
+
+        <path d="M 258 64 L 296 64" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a1aAr)"></path>
+
+        <rect x="306" y="32" width="168" height="64" rx="10" fill="#1E4D6B"></rect>
+        <text class="a1aT" x="322" y="56">SHA-256</text>
+        <text class="a1aS" x="322" y="76">A function, not a store</text>
+
+        <path d="M 482 64 L 520 64" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a1aAr)"></path>
+
+        <rect x="528" y="32" width="338" height="64" rx="10" fill="#0E2C3F"></rect>
+        <text class="a1aT" x="544" y="56">One fingerprint</text>
+        <text class="a1aS" x="544" y="76">Always 64 hexadecimal characters</text>
+
+        <text class="a1aL" x="30" y="120">INPUT</text>
+        <text class="a1aL" x="300" y="120">DIGEST, CHECKED BEFORE ANY REGISTER HASH IS USED</text>
+
+        <rect x="14" y="128" width="852" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a1aY" x="30" y="153">abc</text>
+        <text class="a1aX" x="300" y="153">ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad</text>
+
+        <rect x="14" y="174" width="852" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a1aY" x="30" y="199">the empty string</text>
+        <text class="a1aX" x="300" y="199">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</text>
+
+        <rect x="14" y="220" width="852" height="56" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a1aY" x="30" y="242">abcdbcdecdefdefgefghfghi</text>
+        <text class="a1aY" x="30" y="260">jhijkijkljklmklmnlmnomnopnopq</text>
+        <text class="a1aX" x="300" y="252">248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1</text>
+
+        <rect x="14" y="288" width="852" height="70" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a1aK" x="30" y="311">Fixed length is the easy half.</text>
+        <text class="a1aB" x="30" y="331">The hard half is that neighbouring inputs do not get neighbouring digests. Change one character and the</text>
+        <text class="a1aB" x="30" y="349">output has no visible relationship to the one before it, which is what makes a near miss impossible to fake.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the three inputs have lengths 3, 0 and 56. The three digests have length 64, 64 and 64.</figcaption>
+    </figure>
+
+    <div class="wk" id="a1-hash">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Real SHA-256, running in this page. Change one character in either line.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="a1-in-a">Entry as written</label>
+        <input class="sql-code" id="a1-in-a" type="text" value="Consignment 41 inspected, seal intact">
+        <p class="a1-digest" id="a1-out-a">...</p>
+        <label class="sql-label" for="a1-in-b">The same entry, one character different</label>
+        <input class="sql-code" id="a1-in-b" type="text" value="Consignment 41 inspected, seal Intact">
+        <p class="a1-digest" id="a1-out-b">...</p>
+        <p class="sql-note" id="a1-diff">...</p>
+      </div>
+      <div class="wk-foot" id="a1-self">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a small change cannot make a small difference<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Imagine a fingerprint that behaved sensibly: similar inputs, similar outputs. Anyone wanting to alter an entry would simply nudge it until the digest landed back where it started, in the way you close in on a target by getting warmer. The whole structure would be worthless, because the attacker would have a gradient to climb.</p>
+        <p>The avalanche property removes the gradient. Every attempt is a fresh draw with no information carried over from the last one, so there is no warmer and no colder, only right or wrong. That is why a hash function is described as one way. Running it forwards is instant. Running it backwards has no method better than trying inputs.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the hash covers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A block is hashed as a whole, not as a line of text. Its position in the register, its timestamp, its entry, the previous block's hash and its nonce all go in together. Change any one of those five and the digest changes, which means the digest is a statement about all of them at once.</p>
+        <p>This matters for what you are allowed to claim. A matching hash says the block is byte for byte what it was when the hash was taken. It says nothing about whether the inspector actually looked at the seal.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>There is a long running argument about whether a chain is a new idea at all. One side points out that hash linked records were published in the late 1970s and used in practice through the 1990s, that a list in which each element carries its predecessor's digest is a textbook structure, and that calling it a breakthrough is a sales pitch attached to a linked list.</p>
+        <p>The other side says the structure was never the contribution. The contribution was the packaging: a way for parties who do not trust each other to hold copies of the same register and agree on which one is current, with no administrator in the middle. On that view the data structure is old and the system around it is not.</p>
+        <p>Both readings are held by serious people and they lead to different purchasing decisions, so it is worth knowing which one the person opposite you holds. This session is deliberately about the part nobody disputes.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the chain</span>
+      <h2>Six entries, and the link that runs through them</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">Here is the register in full. The column on the right is the only structural idea in it: each block records the hash of the block before it, so the same sixteen characters appear twice, once as a block's own fingerprint and once as the next block's record of what it was built on.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Harbourgate register as six rows. Block 0, Harbourgate opens the register, hash begins 608eba0870199b95, and it records no previous hash because it is the genesis block. Block 1, consignment 41 signed over to Pell and Sons, hash begins 86202a0bab83df26, records 608eba0870199b95. Block 2, consignment 41 inspected seal intact, hash begins f325e5d96bee6a1d, records 86202a0bab83df26. Block 3, consignment 42 signed over to Ardwick Cold Store, hash begins fc189d9dba7c4311, records f325e5d96bee6a1d. Block 4, consignment 41 released to the buyer, hash begins e5526e6e0bbc1aed, records fc189d9dba7c4311. Block 5, consignment 42 inspected seal broken, hash begins 1e9fa1742f98715d, records e5526e6e0bbc1aed. Arrows run from each block's hash into the next block's record of it.">
+        <style>
+          .a1bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a1bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a1bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a1bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a1bK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .a1bN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a1bX { font: 700 10px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .a1bZ { font: 400 10px "SF Mono", Menlo, monospace; fill: #566670; }
+        </style>
+        <defs>
+          <marker id="a1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a1bH" x="14" y="20">The Harbourgate custody register, difficulty 0, timestamps 600 seconds apart</text>
+
+        <text class="a1bL" x="16" y="42">BLOCK</text>
+        <text class="a1bL" x="66" y="42">ENTRY</text>
+        <text class="a1bL" x="400" y="42">THIS BLOCK'S HASH BEGINS</text>
+        <text class="a1bL" x="648" y="42">PREVIOUS HASH IT RECORDS</text>
+
+        <rect x="14" y="50" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="62" width="32" height="24" rx="6" fill="#0E2C3F"></rect>
+        <text class="a1bN" x="34" y="79">0</text>
+        <text class="a1bB" x="66" y="79">Harbourgate opens the register</text>
+        <text class="a1bX" x="400" y="79">608eba0870199b95</text>
+        <text class="a1bZ" x="648" y="79">none, this is the genesis block</text>
+
+        <rect x="14" y="102" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="114" width="32" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="a1bN" x="34" y="131">1</text>
+        <text class="a1bB" x="66" y="131">Consignment 41 signed over to Pell and Sons</text>
+        <text class="a1bX" x="400" y="131">86202a0bab83df26</text>
+        <text class="a1bX" x="648" y="131">608eba0870199b95</text>
+
+        <rect x="14" y="154" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="166" width="32" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="a1bN" x="34" y="183">2</text>
+        <text class="a1bB" x="66" y="183">Consignment 41 inspected, seal intact</text>
+        <text class="a1bX" x="400" y="183">f325e5d96bee6a1d</text>
+        <text class="a1bX" x="648" y="183">86202a0bab83df26</text>
+
+        <rect x="14" y="206" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="218" width="32" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="a1bN" x="34" y="235">3</text>
+        <text class="a1bB" x="66" y="235">Consignment 42 signed over to Ardwick Cold Store</text>
+        <text class="a1bX" x="400" y="235">fc189d9dba7c4311</text>
+        <text class="a1bX" x="648" y="235">f325e5d96bee6a1d</text>
+
+        <rect x="14" y="258" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="270" width="32" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="a1bN" x="34" y="287">4</text>
+        <text class="a1bB" x="66" y="287">Consignment 41 released to the buyer</text>
+        <text class="a1bX" x="400" y="287">e5526e6e0bbc1aed</text>
+        <text class="a1bX" x="648" y="287">fc189d9dba7c4311</text>
+
+        <rect x="14" y="310" width="852" height="48" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="322" width="32" height="24" rx="6" fill="#B45309"></rect>
+        <text class="a1bN" x="34" y="339">5</text>
+        <text class="a1bB" x="66" y="339">Consignment 42 inspected, seal broken</text>
+        <text class="a1bX" x="400" y="339">1e9fa1742f98715d</text>
+        <text class="a1bX" x="648" y="339">e5526e6e0bbc1aed</text>
+
+        <path d="M 578 82 C 614 82, 604 118, 640 126" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#a1bAr)"></path>
+        <path d="M 578 134 C 614 134, 604 170, 640 178" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#a1bAr)"></path>
+        <path d="M 578 186 C 614 186, 604 222, 640 230" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#a1bAr)"></path>
+        <path d="M 578 238 C 614 238, 604 274, 640 282" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#a1bAr)"></path>
+        <path d="M 578 290 C 614 290, 604 326, 640 334" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#a1bAr)"></path>
+
+        <rect x="14" y="368" width="852" height="52" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a1bK" x="30" y="391">Each block contains the previous block's hash.</text>
+        <text class="a1bM" x="30" y="409">Edit any entry and its own fingerprint changes, while the block after it still records the fingerprint it had before.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the right hand column is a copy of the column to its left, shifted down one row. That shift is the entire structure.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The genesis block has nothing to point at<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Block 0 is the exception that shows what the rule is for. Every other block inherits its credibility from the one before it, and block 0 has no predecessor, so its previous hash field is filled with a row of zeros standing in for a block that does not exist.</p>
+        <p>The consequence is worth saying plainly. The structure carries confidence forward from the start of the register, and it cannot manufacture any at the start. Whoever wrote block 0 and whoever was watching are the foundation, and no amount of hashing afterwards improves that.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the chain actually promises<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hand a copy of the Harbourgate register to a buyer who thinks the port authority is covering something up. They recompute all six hashes themselves and compare each block's previous hash field with the hash of the block above it. If everything matches, they know the six entries are exactly the six entries that were written, in that order.</p>
+        <p>That is a real promise and it is narrower than it sounds. It covers the entries as written, not the events they describe, and it says nothing about entries that were never written down at all.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Timestamps, nonces and the rest of the block<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Harbourgate's blocks carry fixed timestamps starting at 1758000000 and advancing 600 seconds per block, which makes the register reproducible: anyone rebuilding it from the six entries gets the same six hashes rather than six new ones. A real register takes its timestamps from a clock, and whose clock that is turns out to be a harder question than it looks.</p>
+        <p>The nonce field sits in every block doing nothing at difficulty 0. It exists so that a block's hash can be changed without changing what the block says, which sounds like a flaw and is the foundation of session 3.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Read the register the way a sceptic would</h2>
+      <span class="tag build">20 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps on the six entries above, done out loud. The aim is to be able to say what a matching hash proves and what it does not, without reaching for a metaphor.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Say the sentence</h4>
+        <p>Out loud, without notes: each block contains the previous block's hash. Then say what that buys, in your own words, in one more sentence. If the second sentence needs the word "secure", replace it with something you could defend.</p>
+      </div>
+      <div class="step">
+        <h4>Find the same hash twice</h4>
+        <p>Locate f325e5d96bee6a1d in two places in the register and say what each occurrence means. One of them is a fingerprint of a block. The other is a claim made by a different block about what it was built on.</p>
+      </div>
+      <div class="step">
+        <h4>Count what a digest depends on</h4>
+        <p>Name the five things that go into a block's hash. Then say which of them an inspector in a cold store has any control over, and which of them are set by the register itself.</p>
+      </div>
+      <div class="step">
+        <h4>Try the two lines in the live box</h4>
+        <p>Change a single character in either entry above and watch how many of the 64 output characters move. Then predict, before you press anything, whether changing a different character changes a different number of them.</p>
+      </div>
+      <div class="step">
+        <h4>Ask what block 0 rests on</h4>
+        <p>Block 0 has no predecessor. Say who or what has to be trusted for the register to mean anything, and where that trust comes from, given that the structure cannot supply it.</p>
+      </div>
+      <div class="step">
+        <h4>Write the honest claim</h4>
+        <p>In one sentence, write what you could tell a buyer about the Harbourgate register without overstating it. Keep the sentence. Session 2 tests whether it survives an attacker who is willing to do arithmetic.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says a record is on a chain, the useful follow up is what the hash covers. It covers the bytes of the entry from the moment they were hashed. It does not cover whether the entry was accurate, whether anything was left out, or who was allowed to write it.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why does a hash function have to produce a completely different digest for a nearly identical input?</p>
+      <div class="qopt">A · So that longer inputs get longer digests, which is how the length of the original is recovered</div>
+      <div class="qopt">B · So that two different inputs can never produce the same digest under any circumstances</div>
+      <div class="qopt">C · Because a digest that changed a little for a small change would let an attacker nudge an altered entry back towards the original digest, one step at a time</div>
+      <q class="qwhy">A gradient is a ladder. If getting closer to the original input produced a digest closer to the original digest, forging an entry would be a search with feedback rather than a blind one. The avalanche property removes the feedback, which is why every attempt is independent of the last.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Harbourgate's register runs at difficulty 0, so no mining was done. What does that mean for tamper evidence?</p>
+      <div class="qopt">A · Nothing is protected until mining is switched on, because the hashes are not real until then</div>
+      <div class="qopt">B · Every hash and every link still holds, so an edit is still detectable; what is missing is any cost to redoing the hashes afterwards</div>
+      <div class="qopt">C · Only the genesis block is protected, since the others were not worked for</div>
+      <q class="qwhy">Detection and cost are separate. The six hashes in the register were computed with no mining and they check out exactly as they would at any difficulty. Mining changes what a rewrite costs, which is session 3, not whether a rewrite is visible.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A buyer recomputes every hash in the register and every link matches. What have they established?</p>
+      <div class="qopt">A · That the six entries are byte for byte the entries that were written, in that order, and nothing about whether those entries describe what actually happened</div>
+      <div class="qopt">B · That the seal on consignment 42 was genuinely broken, since the entry is on a chain</div>
+      <div class="qopt">C · That no entry was ever left out, because a chain records everything</div>
+      <q class="qwhy">The hash covers the bytes it was taken over. It has no access to the cold store, the inspector or the entries nobody wrote. An accurate chain of inaccurate entries verifies perfectly, which is the failure mode session 5 is built around.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a record your own organisation keeps and would be embarrassed to have altered.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find your block 0</h4>
+        <p>Pick one register, log or audit trail you rely on. Write down who could change an old row in it today, and how anybody downstream would find out. If the answer is that nobody would, write that down too, because that is the finding.</p>
+      </div>
+      <div class="step">
+        <h4>Write the claim you would want to make</h4>
+        <p>One sentence about that record, of the form you would be willing to put in front of a regulator or a customer. Bring it to session 2, which puts an attacker against it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">A hash as a fixed length fingerprint</span><span class="note">Any input, 64 hexadecimal characters out, checked against the three published test vectors.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The avalanche property</span><span class="note">Why a small change cannot make a small difference, and why that removes the attacker's gradient.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The link, and the genesis block</span><span class="note">Each block contains the previous block's hash; block 0 has nothing to point at.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The Harbourgate register in full</span><span class="note">Six entries and six real hashes, from 608eba0870199b95 to 1e9fa1742f98715d.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">What an attacker does about a broken link</span><span class="note">Named tonight, worked through in session 2.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">The nonce and what mining costs</span><span class="note">Sitting idle at difficulty 0. Session 3.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Each block contains the previous block's hash.</div>
+      <div class="cheat-item"><strong>A hash.</strong> Any input in, 64 hexadecimal characters out, every time.</div>
+      <div class="cheat-item"><strong>Avalanche.</strong> One character different, an unrecognisable digest. No gradient to climb.</div>
+      <div class="cheat-item"><strong>One way.</strong> Forwards is instant. Backwards has no method better than trying inputs.</div>
+      <div class="cheat-item"><strong>What a block hashes.</strong> Position, timestamp, entry, previous hash, nonce, all together.</div>
+      <div class="cheat-item"><strong>Genesis.</strong> Block 0 points at nothing, so the structure cannot supply trust at the start.</div>
+      <div class="cheat-item"><strong>Harbourgate.</strong> Six entries, difficulty 0, first hash 608eba0870199b95, last 1e9fa1742f98715d.</div>
+      <div class="cheat-item"><strong>The honest claim.</strong> The entries are as written. Not that they are true, and not that none are missing.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 1 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="a2-tamper-evident-not-tamper-proof.html">Leader session 2 · Tamper evident is not tamper proof →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var inA = document.getElementById("a1-in-a");
+  var inB = document.getElementById("a1-in-b");
+  var outA = document.getElementById("a1-out-a");
+  var outB = document.getElementById("a1-out-b");
+  var diff = document.getElementById("a1-diff");
+  var self = document.getElementById("a1-self");
+
+  function render() {
+    var ha = CHAIN.sha256(inA.value);
+    var hb = CHAIN.sha256(inB.value);
+    outA.textContent = ha;
+    outB.textContent = hb;
+    var n = 0;
+    for (var i = 0; i < 64; i++) if (ha.charAt(i) !== hb.charAt(i)) n++;
+    diff.textContent = inA.value === inB.value
+      ? "The two lines are identical, so the two digests are identical. Change one character."
+      : "The two digests differ in " + n + " of their 64 characters.";
+  }
+
+  var t = CHAIN.selfTest();
+  self.textContent = t.ok
+    ? "The three published test vectors pass in this browser, so these digests are the digests any correct implementation gives."
+    : "The test vectors did not pass in this browser, so nothing below should be believed.";
+
+  inA.addEventListener("input", render);
+  inB.addEventListener("input", render);
+  render();
+})();
+</script>
+<style>
+  #a1-hash .sql-code { border: 1px solid var(--hairline); border-radius: 8px; }
+  #a1-hash .a1-digest {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+    background: var(--indigo-50);
+    border-radius: 8px;
+    padding: .5rem .7rem;
+    margin: .45rem 0 1rem;
+  }
+</style>
+</body>
+</html>

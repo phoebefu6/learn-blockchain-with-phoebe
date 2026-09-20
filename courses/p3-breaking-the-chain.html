@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 3 of 10. verify() names the block and the kind of failure. Edit block 2 and the engine returns one hash mismatch at block 2. Recompute that hash and the single problem becomes a link mismatch at block 3. Reforge and the register verifies clean again.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Breaking the chain - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 3 of 10. Two stages against the real engine, and the failure kind read as forensics rather than as a verdict.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p3-breaking-the-chain.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Breaking the chain - learn blockchain with phoebe">
+<meta name="twitter:description" content="A hash mismatch and a link mismatch say different things about what the attacker did. The kind is the diagnostic.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 3 · Breaking the chain - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 3 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 3 of 10</div>
+    <h1>Breaking <span class="accent">the chain</span></h1>
+    <p class="sub">Verification does not return a verdict, it returns a report. Two fields of that report do the work: which block failed, and what sort of failure it was. Tonight the Harbourgate register is edited in front of you, the report is read properly at each step, and the attacker is allowed to keep repairing until the register verifies clean again. It takes four blocks and, at difficulty 0, a fraction of a millisecond.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone who will audit a register</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:2">4-14 · What verify walks</span>
+      <span class="a3" style="flex:4">14-30 · Two stages, live</span>
+      <span class="a4" style="flex:3">30-45 · Reforge and build-along</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The attacker already has write access</h2>
+    </div>
+    <p class="lede">Assume nothing exotic. No hash function is broken, no secret is guessed and nothing is stolen. Somebody who is already allowed to write to the Harbourgate register decides that block 2 should read differently, and they are patient enough to keep going after the first thing they try fails. Every result below comes from running that against the same six block register assembled in session 2, at difficulty 0.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The three fields verification returns and what each is for. The two failure kinds, and what each one tells you about what the attacker did and where to look. And the honest ending: a register with no work attached to its blocks can be rewritten completely and will then pass every check you can run on it.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>verify.</strong> Recompute every block's hash and compare every block's <code>prev</code> against the block above. Returns <code>ok</code>, <code>problems</code> and <code>firstBad</code>.</li>
+          <li><strong>problem.</strong> One entry in that list: an <code>index</code> and a <code>kind</code>.</li>
+          <li><strong>kind hash.</strong> The block's stored hash does not match a fresh hash of its own fields.</li>
+          <li><strong>kind link.</strong> The block's <code>prev</code> does not match the hash of the block above it.</li>
+          <li><strong>firstBad.</strong> The index of the first problem found, or nothing when there are none.</li>
+          <li><strong>tamper.</strong> Change one block's data and leave every stored hash alone, which is what editing the database does.</li>
+          <li><strong>hashBlock.</strong> Rehash one block from its own fields. The attacker's repair tool, and the auditor's.</li>
+          <li><strong>reforge.</strong> Redo a block and every block after it, so the register is internally consistent again.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers verification</span>
+      <h2>Two checks per block, and three fields back</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Verification is a walk down the register doing two comparisons at each stop. Recompute this block's hash from its own five fields and compare it with the hash the block stores. Then compare this block's previous hash field with the hash of the block above. Block 0 has no block above it, so only the first comparison runs there.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 412" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two bands showing the two checks verification runs on every block. Check one, recompute the hash: block 2's five fields, index timestamp data prev and nonce, go through SHA-256 and produce a recomputed hash beginning f325e5d96bee6a1d, which is compared with the stored hash field; a difference is recorded as kind hash. Check two, compare the link: block 1's hash beginning 86202a0bab83df26 is compared with block 2's prev field, which holds the same 64 characters; a difference is recorded as kind link. A dark band below says what comes back is ok, a list of problems, and firstBad, and that each problem carries an index and a kind. An amber bar notes both checks run on every block, so the list is not limited to one entry.">
+        <style>
+          .p3aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p3aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p3aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p3aM { font: 400 9px Inter, sans-serif; fill: #566670; }
+          .p3aK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p3aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p3aX { font: 700 10px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+        </style>
+        <defs>
+          <marker id="p3aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p3aH" x="14" y="20">What verification does at every stop</text>
+
+        <rect x="14" y="32" width="852" height="94" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p3aL" x="30" y="54">CHECK 1 · RECOMPUTE THE HASH</text>
+        <rect x="30" y="62" width="196" height="52" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3aB" x="44" y="82">block 2, five fields</text>
+        <text class="p3aM" x="44" y="100">index, timestamp, data, prev, nonce</text>
+        <path d="M 232 88 L 262 88" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p3aAr)"></path>
+        <rect x="268" y="62" width="120" height="52" rx="8" fill="#1E4D6B"></rect>
+        <text class="p3aW" x="284" y="93">SHA-256</text>
+        <path d="M 394 88 L 424 88" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p3aAr)"></path>
+        <rect x="430" y="62" width="196" height="52" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3aB" x="444" y="82">recomputed hash</text>
+        <text class="p3aX" x="444" y="102">f325e5d96bee6a1d</text>
+        <text class="p3aB" x="642" y="82">compared with the stored hash</text>
+        <text class="p3aK" x="642" y="102">a difference is kind hash</text>
+
+        <rect x="14" y="136" width="852" height="94" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p3aL" x="30" y="158">CHECK 2 · COMPARE THE LINK</text>
+        <rect x="30" y="166" width="196" height="52" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3aB" x="44" y="186">block 1 hash</text>
+        <text class="p3aX" x="44" y="206">86202a0bab83df26</text>
+        <path d="M 232 192 L 262 192" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p3aAr)"></path>
+        <rect x="268" y="166" width="196" height="52" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3aB" x="282" y="186">block 2 prev field</text>
+        <text class="p3aX" x="282" y="206">86202a0bab83df26</text>
+        <text class="p3aB" x="480" y="186">the same 64 characters, or the link is broken</text>
+        <text class="p3aK" x="480" y="206">a difference is kind link</text>
+
+        <rect x="14" y="246" width="852" height="88" rx="10" fill="#0E2C3F"></rect>
+        <text class="p3aH" x="30" y="272" style="fill:#FFFFFF">What comes back</text>
+        <text class="p3aB" x="30" y="296" style="fill:#FFFFFF">ok, a list of problems, and firstBad. Every problem in the list carries an index and a kind, and those two</text>
+        <text class="p3aB" x="30" y="318" style="fill:#CBDDE9">fields between them say which block failed and what sort of failure it was.</text>
+
+        <rect x="14" y="348" width="852" height="56" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3aK" x="30" y="372">Both checks run on every block, so the list is not limited to one entry.</text>
+        <text class="p3aB" x="30" y="392">Reading only ok throws away everything that makes the report worth having.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the first check asks whether a block is internally consistent. The second asks whether it agrees with its neighbour.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The boolean is the least useful thing in the report<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A verifier that returns true or false tells you a register is broken and leaves you to find out how. This one returns the index of every failure alongside a kind, and the kind is what turns a failed check into an account of what happened. Two registers can both fail with exactly one problem and be the result of completely different actions.</p>
+        <p>So the habit worth building is to read the problem list before the boolean. If you only ever look at <code>ok</code>, you have built a smoke alarm with no address on it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why block 0 gets one check and not two<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The link comparison needs a block above, and block 0 has none, so the walk skips it there. Its previous hash field holds 64 zero characters that nothing computed and nothing can check, which means block 0 can be rehashed and it will be internally consistent whatever it says.</p>
+        <p>The consequence is worth stating before the attack begins. An attacker who rewrites from block 0 forwards is not detected by anything in this report, because there is no earlier value for the report to disagree with. What catches that attacker is somebody else holding a copy, which is a different mechanism entirely.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp says a verifier should stop at the first failure. After the first mismatch nothing downstream is trustworthy, a long list of consequent problems buries the one that matters, and an operator who is shown forty red rows will read none of them. On that view <code>firstBad</code> is the answer and the rest of the list is noise dressed as thoroughness.</p>
+        <p>The other camp says the pattern of problems is the evidence. One hash mismatch, one link mismatch, a hash and a link together, or a run of them down the register are all different situations, and truncating at the first one throws the forensics away to save a reader some scrolling. On that view a verifier that stops early has decided for you what the incident was.</p>
+        <p>The engine on this page declines to choose: it returns the whole list and the first index as separate fields, so the same call serves the operator and the investigator. That is a reasonable answer and it is not a free one, because a register with a million blocks and a systematic fault produces a list nobody can hold, and then somebody has to decide what to truncate after all.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the two stages</span>
+      <h2>The edit, and the repair that moves the failure</h2>
+      <span class="tag concept">16 min live</span>
+    </div>
+    <p class="lede">Stage one edits the entry and touches nothing else, which is what changing a row in a database does. Stage two is what an attacker does next once the first attempt is caught: recompute the edited block's hash so the block agrees with itself. Both stages produce exactly one problem, and the two problems are not the same problem.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels side by side. Stage one, the entry is edited and stored hashes are untouched: block 1 is unchanged, block 2 has changed data with its old stored hash still in place, and block 3 still matches because block 2's stored hash was not touched; verify returns one problem, index 2, kind hash. Stage two, the attacker recomputes block 2's hash: block 2 now agrees with itself, and block 3 records the hash block 2 used to have; verify returns one problem, index 3, kind link. An amber bar beneath says one problem before the repair and one after it, the count did not improve, the index moved forward by one, and the kind changed from hash to link.">
+        <style>
+          .p3bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p3bL { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p3bC { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p3bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p3bN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p3bS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p3bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p3bH" x="14" y="20">One problem each time, and they say different things</text>
+
+        <rect x="14" y="32" width="420" height="252" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3bL" x="30" y="56">STAGE ONE · the entry is edited, hashes untouched</text>
+        <rect x="30" y="68" width="388" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="42" y="78" width="26" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p3bN" x="51" y="95">1</text>
+        <text class="p3bB" x="80" y="95">hash matches, link matches</text>
+        <rect x="30" y="118" width="388" height="44" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="42" y="128" width="26" height="24" rx="6" fill="#B45309"></rect>
+        <text class="p3bN" x="51" y="145">2</text>
+        <text class="p3bB" x="80" y="145">data changed, stored hash left alone</text>
+        <rect x="30" y="168" width="388" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="42" y="178" width="26" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p3bN" x="51" y="195">3</text>
+        <text class="p3bB" x="80" y="195">link still matches, nothing moved</text>
+        <rect x="30" y="220" width="388" height="52" rx="8" fill="#0E2C3F"></rect>
+        <text class="p3bS" x="44" y="240">verify() returns</text>
+        <text class="p3bN" x="44" y="260">1 problem · index 2 · kind hash</text>
+
+        <rect x="446" y="32" width="420" height="252" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3bC" x="462" y="56">STAGE TWO · the attacker rehashes block 2</text>
+        <rect x="462" y="68" width="388" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="474" y="78" width="26" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p3bN" x="483" y="95">1</text>
+        <text class="p3bB" x="512" y="95">hash matches, link matches</text>
+        <rect x="462" y="118" width="388" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="474" y="128" width="26" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p3bN" x="483" y="145">2</text>
+        <text class="p3bB" x="512" y="145">now agrees with itself, edit and all</text>
+        <rect x="462" y="168" width="388" height="44" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="474" y="178" width="26" height="24" rx="6" fill="#B45309"></rect>
+        <text class="p3bN" x="483" y="195">3</text>
+        <text class="p3bB" x="512" y="195">prev holds the hash block 2 used to have</text>
+        <rect x="462" y="220" width="388" height="52" rx="8" fill="#0E2C3F"></rect>
+        <text class="p3bS" x="476" y="240">verify() returns</text>
+        <text class="p3bN" x="476" y="260">1 problem · index 3 · kind link</text>
+
+        <rect x="14" y="298" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3bK" x="30" y="322">One problem before the repair. One problem after it.</text>
+        <text class="p3bB" x="30" y="344">The count did not improve and the index moved forward by one. The kind changed from hash to link, and that</text>
+        <text class="p3bB" x="30" y="364">change is the part saying what the attacker did rather than only that something somewhere is wrong.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two panels report the same number of problems. Anyone counting problems alone learns nothing from the repair.</figcaption>
+    </figure>
+
+    <div class="wk" id="p3-stages">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The real engine, in this page. Edit block 2, then let the attacker keep repairing and watch where the failure goes.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p3-btns">
+          <button class="btn primary" type="button" id="p3-edit">Edit block 2</button>
+          <button class="btn" type="button" id="p3-repair">Make the next repair</button>
+          <button class="btn" type="button" id="p3-reset">Start again</button>
+        </div>
+        <p class="sql-note" id="p3-what">...</p>
+        <div class="p3-rows" id="p3-rows"></div>
+        <div class="p3-report" id="p3-report"></div>
+      </div>
+      <div class="wk-foot" id="p3-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Follow the repair to the end of the register<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Press the repair button repeatedly and the report alternates. A hash mismatch at some block, then a link mismatch at the next one, then a hash mismatch there, and so on. Each repair satisfies the check it was aimed at and breaks the next one, because every fix changes a value that a later block already copied.</p>
+        <p>The alternation stops in one place only, which is the last block. Nothing copies the last block's hash, so there is no later check left to break. That is the mechanical reason a rewrite has to run all the way to the end of the register, and the reason the position of the edit, rather than its size, decides the workload.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What tamper deliberately does not touch<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The tamper call changes one block's data field and copies every other field across untouched, stored hash included. That is not a weakened attack, it is the realistic one: somebody with database access edits a row, and the row does not know it is part of a chain. The stored hash sits there as a witness to what the row said when it was written.</p>
+        <p>This is also why a register whose hashes are recomputed on read is worth nothing. If the verifier rehashes a block and stores the result, every edit repairs itself and the first check can never fail. The stored hash has to be the old one for the comparison to mean anything.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the entry text was capitalised rather than reworded<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The edit used here turns one word of block 2 into capitals and changes nothing else about the length or the shape of the line. That is deliberate. A reader scanning the register sees almost the same sentence, and every check still fails as hard as it would for a rewritten paragraph, because the digest has no notion of how large a change is.</p>
+        <p>It follows that there is no such thing as a small edit to hash protected data. A typo correction and a fabricated inspection result produce failures of identical severity, which is convenient for detection and inconvenient for anybody who has to run a register where legitimate corrections happen.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the forensics</span>
+      <h2>The kind tells you what was done, the index tells you where</h2>
+      <span class="tag concept">7 min live</span>
+    </div>
+    <p class="lede">Two kinds, two accounts. Neither of them needs access to the data, the logs or the attacker. Both are read off the shape of the failure, which is what makes them useful in the hour after somebody says the register looks wrong.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table of two rows reading a failure kind as forensics. A hash problem at block N means block N was edited in place and nothing else was done, the edit is in block N itself, and the question to ask next is which field of block N changed and who could change it. A link problem at block N means block N minus one was rebuilt and its successors were not, the edit is one block above at N minus one, and the question to ask next is whether the repair stopped there or ran to the end. An amber bar says the index of a link mismatch points one block upwards at the edit, and that a register verifying clean says only that nobody stopped halfway.">
+        <style>
+          .p3cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p3cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p3cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p3cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p3cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p3cW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+        </style>
+
+        <text class="p3cH" x="14" y="20">Reading one problem without reading the data</text>
+
+        <text class="p3cL" x="30" y="42">KIND</text>
+        <text class="p3cL" x="180" y="42">WHAT THE ATTACKER DID</text>
+        <text class="p3cL" x="470" y="42">WHERE THE EDIT IS</text>
+        <text class="p3cL" x="680" y="42">WHAT TO ASK NEXT</text>
+
+        <rect x="14" y="50" width="852" height="88" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="72" width="120" height="30" rx="8" fill="#1E4D6B"></rect>
+        <text class="p3cW" x="46" y="92">hash at N</text>
+        <text class="p3cB" x="180" y="82">Edited block N in place and</text>
+        <text class="p3cB" x="180" y="100">did nothing else at all.</text>
+        <text class="p3cB" x="470" y="82">In block N itself.</text>
+        <text class="p3cM" x="470" y="100">Its stored hash is the old one.</text>
+        <text class="p3cB" x="680" y="82">Which field of block N</text>
+        <text class="p3cB" x="680" y="100">moved, and who could.</text>
+
+        <rect x="14" y="146" width="852" height="88" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="168" width="120" height="30" rx="8" fill="#B45309"></rect>
+        <text class="p3cW" x="46" y="188">link at N</text>
+        <text class="p3cB" x="180" y="178">Rebuilt block N minus 1 and</text>
+        <text class="p3cB" x="180" y="196">stopped before its successors.</text>
+        <text class="p3cB" x="470" y="178">One block above, at N minus 1.</text>
+        <text class="p3cM" x="470" y="196">Block N kept the old hash.</text>
+        <text class="p3cB" x="680" y="178">Whether the repair</text>
+        <text class="p3cB" x="680" y="196">stopped there or went on.</text>
+
+        <rect x="14" y="248" width="852" height="94" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3cK" x="30" y="272">The index of a link problem points one block upwards at the edit.</text>
+        <text class="p3cB" x="30" y="294">A register that verifies clean says only that nobody stopped halfway. Somebody who rebuilds every block from</text>
+        <text class="p3cB" x="30" y="314">the edit to the end of the register leaves no problem at all, which is why a second copy held by somebody else</text>
+        <text class="p3cB" x="30" y="334">is the other half of the check rather than an optional extra.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - both rows are read from the report alone. Neither of them required looking at what block 2 now says.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading a report you did not generate<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Somebody hands you a report saying one problem, index 4, kind link. Without seeing the register you can already say that block 3 was rebuilt, that whoever did it did not continue past it, and that blocks 0 to 2 were left alone. You can also say that block 3's own hash is consistent with block 3's current contents, because otherwise there would be a hash problem at 3 as well.</p>
+        <p>What you cannot say is what block 3 now contains, whether the change was malicious, or whether it was a botched migration. The report is about structure. Attributing intent to it is the commonest way these findings get misreported upwards.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Two problems at once, and what that looks like<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Both checks run at every index, so a single block can contribute a hash problem and a link problem in the same pass, and several blocks can contribute their own. A list with many entries usually means something structural rather than something surgical: a failed load, a truncated copy, two writers with different field orders.</p>
+        <p>A list with exactly one entry is the interesting case, because somebody was careful and stopped one step too early. That is the shape both stages above produce, and it is the shape worth recognising on sight.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the report cannot see<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Verification compares the register with itself. It has no second opinion, so anything consistently applied across the whole register is invisible to it: an entry that was never written, a register rebuilt from block 0, a set of timestamps that were all wrong at the moment of writing.</p>
+        <p>This is why the useful question after a clean report is not whether the hashes match but who else holds a copy and when they last compared. A clean report from a single copy is a statement about one file, and treating it as a statement about history is the mistake the whole subject invites.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers the rewrite</span>
+      <h2>Reforge, and a register that passes every check</h2>
+      <span class="tag concept">6 min live</span>
+    </div>
+    <p class="lede">The alternating repair is the slow way to do it. Reforging from the edited block does the whole thing at once: redo that block and every block after it, carrying each new hash forward into the next block's previous hash field. At Harbourgate that is 4 blocks, 2 through 5, and afterwards verification has nothing to report.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 344" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six block chips in a row. Blocks 0 and 1 are untouched. Blocks 2, 3, 4 and 5 are marked redone with new hashes. A caption says reforge from block 2 redoes four blocks, 2 through 5, each hash recomputed once because difficulty 0 requires no search. A dark band says verification on the result returns ok with no problems, and that the register is internally consistent again while the entry now says something it never said. An amber bar says the whole repair at difficulty 0 is four hash computations, that detection was never the weak part, and that what is missing is any reason for the attacker to stop.">
+        <style>
+          .p3dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p3dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p3dL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p3dA { font: 800 10px Inter, sans-serif; fill: #B45309; }
+          .p3dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p3dC { font: 700 11px Inter, sans-serif; fill: #141C22; }
+          .p3dI { font: 400 10px Inter, sans-serif; fill: #141C22; }
+          .p3dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p3dH" x="14" y="20">reforge(chain, 2, 0)</text>
+        <text class="p3dM" x="14" y="38">Blocks before the edit are never touched. Everything from the edit to the end is rebuilt.</text>
+
+        <rect x="14" y="52" width="132" height="82" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3dL" x="28" y="74">BLOCK 0</text>
+        <text class="p3dC" x="28" y="96">untouched</text>
+        <text class="p3dM" x="28" y="114">original hash</text>
+
+        <rect x="158" y="52" width="132" height="82" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p3dL" x="172" y="74">BLOCK 1</text>
+        <text class="p3dC" x="172" y="96">untouched</text>
+        <text class="p3dM" x="172" y="114">original hash</text>
+
+        <rect x="302" y="52" width="132" height="82" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3dA" x="316" y="74">BLOCK 2</text>
+        <text class="p3dC" x="316" y="96">edited, redone</text>
+        <text class="p3dI" x="316" y="114">new hash</text>
+
+        <rect x="446" y="52" width="132" height="82" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3dA" x="460" y="74">BLOCK 3</text>
+        <text class="p3dC" x="460" y="96">redone</text>
+        <text class="p3dI" x="460" y="114">new prev, new hash</text>
+
+        <rect x="590" y="52" width="132" height="82" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3dA" x="604" y="74">BLOCK 4</text>
+        <text class="p3dC" x="604" y="96">redone</text>
+        <text class="p3dI" x="604" y="114">new prev, new hash</text>
+
+        <rect x="734" y="52" width="132" height="82" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3dA" x="748" y="74">BLOCK 5</text>
+        <text class="p3dC" x="748" y="96">redone</text>
+        <text class="p3dI" x="748" y="114">new prev, new hash</text>
+
+        <text class="p3dB" x="14" y="158">4 blocks, 2 through 5. Each hash is computed once, because difficulty 0 asks for no search.</text>
+
+        <rect x="14" y="172" width="852" height="66" rx="10" fill="#0E2C3F"></rect>
+        <text class="p3dH" x="30" y="198" style="fill:#FFFFFF">verify() on the result: ok, and an empty problem list.</text>
+        <text class="p3dB" x="30" y="222" style="fill:#CBDDE9">The register is internally consistent again, and block 2 now says something it never said.</text>
+
+        <rect x="14" y="252" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p3dK" x="30" y="276">Detection was never the weak part of this arrangement.</text>
+        <text class="p3dB" x="30" y="298">What is missing is any reason for the attacker to stop. Four hash computations is not a deterrent, and no</text>
+        <text class="p3dB" x="30" y="318">amount of care in reading the report changes that, because after a full rewrite there is no report to read.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two untouched blocks on the left are the only reason this rewrite was not the whole register.</figcaption>
+    </figure>
+
+    <div class="wk" id="p3-forge">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Reforge the edited register from any block, timed in your own browser at difficulty 0.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p3-btns" id="p3-fbtns">
+          <button class="btn primary" type="button" data-from="2">Reforge from block 2</button>
+          <button class="btn" type="button" data-from="3">From block 3</button>
+          <button class="btn" type="button" data-from="4">From block 4</button>
+          <button class="btn" type="button" data-from="5">From block 5</button>
+        </div>
+        <div class="p3-tiles" id="p3-tiles"></div>
+        <p class="sql-note" id="p3-fnote">...</p>
+      </div>
+      <div class="wk-foot" id="p3-ffoot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Position is the whole cost, and it is the wrong way round<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Reforging from block 5 redoes one block. From block 2 it redoes four. The workload is the distance from the edit to the end of the register and has nothing to do with how much text was changed, so the oldest entries are the most expensive to alter and the newest are nearly free.</p>
+        <p>That ordering is useful and it is also the opposite of what most disputes need. Arguments are usually about something recorded recently, and recent entries sit at the cheap end. A register that has only just written the entry you are relying on is protecting it with the least work it will ever have.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What the timing in the box is and is not<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The elapsed figure is measured in your browser on this run, on whatever machine you are holding, and it will differ between two presses on the same laptop. It is quoted here as an order of magnitude and nothing finer, because the point survives any reasonable variation: a handful of hash computations completes faster than a person can notice.</p>
+        <p>Do not carry that number anywhere. Session 4 measures attempts instead, which is the quantity that does not depend on the machine, and it does it over many runs rather than one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What actually stops the rewrite at difficulty 0<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nothing inside the register does. What stops it is everything outside: somebody else holding a copy of the old version, a published root that was recorded somewhere the attacker does not control, an append only store, backups nobody with write access can reach.</p>
+        <p>All of those are ordinary operational controls, and they are doing the work that people often attribute to the chain. The structure contributes one thing, which is that comparing two copies is a one line check rather than a reconciliation project. That is worth having and it is not the same as making the register hard to change.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · build-along</span>
+      <h2>Run both stages yourself</h2>
+      <span class="tag build">15 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. The same register, the same engine, and a report to read at every step rather than a boolean to glance at.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>var ENTRIES = [
+  "Harbourgate opens the register",
+  "Consignment 41 signed over to Pell and Sons",
+  "Consignment 41 inspected, seal intact",
+  "Consignment 42 signed over to Ardwick Cold Store",
+  "Consignment 41 released to the buyer",
+  "Consignment 42 inspected, seal broken"
+];
+var chain = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+CHAIN.verify(chain)
+
+var edited = CHAIN.tamper(chain, 2, "Consignment 41 inspected, seal BROKEN");
+CHAIN.verify(edited).problems
+
+edited[2].hash = CHAIN.hashBlock(edited[2]);
+CHAIN.verify(edited).problems
+
+var forged = CHAIN.reforge(edited, 2, 0);
+CHAIN.verify(forged.chain)</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Read all three fields before anything is broken</h4>
+        <p>Run <code>CHAIN.verify(chain)</code> on the untampered register and look at <code>ok</code>, <code>problems</code> and <code>firstBad</code> together. Say out loud what each one holds when there is nothing wrong, so you recognise the difference when there is.</p>
+      </div>
+      <div class="step">
+        <h4>Predict the kind and the index</h4>
+        <p>Before running the tamper, write down which of the two kinds you expect and at which index. Then run it and read <code>problems</code>. Getting this right is the difference between knowing the mechanism and having read about it.</p>
+      </div>
+      <div class="step">
+        <h4>Make the repair an attacker would make</h4>
+        <p>Set <code>edited[2].hash = CHAIN.hashBlock(edited[2])</code> and run verification again. Count the problems before you read them. The count is unchanged, which is the part that catches people out.</p>
+      </div>
+      <div class="step">
+        <h4>Point at the edit from the report alone</h4>
+        <p>From the second report, name the block that was actually altered without looking at any block's data. Then check yourself against <code>edited[2].data</code>. Write the rule you used in one sentence.</p>
+      </div>
+      <div class="step">
+        <h4>Walk the repair one block further</h4>
+        <p>Set <code>edited[3].prev = edited[2].hash</code> and verify. Then set <code>edited[3].hash = CHAIN.hashBlock(edited[3])</code> and verify again. Note the kind and index each time and say where the sequence can possibly stop.</p>
+      </div>
+      <div class="step">
+        <h4>Reforge, and read what it cost</h4>
+        <p>Run <code>CHAIN.reforge(edited, 2, 0)</code> and inspect both halves of what comes back: the rebuilt chain, and <code>attempts</code>. Verify the rebuilt chain. Keep the attempts figure, because session 4 changes it by four orders of magnitude without changing a line of this code.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When a verification fails, write down the kind and the index before you open the data. Those two values name a suspect and a location, and the account you build from them is testable. An investigation that starts by reading the changed row tends to end up explaining the row rather than the edit.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Block 2's entry is edited and every stored hash is left alone. What does verification return?</p>
+      <div class="qopt">A · Four problems, one for each block from 2 to the end, because everything after the edit is affected</div>
+      <div class="qopt">B · One problem: index 2, kind hash, because block 2's stored hash no longer matches a fresh hash of its own fields</div>
+      <div class="qopt">C · One problem: index 3, kind link, because block 3 is the first block that can notice</div>
+      <q class="qwhy">The link check at block 3 compares block 3's prev with block 2's stored hash, and that stored hash was not touched, so the link still matches. Only block 2's own consistency has broken. The link failure is what stage two produces, after the attacker repairs the hash.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A register you did not build reports exactly one problem: index 4, kind link. What can you say?</p>
+      <div class="qopt">A · Block 4 was edited in place, and nothing else was touched</div>
+      <div class="qopt">B · The whole register from block 4 onwards was rebuilt, so nothing after block 3 can be trusted</div>
+      <div class="qopt">C · Block 3 was rebuilt and the rebuild stopped there, leaving block 4 holding the hash block 3 used to have</div>
+      <q class="qwhy">A link problem at N is about the join between N minus 1 and N, and it points upwards. Block 3 is internally consistent, otherwise a hash problem would be reported at 3 as well, so block 3 was rebuilt rather than merely edited. What the report cannot tell you is what block 3 now says or why.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">After reforging from block 2 the register verifies clean. What has that established?</p>
+      <div class="qopt">A · That at difficulty 0 a rewrite is fully recoverable by anyone with write access, so detection depends on somebody else holding a copy rather than on this copy checking out</div>
+      <div class="qopt">B · That the reforge repaired the damage, since verification passes and the register is valid again</div>
+      <div class="qopt">C · That the edit is still detectable, because the new hashes differ from the ones recorded earlier in the register</div>
+      <q class="qwhy">A clean result is a statement about internal consistency and nothing else. The rebuilt register is consistent with a history that did not happen, and this copy has no memory of the old hashes to disagree with. Comparing against a copy held elsewhere is the check that survives a full rewrite.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 4</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty five minutes, on the register you assembled for session 3 or on a real audit trail you are responsible for.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Give your verifier a kind</h4>
+        <p>If your own check returns true or false, change it to return an index and a kind for every failure, then break your register in two different ways and confirm the two reports differ. A verifier that cannot tell an in place edit from a stopped repair is a verifier that cannot help an investigation.</p>
+      </div>
+      <div class="step">
+        <h4>Time a full rewrite of your own register</h4>
+        <p>Rebuild it from its second entry onwards and record how many blocks that touched and how long it took. Bring both numbers to session 4, which is about making the first number expensive rather than making the second one larger.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reading verification output properly</span><span class="note">ok, problems and firstBad, and the index plus kind carried by every problem.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Stage one, the edit alone</span><span class="note">tamper on block 2 leaves stored hashes alone and produces one problem: a hash mismatch at block 2.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Stage two, the attacker's repair</span><span class="note">Recomputing that block's hash leaves one problem: a link mismatch at block 3.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The kind as forensics</span><span class="note">A hash mismatch means an in place edit; a link mismatch means a rebuild whose successors were not rebuilt.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reforging to a clean register</span><span class="note">4 blocks, 2 through 5, after which verification has nothing to report at all.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Making the rewrite expensive</span><span class="note">Named tonight as the missing piece. Nonces, difficulty and measured attempts are session 4.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Who else holds a copy</span><span class="note">The other half of the check, raised here and worked through in session 8.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Who is allowed to write an entry</span><span class="note">Nothing in verification asks. Signatures and identity are session 7.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price, market or wallet</span><span class="note">Not here. Harbourgate keeps a custody register, and nothing on this page is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Verification names the block and the kind of failure, and the kind is the diagnostic.</div>
+      <div class="cheat-item"><strong>Two checks per block.</strong> Rehash it from its own fields; compare its prev with the block above.</div>
+      <div class="cheat-item"><strong>Stage one.</strong> Edit block 2 only: 1 problem, index 2, kind hash.</div>
+      <div class="cheat-item"><strong>Stage two.</strong> Rehash block 2: still 1 problem, index 3, kind link.</div>
+      <div class="cheat-item"><strong>hash at N.</strong> Block N was edited in place and nothing else was done.</div>
+      <div class="cheat-item"><strong>link at N.</strong> Block N minus 1 was rebuilt and its successors were not. Look one block up.</div>
+      <div class="cheat-item"><strong>Reforge from 2.</strong> 4 blocks, 2 through 5, and verification returns ok.</div>
+      <div class="cheat-item"><strong>The gap.</strong> At difficulty 0 the rewrite is four hash computations, which is what session 4 makes expensive.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 3 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p2-building-the-chain.html">← Practitioner session 2 · Building the chain</a>
+        <a href="p4-mining.html">Practitioner session 4 · Mining →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var EDIT = "Consignment 41 inspected, seal BROKEN";
+  var base = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+  function cut(h) { return h.slice(0, 16); }
+
+  /* ---------- the stepper ---------- */
+  var sbox = document.getElementById("p3-stages");
+  if (sbox) {
+    var rowsEl = document.getElementById("p3-rows");
+    var repEl = document.getElementById("p3-report");
+    var whatEl = document.getElementById("p3-what");
+    var footEl = document.getElementById("p3-foot");
+    var repairBtn = document.getElementById("p3-repair");
+    var editBtn = document.getElementById("p3-edit");
+
+    var work = null;      /* the register being attacked */
+    var step = 0;         /* 0 untouched, 1 edited, then one repair per press */
+    var touched = {};     /* indexes the attacker has written to */
+    var lastMove = "";
+
+    function reset() {
+      work = base.map(function (b) { var o = {}; for (var k in b) o[k] = b[k]; return o; });
+      step = 0;
+      touched = {};
+      lastMove = "Nothing has been touched. This is the register as session 2 assembled it.";
+      draw();
+    }
+
+    /* The repairs an attacker makes, in the order they become necessary. */
+    function nextRepair() {
+      var v = CHAIN.verify(work);
+      if (v.ok) return null;
+      var p = v.problems[0];
+      if (p.kind === "hash") {
+        work[p.index].hash = CHAIN.hashBlock(work[p.index]);
+        touched[p.index] = true;
+        return "Recomputed block " + p.index + "'s own hash, so that block now agrees with itself.";
+      }
+      work[p.index].prev = work[p.index - 1].hash;
+      touched[p.index] = true;
+      return "Copied block " + (p.index - 1) + "'s new hash into block " + p.index + "'s prev field.";
+    }
+
+    function draw() {
+      var v = CHAIN.verify(work);
+      var byIndex = {};
+      v.problems.forEach(function (p) {
+        if (!byIndex[p.index]) byIndex[p.index] = [];
+        byIndex[p.index].push(p.kind);
+      });
+
+      rowsEl.innerHTML = "";
+      work.forEach(function (b) {
+        var kinds = byIndex[b.index] || [];
+        var d = document.createElement("div");
+        d.className = "p3-row" + (kinds.length ? " bad" : "") + (touched[b.index] || (step > 0 && b.index === 2) ? " hit" : "");
+        d.innerHTML = "<b>block " + b.index + "</b>"
+          + "<span>" + b.data + "</span>"
+          + "<em>hash " + cut(b.hash) + "</em>"
+          + "<i>" + (kinds.length ? kinds.map(function (k) { return "problem: " + k; }).join(" · ") : "both checks pass") + "</i>";
+        rowsEl.appendChild(d);
+      });
+
+      repEl.innerHTML = "";
+      var head = document.createElement("div");
+      head.className = "p3-rhead";
+      head.textContent = "verify() returns";
+      repEl.appendChild(head);
+      var line = document.createElement("div");
+      line.className = "p3-rline" + (v.ok ? " clean" : "");
+      line.textContent = v.ok
+        ? "ok: true · problems: 0 · firstBad: none"
+        : "ok: false · problems: " + v.problems.length
+          + " · firstBad: " + v.firstBad
+          + " · " + v.problems.map(function (p) { return "{ index " + p.index + ", kind " + p.kind + " }"; }).join(" ");
+      repEl.appendChild(line);
+
+      whatEl.textContent = lastMove;
+      repairBtn.disabled = (step === 0) || v.ok;
+
+      if (step === 0) {
+        footEl.textContent = "Press edit to change block 2's entry and leave every stored hash exactly as it is.";
+      } else if (v.ok) {
+        footEl.textContent = "Every check passes. The register is internally consistent and block 2 says something it never said, which took "
+          + (step - 1) + " repairs after the edit.";
+      } else if (v.problems[0].kind === "hash") {
+        footEl.textContent = "A hash problem at block " + v.firstBad
+          + " says that block was edited in place. Repairing it will satisfy this check and break the link below it.";
+      } else {
+        footEl.textContent = "A link problem at block " + v.firstBad
+          + " points one block upwards: block " + (v.firstBad - 1) + " was rebuilt and the rebuild stopped there.";
+      }
+    }
+
+    editBtn.addEventListener("click", function () {
+      work = CHAIN.tamper(base, 2, EDIT);
+      step = 1;
+      touched = { 2: true };
+      lastMove = "Block 2's entry now reads " + EDIT + ". No stored hash was touched.";
+      draw();
+    });
+    repairBtn.addEventListener("click", function () {
+      var msg = nextRepair();
+      if (!msg) return;
+      step++;
+      lastMove = msg;
+      draw();
+    });
+    document.getElementById("p3-reset").addEventListener("click", reset);
+    reset();
+  }
+
+  /* ---------- reforge, timed ---------- */
+  var gbox = document.getElementById("p3-forge");
+  if (gbox) {
+    var tilesEl = document.getElementById("p3-tiles");
+    var gnote = document.getElementById("p3-fnote");
+    var gfoot = document.getElementById("p3-ffoot");
+    var gbtns = gbox.querySelectorAll("#p3-fbtns button");
+
+    function tile(label, value) {
+      return "<div class='p3-tile'><b>" + label + "</b><span>" + value + "</span></div>";
+    }
+
+    function run(from) {
+      var edited = CHAIN.tamper(base, 2, EDIT);
+      var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+      var out = CHAIN.reforge(edited, from, 0);
+      var t1 = (window.performance && performance.now) ? performance.now() : Date.now();
+      var v = CHAIN.verify(out.chain);
+      var ms = t1 - t0;
+      var shown = ms < 1 ? "under 1 ms" : ms.toFixed(1) + " ms";
+
+      tilesEl.innerHTML =
+        tile("reforged from", "block " + from)
+        + tile("blocks rebuilt", String(base.length - from))
+        + tile("hashes computed", String(out.attempts))
+        + tile("elapsed here", shown)
+        + tile("verify() ok", v.ok ? "true" : "false")
+        + tile("problems left", String(v.problems.length));
+
+      gnote.textContent = from === 2
+        ? "Reforging from the edited block rebuilds 4 blocks, 2 through 5, and the report comes back empty."
+        : "Reforging from block " + from + " rebuilds " + (base.length - from)
+          + " block(s), which is fewer than the edit needs, so " + (v.ok ? "the register happens to check out." : "the report still names a problem.");
+      gfoot.textContent = v.ok
+        ? "No problem to report, on a register whose block 2 was altered. The check is working exactly as designed and it has nothing left to see."
+        : "Rebuilding from below the edit leaves the edit itself unrepaired, which is why the attacker has to start at the block they changed.";
+
+      for (var i = 0; i < gbtns.length; i++) {
+        gbtns[i].className = (gbtns[i].getAttribute("data-from") === String(from)) ? "btn primary" : "btn";
+      }
+    }
+
+    for (var gi = 0; gi < gbtns.length; gi++) {
+      gbtns[gi].addEventListener("click", function () { run(parseInt(this.getAttribute("data-from"), 10)); });
+    }
+    run(2);
+  }
+})();
+</script>
+<style>
+  #p3-stages .p3-btns, #p3-forge .p3-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #p3-stages .p3-rows { display: grid; gap: .4rem; }
+  #p3-stages .p3-row {
+    display: grid;
+    grid-template-columns: 5.2rem minmax(0, 1fr) 10rem 10rem;
+    gap: .5rem;
+    align-items: baseline;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--paper);
+    padding: .5rem .7rem;
+  }
+  #p3-stages .p3-row.hit { background: var(--indigo-50); }
+  #p3-stages .p3-row.bad { border-color: var(--amber); background: var(--amber-50); }
+  #p3-stages .p3-row b { font-size: .78rem; color: var(--indigo-deep); }
+  #p3-stages .p3-row span { font-size: .78rem; color: var(--ink); }
+  #p3-stages .p3-row em {
+    font-style: normal;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .7rem;
+    color: var(--indigo);
+  }
+  #p3-stages .p3-row i { font-style: normal; font-size: .72rem; font-weight: 700; color: var(--ink); }
+  #p3-stages .p3-row.bad i { color: var(--amber); }
+  #p3-stages .p3-report { margin-top: .9rem; }
+  #p3-stages .p3-rhead {
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--indigo);
+    margin-bottom: .3rem;
+  }
+  #p3-stages .p3-rline {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .76rem;
+    line-height: 1.6;
+    word-break: break-word;
+    color: #FFFFFF;
+    background: var(--indigo-deep);
+    border-radius: 10px;
+    padding: .6rem .75rem;
+  }
+  #p3-stages .p3-rline.clean { background: var(--indigo); }
+  #p3-forge .p3-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .5rem; }
+  #p3-forge .p3-tile {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+  }
+  #p3-forge .p3-tile b {
+    display: block;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--indigo);
+  }
+  #p3-forge .p3-tile span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .92rem;
+    color: var(--indigo-deep);
+    margin-top: .2rem;
+  }
+  @media (max-width: 720px) {
+    #p3-stages .p3-row { grid-template-columns: 1fr; gap: .15rem; }
+  }
+</style>
+</body>
+</html>

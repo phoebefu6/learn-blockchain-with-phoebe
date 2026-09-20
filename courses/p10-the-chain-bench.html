@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 10 of 10. The Harbourgate register live in the page: build it, edit a block, recompute the hash, watch the failure move, then reforge and see what it cost.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The chain bench - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 10 of 10. Build, tamper, mine, reforge and prove, all computed in the page.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p10-the-chain-bench.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The chain bench - learn blockchain with phoebe">
+<meta name="twitter:description" content="Edit a block and the check fires. Fix the hash and the failure moves one block along.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 10 · The chain bench - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 10 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 10 of 10</div>
+    <h1>The chain <span class="accent">bench</span></h1>
+    <p class="sub">Nine sessions built the mechanism a piece at a time. This one puts the whole register in front of you with the buttons an attacker would want. Edit an entry and watch the check fire. Recompute that block's hash to cover your tracks and watch the failure move rather than vanish. Then reforge the tail and see what it cost, which at difficulty zero is nothing at all. That last result is the uncomfortable one, and it is the reason every other part of the design exists.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Hardest</span>
+      <span class="chip audience">Anyone who will build or audit one</span>
+      <span class="chip audience">Anyone who has to answer for its guarantees</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Build and break</span>
+      <span class="a3" style="flex:4">18-34 · Price the rewrite</span>
+      <span class="a4" style="flex:3">34-45 · What it proves, and close</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Where this lands</h2>
+    </div>
+    <p class="lede">Session 1 hashed things. Session 2 assembled the register. Sessions 3 to 5 broke it, priced a block and priced a rewrite. Session 6 proved membership without sending the set. Sessions 7 to 9 covered who may write, how many machines agree, and what a contract on a chain does and does not promise. Everything below runs from the same <span class="mono">assets/chain-live.js</span> that every other session used, and the hash inside it passes the three published SHA-256 test vectors.</p>
+
+    <div class="legend">
+      <span class="pill">Live = worked through in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with today.</strong> The two stage attack performed with your own hands, so the difference between a hash mismatch and a link mismatch is something you have seen rather than been told. A measured answer to what a rewrite costs, and the honest version of that answer at difficulty zero. And four questions worth asking anyone who tells you a chain has made their data trustworthy.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What the bench is doing<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each button runs the real engine. Building assembles six blocks, each one hashing its own index, timestamp, entry, the previous block's hash and its nonce. Editing changes an entry and leaves every stored hash alone. Recomputing fixes just that block's hash. Reforging re-mines from block 2 to the end.</p>
+        <p>Nothing is stored between presses. The digests in the table are computed when you press, which is why raising the difficulty makes the build visibly slower: the machine is guessing.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the bench</span>
+      <h2>Build it, then break it</h2>
+      <span class="tag build">15 min hands on</span>
+    </div>
+    <p class="lede">Work the four buttons left to right, and read the check line after every press before moving on. The sequence matters more than any single result.</p>
+
+    <div data-chain-bench></div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The sequence worth doing first<span class="mini">5 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Build at difficulty 0.</strong> Six blocks, no problems. Note that block 0's previous hash is a row of zeros, which is a convention and not a computed value.</li>
+          <li><strong>Edit block 2.</strong> One problem: a hash mismatch at block 2. The entry changed and the stored hash did not, so recomputing no longer agrees.</li>
+          <li><strong>Recompute its hash.</strong> Still one problem, and this is the moment the course turns on: it is now a link mismatch at block 3. The failure did not go away, it moved.</li>
+          <li><strong>Reforge from block 2.</strong> Clean. At difficulty 0 that took no measurable work, and the register now tells a different story with no trace of the edit.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why the two failure kinds are worth telling apart<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A <strong>hash mismatch at block N</strong> means the record at N was edited in place by somebody who did not recompute anything. A <strong>link mismatch at block N</strong> means block N-1 was rebuilt and its successors were not. They point at different levels of effort and different amounts of knowledge, which makes the distinction genuinely useful when you are looking at a register that has failed rather than reading about one.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Run the same edit at difficulty 3<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Repeat the four steps with the difficulty set to 3 and watch the hash count on the reforge. Then do it again. The two totals will differ, often by a lot, because four blocks means four independent lottery draws rather than four times an average.</p>
+        <p>That variability is the honest shape of the cost. A single reforge total is one draw, and quoting it as "what it costs" is the mistake session 4 spends its whole page on.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · what the bench proves</span>
+      <h2>And what it does not</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">The bench demonstrates one guarantee cleanly and is silent on several others. Being precise about which is which is the difference between understanding the technology and repeating its marketing.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two columns. On the left, what the register demonstrates: that an entry has not changed since it was written, that a change is localised and named by block and kind, and that hiding a change means redoing every later block. On the right, what it is silent about: whether the entry was true when written, who wrote it, whether other machines agree, and whether an attacker with more capacity than everyone else could outpace the rest. A band underneath records that the left column is a real guarantee and a narrow one.">
+        <style>
+          .pXaH { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .pXaW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .pXaS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .pXaB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .pXaK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="pXaH" x="14" y="20">One guarantee, stated narrowly, and four things it is not</text>
+
+        <rect x="14" y="32" width="418" height="196" rx="10" fill="#1E4D6B"></rect>
+        <text class="pXaW" x="30" y="56">What the bench demonstrates</text>
+        <text class="pXaS" x="30" y="82">An entry has not changed since it was written</text>
+        <text class="pXaS" x="30" y="106">A change is localised: the check names the block</text>
+        <text class="pXaS" x="30" y="130">and the kind, hash or link</text>
+        <text class="pXaS" x="30" y="156">Hiding a change means redoing every later block</text>
+        <text class="pXaS" x="30" y="182">At difficulty 0 that costs nothing, which is why</text>
+        <text class="pXaS" x="30" y="200">mining exists at all</text>
+
+        <rect x="448" y="32" width="418" height="196" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="pXaH" x="464" y="56">What it is silent about</text>
+        <text class="pXaB" x="464" y="82">Whether the entry was true when it was written</text>
+        <text class="pXaB" x="464" y="106">Who wrote it, which is a signature question</text>
+        <text class="pXaB" x="464" y="130">settled outside the register</text>
+        <text class="pXaB" x="464" y="156">Whether other machines hold the same history</text>
+        <text class="pXaB" x="464" y="182">Whether one party could outpace all the others,</text>
+        <text class="pXaB" x="464" y="200">which nothing measured here bounds</text>
+
+        <rect x="14" y="240" width="852" height="48" rx="9" fill="#CBDDE9" stroke="#93B4CA"></rect>
+        <text class="pXaK" x="30" y="262">The left column is a real guarantee and a narrow one.</text>
+        <text class="pXaB" x="30" y="280">Most overclaiming about chains consists of quietly moving an item from the right column to the left.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the useful skill is noticing which column a claim belongs in.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The difficulty zero result is the important one<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A register with no mining is fully rewritable in milliseconds by anyone who can edit the file. Every hash still chains, every check still passes, and the history is whatever the last editor wanted. Tamper evidence on its own buys you nothing against someone who can write to the store.</p>
+        <p>What mining adds is not a different guarantee, it is a price. The structure was always rewritable and the work is what makes rewriting unattractive. Saying "it is on a chain, so it cannot be changed" skips the only part that was doing the work.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Four questions for a system you are shown<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>What exactly is on the chain?</strong> Often it is a hash of a document held elsewhere, which protects the document from silent edits and protects nothing else.</li>
+          <li><strong>Who runs the machines?</strong> If the answer is one organisation, the tamper evidence is against outsiders and not against the operator.</li>
+          <li><strong>What is the work factor, and who could exceed it?</strong> A price only deters people for whom it is a price.</li>
+          <li><strong>What happens when an entry is wrong?</strong> If the answer is that it cannot be, the person answering has not run session 5.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Work the bench, then write the paragraph</h2>
+      <span class="tag build">11 min hands on</span>
+    </div>
+    <p class="lede">Six steps on the bench above, ending in one paragraph you could send to somebody deciding whether to fund a register.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Run the four button sequence at difficulty 0</h4>
+        <p>Build, edit, recompute, reforge. Write down the check line after each press, in four short lines. You should have: clean, hash at 2, link at 3, clean.</p>
+      </div>
+      <div class="step">
+        <h4>Say what changed between press two and press three</h4>
+        <p>Nothing about the attacker's goal changed and nothing about the entry changed. Only the failure moved. Say in one sentence what that tells you about where the protection actually lives.</p>
+      </div>
+      <div class="step">
+        <h4>Reforge twice at difficulty 3</h4>
+        <p>Note both hash totals. Then say which of the two you would quote to somebody, and why the honest answer is neither on its own.</p>
+      </div>
+      <div class="step">
+        <h4>Put a claim in the right column</h4>
+        <p>Take the sentence "our records are on a blockchain so they cannot be tampered with" and rewrite it so that every part of it sits in the left column of the diagram above. Notice how much shorter it becomes.</p>
+      </div>
+      <div class="step">
+        <h4>Find the step nobody can verify</h4>
+        <p>Trace the Harbourgate entry that says the seal was intact, back to the moment it became true. Identify the point in that path where the register has nothing to offer, and say who is trusted there.</p>
+      </div>
+      <div class="step">
+        <h4>Write the paragraph</h4>
+        <p>What the register would guarantee, what it would not, what it would cost to defeat, and who would still have to be trusted. Four sentences. If the fourth is empty you have missed somebody.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Whenever somebody says a record is protected, ask against whom. Tamper evidence protects against a party who can edit the store but cannot redo the work. It does nothing against a party who can do both, and nothing at all against a record that was wrong when it was written.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">You edit block 2, then recompute block 2's hash. The check still reports exactly one problem. What changed?</p>
+      <div class="qopt">A · Nothing meaningful; the register reports one problem either way, so the second step was pointless</div>
+      <div class="qopt">B · The kind and location moved: a hash mismatch at block 2 became a link mismatch at block 3, because block 3 still records the old hash as its predecessor</div>
+      <div class="qopt">C · The problem count stayed at one because the engine reports only the first failure it finds</div>
+      <q class="qwhy">Fixing the hash makes block 2 internally consistent and pushes the inconsistency into its successor. The failure moves rather than disappearing, which is why hiding an edit means redoing every later block.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">At difficulty 0 you reforge the tail and the register verifies clean with the edited entry in place. What does that establish?</p>
+      <div class="qopt">A · That the engine has a bug, since a tampered chain should never verify</div>
+      <div class="qopt">B · That tamper evidence failed, so the chain structure does not work</div>
+      <div class="qopt">C · That the structure alone is fully rewritable, and the work required to rebuild it is the only thing making a rewrite unattractive</div>
+      <q class="qwhy">The chain was always rewritable. Mining adds a price rather than a different guarantee, which is why "it is on a chain so it cannot change" skips the part doing the work.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A supplier says their register proves every inspection really happened. Which column does that claim belong in?</p>
+      <div class="qopt">A · The right column: the register can show the inspection entry has not been altered since it was written, and has nothing to say about whether the inspector looked</div>
+      <div class="qopt">B · The left column, because a verified chain means the entries in it are verified</div>
+      <div class="qopt">C · The left column, provided the difficulty is high enough</div>
+      <q class="qwhy">No amount of work factor makes an entry true. Whether the inspection happened is settled by the inspector, and the register faithfully preserves whatever they wrote.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">After the course</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">An hour, on something real.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Build the smallest chain that works</h4>
+        <p>A hash, a previous hash, and a verify loop that recomputes both. Forty lines is plenty, and writing it yourself is what makes the two failure kinds obvious rather than memorised.</p>
+      </div>
+      <div class="step">
+        <h4>Break it before you trust it</h4>
+        <p>Edit a record and confirm your verify reports it. A check you have never seen fail is not yet a check, and that applies to every validator you will ever inherit.</p>
+      </div>
+      <div class="step">
+        <h4>Take one real claim apart</h4>
+        <p>Find a product page that says a chain makes data trustworthy, and sort each sentence into the two columns. Write down which of the four questions it does not answer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered today</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The two stage attack, performed</span><span class="note">Hash mismatch at block 2, then a link mismatch at block 3.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reading the check as forensics</span><span class="note">The kind of failure says what the attacker did and how much they knew.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Reforging, and the difficulty zero result</span><span class="note">The structure alone is rewritable; work is what makes it unattractive.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">One guarantee, stated narrowly</span><span class="note">And the four things the register is silent about.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Four questions for a system you are shown</span><span class="note">What is on it, who runs it, what the work factor is, and what happens when an entry is wrong.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">An attacker with more capacity than everyone else</span><span class="note">Named in session 8; nothing measured here bounds it.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Who may write, and key management</span><span class="note">Session 7, and the security courses beyond it.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price, market or wallet</span><span class="note">Not here. Harbourgate keeps a custody register, and nothing on this page is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Hash mismatch at N.</strong> The record at N was edited in place.</div>
+      <div class="cheat-item"><strong>Link mismatch at N.</strong> Block N-1 was rebuilt and its successors were not.</div>
+      <div class="cheat-item"><strong>Fixing a hash moves the failure.</strong> It does not remove it.</div>
+      <div class="cheat-item"><strong>Difficulty 0 is fully rewritable.</strong> The work, not the structure, is the deterrent.</div>
+      <div class="cheat-item"><strong>Quote a mean with its trial count.</strong> One reforge total is one lottery draw.</div>
+      <div class="cheat-item"><strong>Ask against whom.</strong> Tamper evidence is relative to what the other party can do.</div>
+      <div class="cheat-item"><strong>A chain preserves, it does not adjudicate.</strong> A false entry is kept faithfully forever.</div>
+      <div class="cheat-item"><strong>Four questions.</strong> What is on it, who runs it, what it costs to beat, what happens when an entry is wrong.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 10 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p9-smart-contracts-mechanically.html">← Practitioner session 9 · Smart contracts, mechanically</a>
+        <a href="../index.html">All sessions →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

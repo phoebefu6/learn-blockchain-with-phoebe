@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 1 of 10. SHA-256 as a function with four properties that matter, the three published test vectors and why an implementation ships them, and the avalanche effect measured: abc against abd differs in 58 of 64 hex characters.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Hashing, hands on - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 1 of 10. Deterministic, fast, fixed length, and no usable gradient. Run the function yourself and watch a one character edit move 58 of 64 characters.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p1-hashing-hands-on.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hashing, hands on - learn blockchain with phoebe">
+<meta name="twitter:description" content="A wrong hash still prints plausible hex. That is why the test vectors ship with the implementation.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 1 · Hashing, hands on - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 1 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 1 of 10</div>
+    <h1>Hashing, <span class="accent">hands on</span></h1>
+    <p class="sub">Every guarantee Harbourgate's custody register makes rests on one function. Not on a network, not on a consensus rule, not on anybody's good behaviour. One function that takes bytes and returns 64 hexadecimal characters. Tonight you run it, you break a prediction with it, and you check it against the vectors that say it is the function it claims to be. Everything after this session is arrangement. This is the primitive.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone who will build or audit one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-15 · Four properties</span>
+      <span class="a3" style="flex:3">15-27 · Vectors and avalanche</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>One function, and ten sessions built on it</h2>
+    </div>
+    <p class="lede">The practitioner track runs ten sessions against a real engine: a full SHA-256 written from the specification, a six block Harbourgate register, and the routines that tamper with it, mine it, reforge it and prove membership in it. Nothing on these pages is a stored screenshot of a result. Session 1 is the function on its own, with no chain around it, because a chain built on a hash you have not checked is a chain of confident nonsense.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Four properties you can name without hedging, and the ability to say which one is doing the work. A working habit: never trust a hash implementation that does not carry its test vectors. And one measured number you can quote from memory, 58 of 64, which is what a single letter does to a digest.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What a hash is, in one paragraph<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A hash function takes an input of any size and returns an output of one fixed size. SHA-256 returns 256 bits, written as 64 hexadecimal characters. It holds no state, it stores nothing, and it has no key. Give it the same bytes and it gives you the same 64 characters on any machine, in any language, in any year.</p>
+        <p>That is the whole interface. What makes it useful for a register is not the interface but four properties of the mapping underneath, and one of those four is the load bearing one.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>The engine behind these pages exposes it as <code>CHAIN.sha256(str)</code>. One argument in, 64 characters out, no options and no configuration. If a hashing API offers you settings, you are looking at something else wrapped around a hash.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Digest.</strong> The output. Also called a hash or a fingerprint. Always 64 hexadecimal characters here.</li>
+          <li><strong>Test vector.</strong> A published input and the digest every correct implementation must return for it.</li>
+          <li><strong>Self test.</strong> Running the vectors at load time instead of hoping. <code>CHAIN.selfTest()</code> does it in this page.</li>
+          <li><strong>Avalanche.</strong> A tiny change to the input producing an unrecognisable digest.</li>
+          <li><strong>Preimage.</strong> An input that produces a given digest. Finding one has no method better than guessing.</li>
+          <li><strong>Collision.</strong> Two different inputs with the same digest. They must exist by counting, and none is known for SHA-256.</li>
+          <li><strong>Block hash.</strong> The digest of a whole assembled block rather than of its entry text. Session 2.</li>
+          <li><strong>Key management.</strong> Who holds which secret and how it is rotated. A discipline of its own, in the security courses.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the function</span>
+      <h2>Four properties, and which one is load bearing</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Three of the four are conveniences. They make the thing practical, and a register could survive weaker versions of any of them. The fourth is the one an attacker runs into, and without it the other three are a fast way to produce useless numbers.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 366" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four properties of SHA-256 in a two by two grid. Deterministic: the same input gives the same 64 characters on any machine, so two parties who distrust each other can check the same thing. Fast: one pass over the bytes, so computing a digest and checking one cost about the same as reading the input. Fixed length: three characters in or three million in, 64 hexadecimal characters out, so a digest is a stable sized handle for anything. No usable gradient: nothing in a digest points back at its input and nothing points towards a target digest, so the only method is guessing. A closing bar says the first three make it practical and the fourth makes it safe, and that a function with the first three and not the fourth is a fast way to produce useless numbers.">
+        <style>
+          .p1aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p1aT { font: 800 12px Inter, sans-serif; fill: #1E4D6B; }
+          .p1aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p1aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p1aV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p1aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p1aS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p1aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p1aH" x="14" y="20">Three conveniences and one defence</text>
+
+        <rect x="14" y="32" width="422" height="104" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1aT" x="30" y="58">1 · Deterministic</text>
+        <text class="p1aB" x="30" y="82">Same bytes in, same 64 characters out. Any machine, any year.</text>
+        <text class="p1aM" x="30" y="104">Two parties who distrust each other can check the same thing</text>
+        <text class="p1aM" x="30" y="122">and get the same answer without asking a third.</text>
+
+        <rect x="444" y="32" width="422" height="104" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1aT" x="460" y="58">2 · Fast</text>
+        <text class="p1aB" x="460" y="82">One pass over the bytes. Nothing to look up, nothing to wait for.</text>
+        <text class="p1aM" x="460" y="104">Producing a digest and checking one cost the same, which is</text>
+        <text class="p1aM" x="460" y="122">why a sceptic can recompute a whole register for free.</text>
+
+        <rect x="14" y="148" width="422" height="104" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1aT" x="30" y="174">3 · Fixed length</text>
+        <text class="p1aB" x="30" y="198">Three characters in or three million in. 64 characters out.</text>
+        <text class="p1aM" x="30" y="220">The digest is a stable sized handle for something of any size,</text>
+        <text class="p1aM" x="30" y="238">which is what lets one field stand for a whole block.</text>
+
+        <rect x="444" y="148" width="422" height="104" rx="10" fill="#0E2C3F"></rect>
+        <text class="p1aW" x="460" y="174">4 · No usable gradient</text>
+        <text class="p1aV" x="460" y="198">Nothing in a digest points back at the input that made it.</text>
+        <text class="p1aS" x="460" y="220">Nothing points towards a target digest either, so there is no</text>
+        <text class="p1aS" x="460" y="238">warmer and no colder. Only guess, check, guess again.</text>
+
+        <rect x="14" y="268" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p1aK" x="30" y="292">The first three make it practical. The fourth makes it worth building on.</text>
+        <text class="p1aB" x="30" y="314">A function with properties 1 to 3 and not 4 is a very fast way to produce numbers nobody should rely on,</text>
+        <text class="p1aM" x="30" y="334">and it would pass every casual inspection, because its output looks exactly the same.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - properties 1 to 3 are about the interface. Property 4 is about the mapping, and it is the only one an attacker has to defeat.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why a gradient would end the argument<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Suppose digests behaved sensibly, so that similar inputs produced similar outputs. Forging an entry would become a hill climb. Write the line you want, compare its digest with the one you need to match, nudge a character, compare again, keep whatever got you closer. Any search with feedback finishes eventually.</p>
+        <p>The absence of a gradient turns that into a blind lottery. Each attempt is independent, nothing carries over, and there is no signal to follow. This is also the reason a hash is called one way. Forwards costs one pass. Backwards has no known method better than trying inputs until one lands.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Fixed length has a consequence people skip<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Inputs are unlimited and outputs are not, so different inputs must share digests somewhere. That is arithmetic, not a defect, and it is true of every hash function that has ever existed. The engineering claim is narrower: no two colliding inputs for SHA-256 have been found, and nobody has a method for constructing a pair.</p>
+        <p>Keep the distinction handy, because the two sentences get merged in conversation. Collisions exist. Nobody can produce one. Only the second sentence is a property of SHA-256, and only the second sentence can expire.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Fast is a property with two edges<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Speed is what lets a buyer recompute a six block register in the time it takes to read this sentence. It is also what lets an attacker try a very large number of inputs, because their guesses cost the same as your checks. For a register that is fine, since the attacker still has no gradient and no shortcut.</p>
+        <p>It stops being fine the moment the input is small and predictable, which is why storing short human chosen secrets under a fast hash is a different problem with different tools. That problem belongs to the security courses, and the register does not have it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the test vectors</span>
+      <h2>Why an implementation ships its test vectors</h2>
+      <span class="tag concept">7 min live</span>
+    </div>
+    <p class="lede">A hash implementation with one constant mistyped does not crash and does not warn. It returns 64 hexadecimal characters that look exactly as convincing as correct ones, and every guarantee built on top of it quietly stops being true. There is no way to notice by looking. There is a way to notice by checking.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A three stage flow across the top. A hash that is subtly wrong, one constant mistyped, leads to still 64 plausible hexadecimal characters, no crash and no warning, which leads to every downstream guarantee gone, with nothing on screen looking different. Below, the three published test vectors with their digests: abc gives ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad, the empty string gives e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, and the 56 character string beginning abcdbcdecdef gives 248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1. A closing bar says all three pass in this engine and the implementation was additionally cross-checked against node's own crypto module on four further inputs.">
+        <style>
+          .p1bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p1bT { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p1bW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p1bV { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p1bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p1bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p1bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p1bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p1bX { font: 400 9.5px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p1bY { font: 700 10px "SF Mono", Menlo, monospace; fill: #141C22; }
+        </style>
+        <defs>
+          <marker id="p1bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p1bH" x="14" y="20">A wrong hash fails silently, and it fails beautifully</text>
+
+        <rect x="14" y="32" width="248" height="64" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p1bT" x="30" y="56">A subtly wrong hash</text>
+        <text class="p1bM" x="30" y="78">One constant mistyped</text>
+
+        <path d="M 270 64 L 300 64" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p1bAr)"></path>
+
+        <rect x="310" y="32" width="248" height="64" rx="10" fill="#1E4D6B"></rect>
+        <text class="p1bW" x="326" y="56">64 plausible hex characters</text>
+        <text class="p1bV" x="326" y="78">No crash, no warning, no clue</text>
+
+        <path d="M 566 64 L 596 64" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p1bAr)"></path>
+
+        <rect x="606" y="32" width="260" height="64" rx="10" fill="#0E2C3F"></rect>
+        <text class="p1bW" x="622" y="56">Every guarantee gone</text>
+        <text class="p1bV" x="622" y="78">And the screen looks identical</text>
+
+        <text class="p1bL" x="30" y="122">PUBLISHED INPUT</text>
+        <text class="p1bL" x="300" y="122">THE DIGEST EVERY CORRECT IMPLEMENTATION RETURNS</text>
+
+        <rect x="14" y="130" width="852" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1bY" x="30" y="155">abc</text>
+        <text class="p1bX" x="300" y="155">ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad</text>
+
+        <rect x="14" y="176" width="852" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1bY" x="30" y="201">the empty string</text>
+        <text class="p1bX" x="300" y="201">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</text>
+
+        <rect x="14" y="222" width="852" height="56" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1bY" x="30" y="244">abcdbcdecdefdefgefghfghi</text>
+        <text class="p1bY" x="30" y="262">jhijkijkljklmklmnlmnomnopnopq</text>
+        <text class="p1bX" x="300" y="254">248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1</text>
+
+        <rect x="14" y="292" width="852" height="80" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p1bK" x="30" y="316">All three pass in the engine running on this page.</text>
+        <text class="p1bB" x="30" y="338">The implementation was additionally cross-checked against node's own crypto module on four further</text>
+        <text class="p1bM" x="30" y="358">inputs, including a 1,000 character string, because three vectors are a floor and not a ceiling.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the vectors are the only thing in the picture that can tell the two implementations apart.</figcaption>
+    </figure>
+
+    <div class="wk" id="p1-vectors">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">selfTest() running in this page. The second button swaps in a function that returns plausible hex and nothing else.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p1-btns">
+          <button class="btn primary" type="button" data-impl="real">The engine's SHA-256</button>
+          <button class="btn" type="button" data-impl="fake">A plausible impostor</button>
+        </div>
+        <div class="p1-rows" id="p1-rows"></div>
+        <p class="sql-note" id="p1-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="p1-vfoot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Reading the impostor's output<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Press the second button and look at the digests before you look at the verdicts. They are 64 characters, they are hexadecimal, they are different for different inputs, and they are stable across reloads. Every property you can see by eye is satisfied. The function behind them is not a hash function in any useful sense and nothing on screen says so.</p>
+        <p>That is the argument for shipping vectors inside the implementation and running them at load time rather than in a test suite somebody remembers to run. A digest that is wrong is indistinguishable from a digest that is right, right up until somebody else recomputes it and disagrees with you in public.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Where the vectors come from<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>They are published alongside the specification, which is the point of them. The digest of <code>abc</code> is not an opinion held by this engine, it is the value any conforming implementation must return, and it has been the same value since SHA-256 was standardised. Three inputs were chosen to exercise different paths: a short input, an empty one, and one long enough to force a second compression block.</p>
+        <p>The empty string is the one people leave out, and it is the one that catches padding bugs, because it is entirely padding.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds a firm rule: never write your own implementation of a cryptographic primitive. Use the platform's, which is reviewed by specialists, hardened against timing attacks and maintained by people whose job it is. A hand written SHA-256 in a page like this one is, on that view, exactly the practice that produces the silent failures the vectors are there to catch.</p>
+        <p>The other camp holds that an implementation you can read end to end and check against published vectors is worth more, in a teaching or auditing setting, than a platform call whose behaviour you take on faith. The vectors are what make the claim checkable by the reader rather than by reputation, and reputation is not evidence.</p>
+        <p>The engine on these pages sits squarely in the second camp and is honest about which camp that is. Both positions are held by people who have shipped real systems, and the sides do not even fully disagree: the first camp's rule is about production and the second camp's rule is about understanding. Where they genuinely collide is the system that quietly grows from a demonstration into production, which is most of them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers avalanche</span>
+      <h2>Avalanche, with the numbers attached</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">"A small change makes a big difference" is a slogan until somebody counts. Two pairs were measured against this engine. A three letter input against its one letter neighbour, and a Harbourgate entry against the same entry with one letter capitalised. Both come out around three quarters of the digest.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two measured avalanche pairs. Pair one: abc gives ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad and abd gives a52d159f262b2c6ddb724a61840befc36eb30c88877a4030b65cbe86298449c9, and 58 of the 64 hexadecimal characters differ. Pair two: the entry Consignment 41 inspected, seal intact gives f0c5a3b1469adfcafafc37934b52a3c180d65419382858fb242ea484a10f4a4a and the same entry with a capital I in Intact gives 9ab0c83cecdb404d8089e91684d00c3704835e035897cd6b155ba763fb3989f8, and 60 of 64 differ. A caution bar warns that these two digests are hashes of the entry text alone and are not the block hashes in the register, which are taken over the whole assembled block.">
+        <style>
+          .p1cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p1cT { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p1cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p1cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p1cK { font: 800 13px Inter, sans-serif; fill: #B45309; }
+          .p1cJ { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p1cX { font: 400 9.5px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p1cY { font: 700 10px "SF Mono", Menlo, monospace; fill: #141C22; }
+          .p1cW { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .p1cV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p1cS { font: 400 11px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+
+        <text class="p1cH" x="14" y="20">Measured, not asserted</text>
+
+        <rect x="14" y="32" width="852" height="116" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1cT" x="30" y="56">Pair one · two three letter inputs</text>
+        <text class="p1cY" x="30" y="84">abc</text>
+        <text class="p1cX" x="90" y="84">ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad</text>
+        <text class="p1cY" x="30" y="106">abd</text>
+        <text class="p1cX" x="90" y="106">a52d159f262b2c6ddb724a61840befc36eb30c88877a4030b65cbe86298449c9</text>
+        <text class="p1cM" x="30" y="132">One letter of input changed. Nothing of the digest survives in place.</text>
+        <rect x="620" y="118" width="230" height="22" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p1cJ" x="636" y="134">58 of the 64 characters differ</text>
+
+        <rect x="14" y="160" width="852" height="140" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p1cT" x="30" y="184">Pair two · one capital letter inside a Harbourgate entry</text>
+        <text class="p1cY" x="30" y="210">Consignment 41 inspected, seal intact</text>
+        <text class="p1cX" x="30" y="232">f0c5a3b1469adfcafafc37934b52a3c180d65419382858fb242ea484a10f4a4a</text>
+        <text class="p1cY" x="30" y="258">Consignment 41 inspected, seal Intact</text>
+        <text class="p1cX" x="30" y="280">9ab0c83cecdb404d8089e91684d00c3704835e035897cd6b155ba763fb3989f8</text>
+        <rect x="620" y="196" width="230" height="56" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p1cK" x="636" y="220">60 of 64 differ</text>
+        <text class="p1cM" x="636" y="240">from one capital letter</text>
+
+        <rect x="14" y="312" width="852" height="76" rx="10" fill="#0E2C3F"></rect>
+        <text class="p1cW" x="30" y="336">Read the small print on these four digests.</text>
+        <text class="p1cV" x="30" y="358">They are hashes of the entry text alone. They are not the block hashes in the Harbourgate register,</text>
+        <text class="p1cS" x="30" y="378">because a block hash is taken over the whole assembled block. Session 2 is exactly that difference.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two pairs, two counts, both around three quarters. That ratio is what "no gradient" looks like when you count it.</figcaption>
+    </figure>
+
+    <div class="wk" id="p1-aval">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Real SHA-256 in this page. Each of the 64 positions is marked where the two digests disagree.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p1-btns">
+          <button class="btn primary" type="button" data-pair="0">abc against abd</button>
+          <button class="btn" type="button" data-pair="1">The Harbourgate entry</button>
+        </div>
+        <label class="sql-label" for="p1-in-a">Input A</label>
+        <input class="sql-code" id="p1-in-a" type="text" value="abc">
+        <p class="p1-digest" id="p1-out-a">...</p>
+        <div class="p1-strip" id="p1-strip-a"></div>
+        <label class="sql-label" for="p1-in-b">Input B</label>
+        <input class="sql-code" id="p1-in-b" type="text" value="abd">
+        <p class="p1-digest" id="p1-out-b">...</p>
+        <div class="p1-strip" id="p1-strip-b"></div>
+        <p class="sql-note" id="p1-count">...</p>
+      </div>
+      <div class="wk-foot" id="p1-afoot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why it is not 64 out of 64<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two unrelated digests agree at any given position about one time in sixteen, because there are sixteen hexadecimal characters. Across 64 positions that predicts roughly four accidental matches, which is why measured counts sit near 60 rather than at 64. A pair that differed in all 64 positions every time would be the suspicious result, not the reassuring one.</p>
+        <p>So the honest reading of 58 and 60 is not "almost everything changed". It is "the second digest looks like a digest drawn at random with no relationship to the first", which is the property the register needs.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What this rules out for an attacker<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Someone rewriting a custody entry needs a different sentence with the same digest. The measurement says the nearest possible sentences, the ones differing by a single character, land nowhere near the target. There is no sequence of small edits that walks a digest towards a value, because each edit throws the digest somewhere unrelated.</p>
+        <p>What is left is guessing, and the space is 64 hexadecimal characters wide. That is the whole of the defence, and it is enough, which is why sessions 3 and 4 are about a completely different attack: not breaking the hash, but recomputing everything downstream of the edit.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Counting characters is a proxy, and a rough one<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Counting differing hexadecimal characters is easy to see and easy to explain, and it is not the measure a cryptographer would use. The proper statement of avalanche is at the bit level: flipping one input bit should flip each of the 256 output bits with probability one half. A character counts as differing if any of its four bits moved, which inflates the visible ratio.</p>
+        <p>The character count is used here because it is checkable on screen in a page anyone can open. Take 58 and 60 as demonstrations of the shape of the property, not as its definition.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · build-along</span>
+      <h2>Drive the function yourself</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">Open the browser console on this page. The engine is already loaded and exposed as <code>CHAIN</code>, so every line below runs against the same implementation the diagrams were measured with.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>CHAIN.selfTest().ok
+CHAIN.selfTest().results
+CHAIN.sha256("abc")
+CHAIN.sha256("abd")
+CHAIN.sha256("")
+CHAIN.sha256("placeholder")</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Check before you use</h4>
+        <p>Run <code>CHAIN.selfTest().ok</code> first. If it is not true, stop, because nothing else on the page means anything. Then run <code>.results</code> and read the three rows: the input, the expected digest, the digest this browser produced.</p>
+      </div>
+      <div class="step">
+        <h4>Match the first vector by eye</h4>
+        <p>Run <code>CHAIN.sha256("abc")</code> and compare the first eight characters with ba7816bf in the diagram above. Then compare the last eight. Two spot checks at both ends is how a digest is compared by a human, and it is why digests get truncated in tables.</p>
+      </div>
+      <div class="step">
+        <h4>Hash the empty string</h4>
+        <p><code>CHAIN.sha256("")</code> returns a digest, not an error. Say out loud why a function that hashes nothing still has to return 64 characters, and what would break in the register if it returned an empty result instead.</p>
+      </div>
+      <div class="step">
+        <h4>Predict, then count</h4>
+        <p>In the avalanche box, before pressing anything, write down how many of the 64 positions you expect to change if you add a full stop to the end of input A. Then type it and read the count. Most people guess too low.</p>
+      </div>
+      <div class="step">
+        <h4>Try to steer it</h4>
+        <p>Set input B to something whose digest begins with the same character as input A's. You are allowed unlimited tries. Notice that nothing you learn from one attempt helps with the next, and that this is what having no gradient feels like from the inside.</p>
+      </div>
+      <div class="step">
+        <h4>Write the sentence you will need in session 2</h4>
+        <p>One line, no metaphor: what a digest proves about the bytes it was taken over. Keep it. The next session hands that sentence a block with five fields in it and asks whether it still holds.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When a library hands you a hash, find its test vectors before you find its documentation. An implementation that does not carry them is asking you to take its arithmetic on trust, and its output will look correct either way.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">An implementation has one constant mistyped. What does its output look like?</p>
+      <div class="qopt">A · Shorter than 64 characters, which is how the mistake is spotted</div>
+      <div class="qopt">B · 64 hexadecimal characters, deterministic and different for different inputs, and indistinguishable from correct output by eye</div>
+      <div class="qopt">C · The same digest for every input, since a broken function collapses</div>
+      <q class="qwhy">This is the whole reason vectors ship inside the implementation. A wrong hash is still a function: same input, same output, plausible hex, no warning. The only way to tell is to compare against a published value, which is what selfTest does at load time.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">The digests of abc and abd differ in 58 of 64 characters rather than all 64. Why is that the expected result?</p>
+      <div class="qopt">A · Because the inputs share two of their three letters, so part of the digest is shared too</div>
+      <div class="qopt">B · Because SHA-256 leaves six characters fixed as a header</div>
+      <div class="qopt">C · Because two unrelated digests agree at any position about one time in sixteen, so a handful of accidental matches is what randomness looks like</div>
+      <q class="qwhy">Sixteen possible characters per position means roughly four coincidental matches across 64 positions. A count of 58 or 60 says the second digest behaves like an unrelated draw. A count of exactly 64 every time would be a pattern, and patterns are what an attacker wants.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">The digest f0c5a3b1 and so on was measured for the text "Consignment 41 inspected, seal intact". Where does that digest appear in the Harbourgate register?</p>
+      <div class="qopt">A · Nowhere. It is the hash of the entry text alone, and a block hash is taken over the whole assembled block</div>
+      <div class="qopt">B · As block 2's hash, since block 2 holds that entry</div>
+      <div class="qopt">C · As block 3's previous hash field, since block 3 follows the entry</div>
+      <q class="qwhy">Block 2's hash begins f325e5d96bee6a1d, which is a different value entirely, because the block carries its index, timestamp, previous hash and nonce alongside the entry text and all of them go into the digest. Conflating the two is the most common error when reading a register, and session 2 is built on the difference.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 2</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, in whatever language you actually work in.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find the vectors in your own stack</h4>
+        <p>Take the hashing library you would reach for at work and hash the three published inputs from Part 2. Confirm all three match. Note how long it took you to find out whether that library runs its own vectors at load time, because that answer is the finding.</p>
+      </div>
+      <div class="step">
+        <h4>Measure your own avalanche</h4>
+        <p>Hash a real record from your work, change one character, hash it again, and count the differing positions yourself. Bring the number to session 2. If it is nowhere near the high fifties, something in your comparison is wrong and that is worth finding.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">SHA-256 as a function, and its four properties</span><span class="note">Deterministic, fast, fixed length, and no usable gradient, which is the one that does the work.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The three published test vectors</span><span class="note">Run live by selfTest, and why an implementation ships them rather than assuming.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The avalanche effect, measured</span><span class="note">58 of 64 characters for abc against abd; 60 of 64 for one capital letter in a Harbourgate entry.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Driving sha256 and selfTest live</span><span class="note">The same engine the diagrams were measured with, in the console and in two boxes on this page.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">What a block hash is taken over</span><span class="note">Named tonight, because it is not the same as hashing the entry text. Session 2.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Collisions, and why none is known</span><span class="note">Stated as a distinction, not worked through. The security courses go further.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism on this page depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The function.</strong> <code>CHAIN.sha256(str)</code>. Any input, 64 hexadecimal characters, no options.</div>
+      <div class="cheat-item"><strong>Deterministic.</strong> Same bytes, same digest, any machine, any year.</div>
+      <div class="cheat-item"><strong>Fast.</strong> One pass. Checking costs what producing costs, which is why a sceptic can verify for free.</div>
+      <div class="cheat-item"><strong>Fixed length.</strong> Three characters or three million, 64 out. Collisions must exist; none is known.</div>
+      <div class="cheat-item"><strong>No gradient.</strong> Nothing points back at the input and nothing points at a target. Guess, check, guess again.</div>
+      <div class="cheat-item"><strong>Vectors.</strong> abc gives ba7816bf and so on. A wrong hash still prints plausible hex, so check rather than assume.</div>
+      <div class="cheat-item"><strong>Avalanche.</strong> 58 of 64 for abc against abd. 60 of 64 for one capital letter in an entry.</div>
+      <div class="cheat-item"><strong>The trap.</strong> Those digests are of the entry text alone. A block hash covers the whole assembled block.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 1 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="../index.html">← All sessions</a>
+        <a href="p2-building-the-chain.html">Practitioner session 2 · Building the chain →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+
+  /* ---- the published vectors, as the engine carries them ---- */
+  var VECTORS = [
+    ["abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", "abc"],
+    ["", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "the empty string"],
+    ["abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+     "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1", "the 56 character string"]
+  ];
+
+  /* A function that returns 64 hexadecimal characters and nothing more.
+     It is not a hash in any useful sense, and its output looks exactly
+     as convincing as output that is. That is the point of the button. */
+  function impostor(s) {
+    var h = 2166136261 >>> 0, out = "", k, i;
+    for (k = 0; k < 8; k++) {
+      for (i = 0; i < s.length; i++) { h = (h ^ (s.charCodeAt(i) + k)) >>> 0; h = Math.imul(h, 16777619) >>> 0; }
+      h = (h + 2654435769 + k * 40503) >>> 0;
+      out += ("00000000" + h.toString(16)).slice(-8);
+    }
+    return out;
+  }
+
+  /* ---------- vector box ---------- */
+  var vbox = document.getElementById("p1-vectors");
+  if (vbox) {
+    var rowsEl = document.getElementById("p1-rows");
+    var verdictEl = document.getElementById("p1-verdict");
+    var vfootEl = document.getElementById("p1-vfoot");
+    var vbtns = vbox.querySelectorAll(".p1-btns button");
+
+    function runVectors(which) {
+      var fn = which === "fake" ? impostor : CHAIN.sha256;
+      var passed = 0;
+      rowsEl.innerHTML = "";
+      VECTORS.forEach(function (v) {
+        var got = fn(v[0]);
+        var ok = got === v[1];
+        if (ok) passed++;
+        var d = document.createElement("div");
+        d.className = "p1-row" + (ok ? " ok" : " bad");
+        d.innerHTML = "<b>" + v[2] + "</b>"
+          + "<span>expected&nbsp; " + v[1] + "</span>"
+          + "<span>returned&nbsp; " + got + "</span>"
+          + "<em>" + (ok ? "matches the published digest" : "does not match the published digest") + "</em>";
+        rowsEl.appendChild(d);
+      });
+      verdictEl.textContent = passed + " of 3 vectors match.";
+      vfootEl.textContent = which === "fake"
+        ? "Every digest above is 64 hexadecimal characters, stable and input dependent. Only the comparison tells you it is worthless."
+        : "selfTest() reports " + (CHAIN.selfTest().ok ? "ok" : "a failure") + " in this browser, so these digests are the digests any correct implementation gives.";
+      for (var j = 0; j < vbtns.length; j++) {
+        vbtns[j].className = (vbtns[j].getAttribute("data-impl") === which) ? "btn primary" : "btn";
+      }
+    }
+    for (var vi = 0; vi < vbtns.length; vi++) {
+      vbtns[vi].addEventListener("click", function () { runVectors(this.getAttribute("data-impl")); });
+    }
+    runVectors("real");
+  }
+
+  /* ---------- avalanche box ---------- */
+  var abox = document.getElementById("p1-aval");
+  if (abox) {
+    var inA = document.getElementById("p1-in-a");
+    var inB = document.getElementById("p1-in-b");
+    var outA = document.getElementById("p1-out-a");
+    var outB = document.getElementById("p1-out-b");
+    var stripA = document.getElementById("p1-strip-a");
+    var stripB = document.getElementById("p1-strip-b");
+    var countEl = document.getElementById("p1-count");
+    var afootEl = document.getElementById("p1-afoot");
+    var abtns = abox.querySelectorAll(".p1-btns button");
+
+    var PAIRS = [
+      ["abc", "abd"],
+      ["Consignment 41 inspected, seal intact", "Consignment 41 inspected, seal Intact"]
+    ];
+
+    function paint(el, digest, other) {
+      el.innerHTML = "";
+      for (var i = 0; i < digest.length; i++) {
+        var c = document.createElement("i");
+        c.textContent = digest.charAt(i);
+        if (digest.charAt(i) !== other.charAt(i)) c.className = "on";
+        el.appendChild(c);
+      }
+    }
+
+    function renderPair() {
+      var ha = CHAIN.sha256(inA.value);
+      var hb = CHAIN.sha256(inB.value);
+      outA.textContent = ha;
+      outB.textContent = hb;
+      paint(stripA, ha, hb);
+      paint(stripB, hb, ha);
+      var n = 0;
+      for (var i = 0; i < 64; i++) if (ha.charAt(i) !== hb.charAt(i)) n++;
+      countEl.textContent = inA.value === inB.value
+        ? "The two inputs are identical, so the two digests are identical. Change one character."
+        : n + " of the 64 positions differ. The marked cells are where the two digests disagree.";
+      afootEl.textContent = "Both digests are hashes of the input text alone. A block hash in the register covers the whole assembled block and is a different value.";
+    }
+
+    for (var ai = 0; ai < abtns.length; ai++) {
+      abtns[ai].addEventListener("click", function () {
+        var p = PAIRS[parseInt(this.getAttribute("data-pair"), 10)];
+        inA.value = p[0];
+        inB.value = p[1];
+        for (var j = 0; j < abtns.length; j++) {
+          abtns[j].className = (abtns[j] === this) ? "btn primary" : "btn";
+        }
+        renderPair();
+      });
+    }
+    inA.addEventListener("input", renderPair);
+    inB.addEventListener("input", renderPair);
+    renderPair();
+  }
+})();
+</script>
+<style>
+  #p1-vectors .p1-btns, #p1-aval .p1-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #p1-vectors .p1-row {
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--indigo);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+    margin-bottom: .5rem;
+  }
+  #p1-vectors .p1-row.bad { background: var(--amber-50); border-left-color: var(--amber); }
+  #p1-vectors .p1-row b { display: block; font-size: .78rem; color: var(--indigo-deep); }
+  #p1-vectors .p1-row span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .72rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--muted);
+  }
+  #p1-vectors .p1-row em { display: block; font-style: normal; font-size: .72rem; font-weight: 700; color: var(--indigo); }
+  #p1-vectors .p1-row.bad em { color: var(--amber); }
+  #p1-aval .sql-code { border: 1px solid var(--hairline); border-radius: 8px; }
+  #p1-aval .p1-digest {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+    background: var(--indigo-50);
+    border-radius: 8px;
+    padding: .5rem .7rem;
+    margin: .45rem 0 .4rem;
+  }
+  #p1-aval .p1-strip { display: flex; flex-wrap: wrap; gap: 2px; margin: 0 0 1rem; }
+  #p1-aval .p1-strip i {
+    font-style: normal;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .64rem;
+    line-height: 1;
+    width: 1.05rem;
+    padding: .2rem 0;
+    text-align: center;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid var(--hairline);
+    color: var(--muted);
+  }
+  #p1-aval .p1-strip i.on { background: var(--amber); border-color: var(--amber); color: #FFFFFF; }
+</style>
+</body>
+</html>

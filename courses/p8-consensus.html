@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 8 of 10. Two competing branches of the Harbourgate register, both built and both verified clean. Validity is local and does not choose between histories. The selection rule, what happens to the losing entries, and finality measured as depth.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Consensus - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 8 of 10. Both branches verify. That is the whole problem, and the rule that settles it takes no judgement.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p8-consensus.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Consensus - learn blockchain with phoebe">
+<meta name="twitter:description" content="Two histories, both valid. Validity is local. Finality is depth, and depth is a count you can run.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 8 · Consensus - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 8 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 8 of 10</div>
+    <h1>Consensus</h1>
+    <p class="sub">Build two competing versions of the Harbourgate register tonight, run <code>verify()</code> on each, and read the results. Both come back with no problems. Not one problem between them, not a warning, not a hint. Every tool built across seven sessions has nothing to say about which of the two is the register, because none of them was ever looking at more than one chain at a time. That is the situation the rest of the session is about, and it is a measuring session rather than an argument.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone writing a read-then-act rule</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · Two valid histories</span>
+      <span class="a3" style="flex:3">16-30 · The rule and the loss</span>
+      <span class="a4" style="flex:4">30-45 · Depth, the limit, and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>What verify was never asked to do</h2>
+    </div>
+    <p class="lede">Read the signature of the function. <code>CHAIN.verify(chain)</code> takes one chain. It recomputes every hash and checks every link inside that one chain, and it reports where the first failure is. There is no second argument, and there was never going to be one, because nothing inside a single chain contains information about any other chain. Tonight makes that limitation visible by running into it deliberately.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Two branches on screen, both verifying clean, and the sentence that goes with them: validity is local and does not choose between histories. The selection rule described as a machine would evaluate it, with judgement removed on purpose. Depth measured live, as blocks that would have to be redone. And one honest blank where a number would normally go.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Branch.</strong> One of two or more continuations of the same shared history. Each is a complete chain in its own right.</li>
+          <li><strong>Local validity.</strong> What <code>verify()</code> tests. Internal consistency of one chain, with no view of any other.</li>
+          <li><strong>Selection rule.</strong> The test each holder applies to decide which branch is the accepted one. Takes the branches and nothing else.</li>
+          <li><strong>Accepted history.</strong> The branch the rule currently selects. A status a chain has, not a property inside it.</li>
+          <li><strong>Reorganisation.</strong> The accepted history changing from one branch to another. Entries leave; none of them becomes invalid.</li>
+          <li><strong>Depth.</strong> How many blocks sit after an entry. The only quantity that changes as an entry ages.</li>
+          <li><strong>Blocks to redo.</strong> Depth plus the block itself. Deterministic, countable, and measured live in part 4.</li>
+          <li><strong>Finality.</strong> How settled an entry is. A quantity that strengthens with depth, and never a message that arrives.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers two valid histories</span>
+      <h2>Both branches verify. Read the output.</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">The shared trunk is blocks 0 to 3 of the register you have been reading since session 1, up to and including consignment 42 signed over to Ardwick Cold Store. From there the port authority and the buyer each continue with entries of their own. Both continuations are built with <code>makeChain</code> and checked with <code>verify</code>, in this page, and both are clean.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 316" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A fork diagram. A shared trunk of four blocks runs along the left, labelled blocks 0 to 3 with hashes beginning 608eba0870199b95, 86202a0bab83df26, f325e5d96bee6a1d and fc189d9dba7c4311. After block 3 the diagram splits into two rows. The upper row is branch A, the port authority, which adds its own blocks. The lower row is branch B, the buyer, which adds different blocks. Beside each branch a result box reads verify returns no problems. A bar beneath says both are correctly hashed and correctly linked, that verify takes one chain and has no second argument, and that validity is a property of a chain rather than a choice between chains.">
+        <style>
+          .p8aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p8aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p8aB { font: 400 10px Inter, sans-serif; fill: #141C22; }
+          .p8aF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p8aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p8aW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8aV { font: 400 9px Inter, sans-serif; fill: #CBDDE9; }
+          .p8aX { font: 700 9px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p8aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p8aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p8aH" x="14" y="20">One shared trunk, two continuations, two clean results</text>
+
+        <text class="p8aL" x="14" y="42">SHARED BY BOTH HOLDERS · BLOCKS 0 TO 3</text>
+
+        <rect x="14" y="50" width="120" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="p8aW" x="26" y="70">block 0</text>
+        <text class="p8aV" x="26" y="86">608eba0870199b95</text>
+
+        <rect x="142" y="50" width="120" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="p8aW" x="154" y="70">block 1</text>
+        <text class="p8aV" x="154" y="86">86202a0bab83df26</text>
+
+        <rect x="270" y="50" width="120" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="p8aW" x="282" y="70">block 2</text>
+        <text class="p8aV" x="282" y="86">f325e5d96bee6a1d</text>
+
+        <rect x="398" y="50" width="120" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="p8aW" x="410" y="70">block 3</text>
+        <text class="p8aV" x="410" y="86">fc189d9dba7c4311</text>
+
+        <path d="M 522 66 C 548 66, 548 138, 574 138" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p8aAr)"></path>
+        <path d="M 522 80 C 548 80, 548 216, 574 216" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p8aAr)"></path>
+
+        <text class="p8aL" x="14" y="128">BRANCH A · the port authority continues</text>
+        <rect x="14" y="136" width="200" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p8aF" x="28" y="154">block 4, its own entry</text>
+        <text class="p8aB" x="28" y="170">hashed and linked to block 3</text>
+        <rect x="222" y="136" width="200" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p8aF" x="236" y="154">block 5, its own entry</text>
+        <text class="p8aB" x="236" y="170">hashed and linked to block 4</text>
+        <rect x="584" y="136" width="282" height="44" rx="8" fill="#0E2C3F"></rect>
+        <text class="p8aW" x="598" y="154">verify(branchA)</text>
+        <text class="p8aV" x="598" y="170">ok: true · problems: none</text>
+
+        <text class="p8aL" x="14" y="206">BRANCH B · the buyer continues</text>
+        <rect x="14" y="214" width="200" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p8aF" x="28" y="232">block 4, a different entry</text>
+        <text class="p8aB" x="28" y="248">hashed and linked to block 3</text>
+        <rect x="222" y="214" width="200" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p8aF" x="236" y="232">block 5, a different entry</text>
+        <text class="p8aB" x="236" y="248">hashed and linked to block 4</text>
+        <rect x="584" y="214" width="282" height="44" rx="8" fill="#0E2C3F"></rect>
+        <text class="p8aW" x="598" y="232">verify(branchB)</text>
+        <text class="p8aV" x="598" y="248">ok: true · problems: none</text>
+
+        <rect x="14" y="270" width="852" height="40" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p8aK" x="30" y="286">verify takes one chain. There is no second argument, and there could not be one.</text>
+        <text class="p8aB" x="30" y="303" style="font-size:11px">Validity is a property a chain has on its own. Choosing between two of them is a different job, done by a different rule.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the four trunk blocks are identical in both branches, which is why this is one register that split rather than two registers that differ.</figcaption>
+    </figure>
+
+    <div class="wk" id="p8-fork">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">makeChain and verify, running in this page. Extend either branch and watch both results stay clean.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p8-btns">
+          <button class="btn primary" type="button" id="p8-add-a">Port authority adds an entry</button>
+          <button class="btn primary" type="button" id="p8-add-b">Buyer adds an entry</button>
+          <button class="btn" type="button" id="p8-reset">Back to the shared trunk</button>
+        </div>
+        <div class="p8-branch" id="p8-branch-a"></div>
+        <div class="p8-branch" id="p8-branch-b"></div>
+        <p class="sql-note" id="p8-verdict">...</p>
+        <p class="sql-note" id="p8-churn">...</p>
+      </div>
+      <div class="wk-foot" id="p8-fork-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Nothing in a block points sideways<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A block records its position, its timestamp, its entry, the hash of the block below it and its nonce. Five fields, all of them looking down or inward. There is no field that names a competitor, no field that records how many other holders agreed, and no field that says this is the real one.</p>
+        <p>So the information needed to choose between branches does not exist inside either branch. It has to be manufactured by a rule applied from outside, over both of them at once, and that is a strictly separate piece of machinery from everything built in sessions 1 to 7.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Press both buttons in turn and watch nothing break<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Extend branch A three times and branch B once. Both still verify. Extend B four times so it overtakes A. Both still verify. There is no combination of presses that produces a problem from <code>verify</code>, because nothing either branch does is capable of making the other one inconsistent.</p>
+        <p>That is worth noticing as a practitioner rather than nodding at as a concept. Any monitoring built on verification alone will be silent through every reorganisation your system ever has.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the trunk blocks are byte identical<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Both branches are built from the same first four entries with the same fixed timestamps, so blocks 0 to 3 hash to the same four values in both, down to the last character. That is what makes the picture a fork rather than two unrelated registers: the branches share a prefix exactly, and diverge at a known index.</p>
+        <p>It also means the cost of abandoning a branch is bounded by where the split is, not by the length of the register. A holder switching branches keeps everything below the split and discards only what is above it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the rule and the loss</span>
+      <h2>A rule a machine can evaluate, and what it throws away</h2>
+      <span class="tag concept">13 min live</span>
+    </div>
+    <p class="lede">Every holder has to reach the same answer alone, from the branches in front of them, with nobody to ask. That constraint is what determines the shape of the rule before anybody decides what the rule should say. Work out what a function is allowed to take as input, and most of the candidate rules disappear.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two columns of candidate selection rules. The left column, headed rules a machine can evaluate, lists: the branch with more accumulated work, the branch with more blocks, and the branch seen first if the first two tie. Each is marked computable from the branches alone, deterministic, and identical for every holder. The right column, headed rules a machine cannot evaluate, lists: the branch with the more plausible entry, the branch from the more reputable party, and the branch most people think is fairer. Each is marked as needing a judge. A bar beneath says a rule needing judgement needs a judge, that a judge is an administrator, and that the rule chosen is not the best rule but the best rule that can be computed by strangers who cannot talk to each other.">
+        <style>
+          .p8bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p8bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p8bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p8bF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p8bW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8bS { font: 400 10px Inter, sans-serif; fill: #FFFFFF; }
+          .p8bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p8bK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p8bH" x="14" y="20">What the rule is allowed to look at</text>
+
+        <rect x="14" y="32" width="418" height="30" rx="8" fill="#1E4D6B"></rect>
+        <text class="p8bW" x="28" y="52">RULES A MACHINE CAN EVALUATE</text>
+
+        <rect x="448" y="32" width="418" height="30" rx="8" fill="#B45309"></rect>
+        <text class="p8bW" x="462" y="52">RULES A MACHINE CANNOT EVALUATE</text>
+
+        <rect x="14" y="70" width="418" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p8bF" x="28" y="90">The branch with more accumulated work</text>
+        <text class="p8bM" x="28" y="106">The usual rule. Countable from the blocks themselves.</text>
+
+        <rect x="14" y="122" width="418" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p8bF" x="28" y="142">The branch with more blocks</text>
+        <text class="p8bM" x="28" y="158">Also countable, and trivial to inflate where blocks are free.</text>
+
+        <rect x="14" y="174" width="418" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p8bF" x="28" y="194">The one seen first, if the others tie</text>
+        <text class="p8bM" x="28" y="210">Deterministic for each holder. Not the same for all of them.</text>
+
+        <rect x="448" y="70" width="418" height="44" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p8bF" x="462" y="90">The branch with the more plausible entry</text>
+        <text class="p8bB" x="462" y="106">Needs somebody to assess plausibility.</text>
+
+        <rect x="448" y="122" width="418" height="44" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p8bF" x="462" y="142">The branch from the more reputable party</text>
+        <text class="p8bB" x="462" y="158">Needs a register of reputations, and its keeper.</text>
+
+        <rect x="448" y="174" width="418" height="44" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p8bF" x="462" y="194">The branch most holders think is fairer</text>
+        <text class="p8bB" x="462" y="210">Needs a vote, a roll of voters, and a returning officer.</text>
+
+        <rect x="14" y="230" width="852" height="60" rx="10" fill="#0E2C3F"></rect>
+        <text class="p8bW" x="30" y="254" style="font-size:12px">Every rule in the right column is a better rule. Not one of them can be applied by strangers who cannot talk.</text>
+        <text class="p8bS" x="30" y="276">The rule that gets used is not the best rule. It is the best rule computable from the branches alone, and the gap is paid for elsewhere.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the right hand column is not wrong. It is unavailable, which is a different objection and the one that decides the design.</figcaption>
+    </figure>
+
+    <p class="lede">Applying the rule has a consequence that is easy to state and genuinely unsettling once you sit with it. The entries in the branch that loses are not rejected, not flagged, and not invalid. They simply stop being in the history everybody is using.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 268" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels contrasting two ways an entry can stop counting. The left panel, headed rejected, describes an entry that fails verification: a hash mismatch or a link mismatch, reported by verify with an index, detectable by anyone, and permanent because the arithmetic does not change. The right panel, headed left the accepted history, describes an entry in a branch that lost the selection rule: it verifies perfectly, verify reports nothing, no tool in these sessions detects it, and it could return if the branches change again. A bar beneath says that a record can be correct, signed, verified and simply not in the history anybody is reading, and that this is the failure mode with no alarm attached to it.">
+        <style>
+          .p8cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p8cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p8cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p8cF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p8cW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p8cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p8cH" x="14" y="20">Two ways an entry stops counting, and only one of them is noisy</text>
+
+        <rect x="14" y="32" width="418" height="178" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="46" width="94" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p8cW" x="42" y="63">REJECTED</text>
+        <text class="p8cB" x="30" y="94">A hash mismatch or a link mismatch.</text>
+        <text class="p8cM" x="30" y="118">verify reports it, with the index</text>
+        <text class="p8cM" x="30" y="136">Anybody holding a copy detects it</text>
+        <text class="p8cM" x="30" y="154">The entry was never internally consistent</text>
+        <text class="p8cM" x="30" y="172">Permanent, because arithmetic does not move</text>
+        <text class="p8cL" x="30" y="196">SESSION 3 BUILT THE DETECTOR FOR THIS.</text>
+
+        <rect x="448" y="32" width="418" height="178" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="464" y="46" width="248" height="24" rx="6" fill="#B45309"></rect>
+        <text class="p8cW" x="476" y="63">LEFT THE ACCEPTED HISTORY</text>
+        <text class="p8cB" x="464" y="94">Its branch lost the selection rule.</text>
+        <text class="p8cB" x="464" y="118">verify reports nothing, because nothing is wrong</text>
+        <text class="p8cB" x="464" y="136">No tool built in these sessions detects it</text>
+        <text class="p8cB" x="464" y="154">The entry is still correct, and still signed</text>
+        <text class="p8cB" x="464" y="172">Reversible, if the branches change again</text>
+        <text class="p8cK" x="464" y="196">NOTHING BUILT SO FAR RAISES AN ALARM.</text>
+
+        <rect x="14" y="222" width="852" height="38" rx="10" fill="#0E2C3F"></rect>
+        <text class="p8cW" x="30" y="246" style="font-weight:400">A record can be accurate, signed, verified, and simply not in the history anybody is reading. Invalid and absent are different words.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left panel is a fault and behaves like one. The right panel is normal operation, which is precisely why it catches people.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What longest chain actually computes<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Strip the phrase back to the arithmetic. For each branch, total the work accumulated in its blocks. Take the larger total. If the totals tie, keep whichever you already had and wait. That is a function of two arrays, it returns the same answer on every machine, and it needs no clock, no network poll and no opinion.</p>
+        <p>Stated over a raw count of blocks instead, the same function is inflatable wherever blocks are cheap to produce, which is why the work version is the one that survives. Session 4 is why a block is expensive and this session is what that expense is spent on.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Write the read-then-act rule before you need it<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A process that reads the register and does something physical has a decision to make that most such processes have never made explicitly: how deep an entry must be before it acts. The default, which is act on sight, is a choice too, and it is the one with the reorganisation risk fully accepted and nobody informed.</p>
+        <p>Make the depth different for different actions. Recording that somebody looked at a consignment and releasing that consignment from a cold store are not the same class of decision, and one of them cannot be undone by a later entry.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Suppose a branch wins the rule cleanly and everybody can see it was produced to displace a particular entry. One camp says the rule stands, and that this is not a hard case but the defining one. A rule that is followed except when the outcome is disliked was never a rule; it was a preference with extra steps, and the first time it is overridden every holder learns that somebody can override it, which is the property the whole arrangement exists to avoid. The cost of honouring the rule in a bad case is the price of it meaning anything in the ordinary ones.</p>
+        <p>The other camp says that treating the rule as the product rather than as a means is a category error. The rule exists to produce a usable shared history, and when it plainly fails to, the holders are entitled to coordinate and say so. Every real system has an intervention path, formal or otherwise, and pretending otherwise does not remove it, it just leaves it undocumented and available to whoever is best organised on the day.</p>
+        <p>Both positions are held by people who have operated these systems. They agree entirely on the mechanics and disagree about what a rule is for, and the answer decides whether your operating procedure has an escalation path in it or deliberately does not.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers depth</span>
+      <h2>Finality, measured as blocks to redo</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">Session 5 counted this for one case: an edit at block 2 of the six block register forces blocks 2, 3, 4 and 5 to be redone, which is four blocks. The general shape is the same count for every position, and it is not the random part. Displacing an entry means producing a branch that wins the rule, and the deeper the entry sits, the more blocks that branch has to contain.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table over the six block Harbourgate register with three columns: the entry position, how many blocks sit after it, and how many blocks would have to be redone to displace it. Block 0 has five blocks after it and six to redo. Block 1 has four after and five to redo. Block 2 has three after and four to redo, marked as the case session 5 measured. Block 3 has two after and three to redo. Block 4 has one after and two to redo. Block 5 has none after and one to redo. A bar beneath says the count is deterministic while the price of each block is a draw, that finality is this column growing, and that no message ever announces it.">
+        <style>
+          .p8dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p8dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p8dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p8dL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p8dW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8dN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p8dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p8dH" x="14" y="20">Depth, over the six block register</text>
+
+        <text class="p8dL" x="20" y="44">ENTRY AT</text>
+        <text class="p8dL" x="110" y="44">BLOCKS SITTING AFTER IT</text>
+        <text class="p8dL" x="336" y="44">BLOCKS TO REDO TO DISPLACE IT</text>
+        <text class="p8dL" x="620" y="44">NOTE</text>
+
+        <rect x="14" y="52" width="852" height="34" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="60" width="30" height="18" rx="5" fill="#0E2C3F"></rect>
+        <text class="p8dN" x="32" y="74" style="font-size:10px">0</text>
+        <text class="p8dB" x="110" y="74">5</text>
+        <text class="p8dB" x="336" y="74">6</text>
+        <text class="p8dM" x="620" y="74">the genesis block, deepest of all</text>
+
+        <rect x="14" y="90" width="852" height="34" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="98" width="30" height="18" rx="5" fill="#1E4D6B"></rect>
+        <text class="p8dN" x="32" y="112" style="font-size:10px">1</text>
+        <text class="p8dB" x="110" y="112">4</text>
+        <text class="p8dB" x="336" y="112">5</text>
+        <text class="p8dM" x="620" y="112">consignment 41 signed over</text>
+
+        <rect x="14" y="128" width="852" height="34" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="22" y="136" width="30" height="18" rx="5" fill="#B45309"></rect>
+        <text class="p8dN" x="32" y="150" style="font-size:10px">2</text>
+        <text class="p8dB" x="110" y="150">3</text>
+        <text class="p8dB" x="336" y="150">4</text>
+        <text class="p8dB" x="620" y="150">the case session 5 measured</text>
+
+        <rect x="14" y="166" width="852" height="34" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="174" width="30" height="18" rx="5" fill="#1E4D6B"></rect>
+        <text class="p8dN" x="32" y="188" style="font-size:10px">3</text>
+        <text class="p8dB" x="110" y="188">2</text>
+        <text class="p8dB" x="336" y="188">3</text>
+        <text class="p8dM" x="620" y="188">consignment 42 signed over</text>
+
+        <rect x="14" y="204" width="852" height="34" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="212" width="30" height="18" rx="5" fill="#1E4D6B"></rect>
+        <text class="p8dN" x="32" y="226" style="font-size:10px">4</text>
+        <text class="p8dB" x="110" y="226">1</text>
+        <text class="p8dB" x="336" y="226">2</text>
+        <text class="p8dM" x="620" y="226">consignment 41 released</text>
+
+        <rect x="14" y="242" width="852" height="34" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="22" y="250" width="30" height="18" rx="5" fill="#1E4D6B"></rect>
+        <text class="p8dN" x="32" y="264" style="font-size:10px">5</text>
+        <text class="p8dB" x="110" y="264">0</text>
+        <text class="p8dB" x="336" y="264">1</text>
+        <text class="p8dM" x="620" y="264">the newest entry, and the least settled</text>
+
+        <rect x="14" y="286" width="852" height="38" rx="10" fill="#0E2C3F"></rect>
+        <text class="p8dW" x="30" y="310" style="font-weight:400">Finality is the right hand column growing. Nothing announces it, no depth is a declaration, and the number you act on is yours to choose.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the count is deterministic. What each of those blocks costs to produce is a separate quantity and a random one.</figcaption>
+    </figure>
+
+    <p class="lede">The count is one half. The other half is what those blocks cost, and session 4 established the only honest way to state that: a mean across many independent blocks, with the trial count beside it. At difficulty 2 the measured mean was 277 attempts per block over 300 trials, against an expected 256, with a range from 1 to 2,147. The box below runs the whole thing for each position, over independent variants rather than repeats of the same draw.</p>
+
+    <div class="wk" id="p8-depth">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">reforge at difficulty 2, over 12 independent variant registers per row. Real mining, in this browser.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p8-btns">
+          <button class="btn primary" type="button" id="p8-measure">Measure every position</button>
+        </div>
+        <div class="p8-grid" id="p8-depth-grid"></div>
+        <p class="sql-note" id="p8-depth-note">...</p>
+      </div>
+      <div class="wk-foot" id="p8-depth-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the rows are variants and not repeats<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><code>reforge</code> is deterministic. Give it the same chain, the same index and the same difficulty and it searches the same nonces in the same order and returns the same number, every time. Running it twelve times on one register measures nothing and would look exactly like a careful bench.</p>
+        <p>So each of the twelve runs in a row uses a different register: the entries carry a distinct run marker, which changes every block hash and therefore every search. Twelve independent draws, one mean, and the trial count printed beside it, because session 4 showed what a single draw is worth.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Read the spread, not just the mean<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The minimum and maximum printed on each row will be far apart, and at twelve trials the mean itself moves noticeably between presses. That is the honest picture. Press the button three times and watch the same row report three different means.</p>
+        <p>Anybody quoting you a single figure for the cost of displacing an entry is quoting one draw from a distribution with a long tail. The count of blocks is the part you can rely on.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Depth in a register that keeps growing<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Six blocks makes the table readable and understates the effect. In a register that gains entries continuously, the blocks-to-redo figure for any given entry increases on its own, without anybody doing anything, simply because entries keep arriving on top of it.</p>
+        <p>That is the mechanism behind every confirmation count anybody has ever quoted at you. The number itself is a risk appetite dressed as a technical fact, and two organisations reading the same register can reasonably pick different ones for different actions.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers the limit</span>
+      <h2>The number that is not on this page</h2>
+      <span class="tag concept">6 min live</span>
+    </div>
+    <p class="lede">Everything measured in these sessions prices one machine working alone. Every mean, every spread, every blocks-to-redo count comes from one browser searching for nonces with nobody competing. There is a case that changes the problem qualitatively, and the honest thing to do with it is describe the mechanism and then stop.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. The left panel, headed what every figure in these sessions prices, describes one machine searching alone: mean attempts per block at a difficulty, blocks to redo counted from the position, and no competitor extending anything. The right panel, headed what changes when one party has more capacity than everyone else combined, describes the mechanism: that party extends a branch of its own faster than the rest extend theirs, so the branch that wins the selection rule is theirs by construction, and depth stops buying what it bought because the redo happens faster than the honest extension. A bar beneath states plainly that no figure anywhere in these sessions bounds that case, that none is invented here, and that the mechanism is the whole of what can be said honestly.">
+        <style>
+          .p8eH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p8eM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p8eB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p8eF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p8eW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8eS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p8eL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p8eK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p8eH" x="14" y="20">What is priced here, and what is not</text>
+
+        <rect x="14" y="32" width="418" height="182" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="30" y="46" width="200" height="24" rx="6" fill="#1E4D6B"></rect>
+        <text class="p8eW" x="42" y="63">PRICED, ONE MACHINE ALONE</text>
+        <text class="p8eB" x="30" y="96">Mean attempts per block at a difficulty,</text>
+        <text class="p8eB" x="30" y="114">quoted with its trial count.</text>
+        <text class="p8eB" x="30" y="140">Blocks to redo, counted from the position</text>
+        <text class="p8eB" x="30" y="158">of the entry in the register.</text>
+        <text class="p8eB" x="30" y="184">Nobody competing, nobody extending</text>
+        <text class="p8eB" x="30" y="202">anything while the search runs.</text>
+
+        <rect x="448" y="32" width="418" height="182" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="464" y="46" width="248" height="24" rx="6" fill="#B45309"></rect>
+        <text class="p8eW" x="476" y="63">NOT PRICED, AND NOT GUESSED</text>
+        <text class="p8eB" x="464" y="96">One party with more capacity than everyone</text>
+        <text class="p8eB" x="464" y="114">else combined extends its own branch faster</text>
+        <text class="p8eB" x="464" y="132">than the rest extend theirs.</text>
+        <text class="p8eB" x="464" y="158">The branch that wins the selection rule is</text>
+        <text class="p8eB" x="464" y="176">then theirs by construction, and depth stops</text>
+        <text class="p8eB" x="464" y="194">buying what the table above says it buys.</text>
+
+        <rect x="14" y="226" width="852" height="64" rx="10" fill="#0E2C3F"></rect>
+        <text class="p8eW" x="30" y="250" style="font-size:12px">No figure anywhere in these sessions bounds the right hand panel.</text>
+        <text class="p8eS" x="30" y="272">None is measured here and none is invented here. The mechanism is the whole of what can be said honestly, and</text>
+        <text class="p8eS" x="30" y="288">a number would be worth less than the sentence saying there is not one.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the right hand panel has no numbers in it on purpose, and the absence is the finding rather than an omission.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why it is a different problem and not a bigger one<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The depth argument works because an attacker redoing old blocks is racing everybody else, who are adding new ones. Falling behind is the normal outcome and the gap widens, which is what makes depth mean anything at all.</p>
+        <p>Give one party more capacity than the rest combined and the race reverses. They are not trying to catch a gap that grows; they are closing one that shrinks. The quantity that made depth protective is gone, and what remains is a question about capacity rather than about arithmetic. That is a qualitative change, not a larger number in the same table.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What to say when somebody asks for the number<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Say that nothing measured here bounds it, and that you are not going to supply a figure you have not measured. It is an unsatisfying answer and it is the only defensible one from this material.</p>
+        <p>Then move the conversation to what can be answered: who holds the copies, whether their interests differ, and what your process does if an entry it acted on leaves the accepted history. Those are answerable at Harbourgate, tonight, with names in them.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · build-along</span>
+      <h2>Build both, verify both, then count</h2>
+      <span class="tag build">13 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. The first four lines are the whole argument of the session, and they take about ten seconds.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>var TRUNK = [
+  "Harbourgate opens the register",
+  "Consignment 41 signed over to Pell and Sons",
+  "Consignment 41 inspected, seal intact",
+  "Consignment 42 signed over to Ardwick Cold Store"
+];
+var A = CHAIN.makeChain(TRUNK.concat(["Consignment 41 released to the buyer"]), { difficulty: 0 });
+var B = CHAIN.makeChain(TRUNK.concat(["Consignment 41 held pending paperwork"]), { difficulty: 0 });
+CHAIN.verify(A).ok
+CHAIN.verify(B).ok
+A[3].hash === B[3].hash
+A[4].hash === B[4].hash
+CHAIN.reforge(CHAIN.makeChain(TRUNK, { difficulty: 2 }), 2, 2).attempts</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Verify both and say the sentence</h4>
+        <p>Both return true. Say out loud what that means and what it does not: each chain is internally consistent, and neither result is an opinion about the other. If the sentence needs the word invalid anywhere, rewrite it.</p>
+      </div>
+      <div class="step">
+        <h4>Confirm the split point</h4>
+        <p>Compare block 3 across the two branches, then block 4. The first matches exactly and the second does not. Name the index where the histories diverge without looking at the entries.</p>
+      </div>
+      <div class="step">
+        <h4>Extend one branch and apply the rule by hand</h4>
+        <p>Add a second entry to B so it is longer. State which branch the rule selects and which entry has just left the accepted history. Then say whether anything about that entry changed, and answer honestly.</p>
+      </div>
+      <div class="step">
+        <h4>Count blocks to redo for every position</h4>
+        <p>Without running anything, write the blocks-to-redo figure for an entry at each index of a six block register. Then check it against the table above. The count is arithmetic and you should get it right on paper.</p>
+      </div>
+      <div class="step">
+        <h4>Run reforge twice and compare</h4>
+        <p>Run the last console line, then run it again with one word changed in one of the trunk entries. Two different totals for the same amount of work. Write down why quoting either as the cost would be wrong.</p>
+      </div>
+      <div class="step">
+        <h4>Write your depth rule</h4>
+        <p>Pick one action your organisation takes on the strength of a record. Choose the depth required before acting, write the sentence, and add what you are accepting by choosing that number rather than a larger one. Keep it for session 10.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody shows you a verification result as evidence that a history is the right one, ask how many chains the function took as arguments. One chain in means the answer is about internal consistency, and the question you asked was about something else entirely.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Two branches of the same register are built and <code>verify()</code> returns ok on both. What has verification decided?</p>
+      <div class="qopt">A · That both branches are the accepted history, since both are valid</div>
+      <div class="qopt">B · That one of them must be tampered with, because two valid continuations cannot coexist</div>
+      <div class="qopt">C · Nothing about which is the history; verification takes one chain and tests it for internal consistency, and both branches are internally consistent</div>
+      <q class="qwhy">Validity is local. The function has one argument and every field it inspects looks down or inward, so the information needed to choose between branches is not present in either of them. Choosing is a separate rule applied from outside over both at once.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">An entry was in the accepted history this morning and is not in it this afternoon. What happened to it?</p>
+      <div class="qopt">A · Its branch lost the selection rule, so it left the accepted history; it was never invalid, nothing about it changed, and no tool built so far reports it</div>
+      <div class="qopt">B · It failed verification, which is why it was removed</div>
+      <div class="qopt">C · It was deleted by whoever runs the register, since somebody must have decided</div>
+      <q class="qwhy">Invalid and absent are different words. A rejected entry fails arithmetic, is reported with an index, and stays wrong. An entry that leaves the accepted history is still correctly hashed, still correctly linked and still signed, and its departure raises no alarm anywhere, which is what makes it the more unsettling of the two.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Somebody asks how much protection depth gives against a party with more capacity than everyone else combined. What can be answered from the material measured here?</p>
+      <div class="qopt">A · Multiply the mean attempts per block by the blocks to redo and quote the total</div>
+      <div class="qopt">B · Nothing; every figure measured here prices one machine working alone, so the mechanism can be described and no number here bounds it</div>
+      <div class="qopt">C · Depth protects regardless, since the arithmetic of hashing does not change</div>
+      <q class="qwhy">Depth is protective because an attacker redoing old blocks falls behind holders adding new ones. Reverse the capacity and the race reverses with it, which is a different problem rather than a larger number in the same table. The figures on these pages come from one browser with no competitor, so quoting them as a bound would be quoting the wrong measurement.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 9</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty five minutes, on a process that already reads a record and then does something.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find your act-on-sight process</h4>
+        <p>Name one process that acts the moment a record appears. Write what it does in the physical world, and what would have to happen if that record later left the accepted history. If the answer is that nothing could be done, that is the finding.</p>
+      </div>
+      <div class="step">
+        <h4>Set two depths, not one</h4>
+        <p>Pick one reversible action and one irreversible one. Choose a required depth for each, in writing, with the reason. Bring both to session 9, which is about code that runs on the register and therefore inherits every property tonight established.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Two real branches, both verifying clean</span><span class="note">Built with makeChain and checked with verify, live. Validity is local and chooses nothing.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The selection rule, mechanically</span><span class="note">What a rule may take as input, what longest chain computes, and why the better rules are unavailable.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What happens to the losing branch's entries</span><span class="note">They leave the accepted history without ever being invalid, and nothing built so far raises an alarm.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Finality as depth</span><span class="note">Blocks to redo counted for every position, and measured live as a mean with its trial count.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">A party with more capacity than everyone else combined</span><span class="note">Mechanism described tonight. No figure measured here bounds it, and none is invented.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Forks that are disagreements about the rules</span><span class="note">A different kind of split, and a social question rather than a computable one. Leader session 4.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Energy, hardware and network scale figures</span><span class="note">Not measured on this bench, not quoted from elsewhere, and not guessed.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price or market</span><span class="note">A separate subject in the crypto course, and nothing here is investment advice.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Both branches verify. Validity is local and does not choose between histories.</div>
+      <div class="cheat-item"><strong>verify takes one chain.</strong> No second argument, because nothing in a block points sideways.</div>
+      <div class="cheat-item"><strong>The rule's constraint.</strong> Computable from the branches alone, deterministic, and identical for strangers who cannot talk.</div>
+      <div class="cheat-item"><strong>Longest chain.</strong> Total the work in each branch, take the larger, keep what you had on a tie.</div>
+      <div class="cheat-item"><strong>The loss.</strong> Losing entries were never invalid. They left the accepted history, and nothing raises an alarm.</div>
+      <div class="cheat-item"><strong>Depth.</strong> Blocks to redo is depth plus one. At block 2 of six, that is four blocks.</div>
+      <div class="cheat-item"><strong>Cost.</strong> The count is deterministic. What each block costs is a draw, quoted as a mean with its trials.</div>
+      <div class="cheat-item"><strong>The blank.</strong> Every figure here prices one machine alone. Nothing here bounds an attacker with more capacity than the rest combined.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 8 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p7-signatures-and-identity.html">← Practitioner session 7 · Signatures and identity</a>
+        <a href="p9-smart-contracts-mechanically.html">Practitioner session 9 · Smart contracts, mechanically →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("p8-fork");
+  if (!box) return;
+
+  var TRUNK = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store"
+  ];
+  var A_EXTRA = [
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken",
+    "Consignment 42 released to the buyer"
+  ];
+  var B_EXTRA = [
+    "Consignment 41 held pending paperwork",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 held pending paperwork"
+  ];
+
+  var aCount = 0, bCount = 0, departures = 0, lastAccepted = null;
+
+  var aEl = document.getElementById("p8-branch-a");
+  var bEl = document.getElementById("p8-branch-b");
+  var verdictEl = document.getElementById("p8-verdict");
+  var churnEl = document.getElementById("p8-churn");
+  var footEl = document.getElementById("p8-fork-foot");
+
+  function build(extra, n) {
+    return CHAIN.makeChain(TRUNK.concat(extra.slice(0, n)), { difficulty: 0 });
+  }
+
+  function paint(el, title, hint, chain, selected) {
+    var res = CHAIN.verify(chain);
+    var html = '<div class="p8-head"><b>' + title + '</b><span>' + hint + '</span></div><div class="p8-row">';
+    chain.forEach(function (b, i) {
+      var cls = "p8-blk" + (i >= TRUNK.length ? " own" : "") + (selected === false && i >= TRUNK.length ? " dropped" : "");
+      html += '<div class="' + cls + '"><b>block ' + i + '</b><span>' + b.data + '</span><em>' + b.hash.slice(0, 16) + '</em></div>';
+    });
+    html += '</div><p class="p8-state">' + chain.length + " blocks · verify(): "
+      + (res.ok ? "ok true, problems none" : res.problems.length + " problem") + "</p>";
+    el.innerHTML = html;
+  }
+
+  function render() {
+    var a = build(A_EXTRA, aCount);
+    var b = build(B_EXTRA, bCount);
+    var winner = a.length === b.length ? null : (a.length > b.length ? "A" : "B");
+
+    paint(aEl, "Branch A · the port authority", "continues after block 3", a, winner === null ? null : winner === "A");
+    paint(bEl, "Branch B · the buyer", "continues after block 3", b, winner === null ? null : winner === "B");
+
+    var accepted = winner === null ? null : (winner === "A" ? a : b);
+    if (accepted && lastAccepted) {
+      for (var i = TRUNK.length; i < lastAccepted.length; i++) {
+        var stillThere = i < accepted.length && accepted[i].hash === lastAccepted[i].hash;
+        if (!stillThere) departures++;
+      }
+    }
+    if (accepted) lastAccepted = accepted;
+
+    if (aCount === 0 && bCount === 0) {
+      verdictEl.textContent = "No fork yet. Both holders agree on blocks 0 to 3, which are byte identical in both, so this is one register rather than two.";
+    } else if (winner === null) {
+      verdictEl.textContent = "Both verify clean and both are " + a.length
+        + " blocks, so the rule returns no answer. Each holder keeps whichever branch it saw first and waits. Note that neither result is a problem: verify is reporting exactly what it was asked.";
+    } else {
+      var losing = (winner === "A" ? B_EXTRA.slice(0, bCount) : A_EXTRA.slice(0, aCount));
+      verdictEl.textContent = "Both verify clean. Branch " + winner + " is longer, so the rule selects it. "
+        + (losing.length
+            ? "These entries are correctly hashed, correctly linked, and not in the accepted history: " + losing.join("; ") + "."
+            : "The other branch adds nothing, so nothing leaves.");
+    }
+
+    churnEl.textContent = "Entries that entered the accepted history and then left it during this session: " + departures
+      + ". Not one of them was ever invalid, and verify never reported any of them.";
+  }
+
+  document.getElementById("p8-add-a").addEventListener("click", function () {
+    if (aCount < A_EXTRA.length) aCount++;
+    render();
+  });
+  document.getElementById("p8-add-b").addEventListener("click", function () {
+    if (bCount < B_EXTRA.length) bCount++;
+    render();
+  });
+  document.getElementById("p8-reset").addEventListener("click", function () {
+    aCount = 0; bCount = 0; departures = 0; lastAccepted = null;
+    render();
+  });
+
+  var t = CHAIN.selfTest();
+  footEl.textContent = t.ok
+    ? "The three published test vectors pass in this browser, so both branches above were built and checked with a correct SHA-256."
+    : "The test vectors did not pass in this browser, so nothing above should be believed.";
+
+  render();
+})();
+</script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("p8-depth");
+  if (!box) return;
+
+  var BASE = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var TRIALS = 12;
+  var DIFF = 2;
+
+  var gridEl = document.getElementById("p8-depth-grid");
+  var noteEl = document.getElementById("p8-depth-note");
+  var footEl = document.getElementById("p8-depth-foot");
+  var btn = document.getElementById("p8-measure");
+
+  function variant(k) {
+    return BASE.map(function (e) { return e + " · variant " + k; });
+  }
+
+  function measure() {
+    var rows = [], i, k;
+    for (i = 0; i < BASE.length; i++) {
+      var totals = [];
+      for (k = 0; k < TRIALS; k++) {
+        var chain = CHAIN.makeChain(variant(k), { difficulty: DIFF });
+        totals.push(CHAIN.reforge(chain, i, DIFF).attempts);
+      }
+      var sum = totals.reduce(function (p, c) { return p + c; }, 0);
+      rows.push({
+        index: i,
+        depth: BASE.length - 1 - i,
+        redo: BASE.length - i,
+        mean: Math.round(sum / TRIALS),
+        min: Math.min.apply(null, totals),
+        max: Math.max.apply(null, totals)
+      });
+    }
+    return rows;
+  }
+
+  function paint(rows) {
+    var html = '<div class="p8-mrow p8-mhead"><span>entry at</span><span>blocks after</span><span>blocks to redo</span>'
+      + '<span>mean attempts, ' + TRIALS + ' trials</span><span>min</span><span>max</span></div>';
+    rows.forEach(function (r) {
+      html += '<div class="p8-mrow' + (r.index === 2 ? " mark" : "") + '"><span>block ' + r.index + '</span><span>'
+        + r.depth + '</span><span>' + r.redo + '</span><span>' + r.mean.toLocaleString()
+        + '</span><span>' + r.min.toLocaleString() + '</span><span>' + r.max.toLocaleString() + '</span></div>';
+    });
+    gridEl.innerHTML = html;
+    noteEl.textContent = "Difficulty " + DIFF + ", " + TRIALS
+      + " independent variant registers per row, re-mined for real in this browser. The blocks-to-redo column is deterministic and will be identical on every press. The three attempt columns are draws and will not be. Press again and compare.";
+  }
+
+  btn.addEventListener("click", function () {
+    btn.disabled = true;
+    btn.textContent = "Mining...";
+    setTimeout(function () {
+      paint(measure());
+      btn.disabled = false;
+      btn.textContent = "Measure every position again";
+    }, 30);
+  });
+
+  var t = CHAIN.selfTest();
+  footEl.textContent = (t.ok
+    ? "The three published test vectors pass in this browser. "
+    : "The test vectors did not pass in this browser, so nothing here should be believed. ")
+    + "Every figure this box produces prices one machine working alone, with no competitor extending anything.";
+
+  gridEl.innerHTML = '<p class="p8-empty">Nothing measured yet. Press the button.</p>';
+  noteEl.textContent = "...";
+})();
+</script>
+<style>
+  #p8-fork .p8-btns, #p8-depth .p8-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #p8-fork .p8-branch { margin-bottom: 1rem; }
+  #p8-fork .p8-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; margin-bottom: .4rem; }
+  #p8-fork .p8-head b { font-size: .84rem; color: var(--indigo-deep); }
+  #p8-fork .p8-head span { font-size: .74rem; color: var(--muted); }
+  #p8-fork .p8-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .45rem; }
+  #p8-fork .p8-blk {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .5rem .6rem;
+    line-height: 1.4;
+  }
+  #p8-fork .p8-blk b { display: block; font-size: .75rem; color: var(--indigo-deep); }
+  #p8-fork .p8-blk span { display: block; font-size: .72rem; color: var(--ink); }
+  #p8-fork .p8-blk em {
+    display: block;
+    font-style: normal;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .68rem;
+    color: var(--indigo);
+    word-break: break-all;
+  }
+  #p8-fork .p8-blk.own { background: #FFFFFF; border-color: var(--indigo-mid); }
+  #p8-fork .p8-blk.dropped { background: var(--amber-50); border-color: var(--amber); }
+  #p8-fork .p8-blk.dropped em { color: var(--amber); }
+  #p8-fork .p8-state { font-size: .76rem; font-weight: 700; color: var(--indigo); margin: .45rem 0 0; }
+
+  #p8-depth .p8-mrow {
+    display: grid;
+    grid-template-columns: 5.5rem 6rem 7rem 1fr 5rem 5rem;
+    gap: .4rem;
+    padding: .45rem .6rem;
+    border-bottom: 1px solid var(--hairline);
+    font-size: .78rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  #p8-depth .p8-mhead {
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--indigo);
+    border-bottom: 1px solid var(--indigo-mid);
+  }
+  #p8-depth .p8-mrow.mark { background: var(--amber-50); }
+  #p8-depth .p8-mrow span:first-child { font-weight: 700; color: var(--indigo-deep); }
+  #p8-depth .p8-empty { font-size: .8rem; color: var(--muted); margin: 0; }
+</style>
+</body>
+</html>

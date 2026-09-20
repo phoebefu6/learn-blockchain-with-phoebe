@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 7 of 10. A chain proves a record has not changed. It says nothing about who wrote it. Integrity and authenticity are separate guarantees needing separate machinery, and a signature buys the second one at the price of a new question.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Signatures and identity - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 7 of 10. Who put this record there, and why no amount of hashing answers it.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p7-signatures-and-identity.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Signatures and identity - learn blockchain with phoebe">
+<meta name="twitter:description" content="Integrity is has this changed. Authenticity is who put it there. Different guarantees, different machinery.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 7 · Signatures and identity - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 7 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 7 of 10</div>
+    <h1>Signatures and <span class="accent">identity</span></h1>
+    <p class="sub">Block 2 of the Harbourgate register says consignment 41 was inspected and the seal was intact. Six sessions of machinery establish that those words have not changed since they were written. Not one of them establishes who typed them. A buyer holding a perfect copy of the register can tell you the entry is untouched and cannot tell you whether it came from the inspector, from the night supervisor, or from a script somebody left running. Tonight is that gap, the machinery sold to close it, and the honest accounting of what closing it actually buys.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone designing a write path</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · Two guarantees</span>
+      <span class="a3" style="flex:3">16-28 · What a signature says</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The question the register has never once answered</h2>
+    </div>
+    <p class="lede">Leader session 5 put it in one line: a valid block is a well formed block, and permission is settled before the chain sees anything. That line is easy to nod at and hard to act on, because the machinery that settles it is not in the engine, not in the register, and not in anything measured so far. Tonight makes the gap concrete, then walks the usual answer to it slowly enough that the new question it creates is visible before anybody buys it.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Two guarantees held apart in your head, with different names and different machinery: integrity is has this changed, authenticity is who put it there. One sentence for what a valid signature establishes, narrow enough to survive a hostile reading. And the four questions that arrive the moment a signature checks out, none of which is a question about hashing.</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>What the bench cannot do, said first.</strong> The engine on these pages has a real SHA-256, a real chain, real mining and real Merkle proofs. It has no signature functions at all. Nothing on this page signs anything or checks a signature, and no box below pretends otherwise. The parts that can be run are run, the parts that cannot are walked on paper and labelled as such.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Integrity.</strong> Has this record changed since it was written. Answered by recomputing hashes, which is every session so far.</li>
+          <li><strong>Authenticity.</strong> Who put this record there. A different question, answered by different machinery, bought separately.</li>
+          <li><strong>Private key.</strong> The half one party holds and never sends. Used to produce a signature. Never shown, and never typed into a page like this one.</li>
+          <li><strong>Public key.</strong> The half everybody holds. Used to check a signature. Holding it lets you check and does not let you sign.</li>
+          <li><strong>Signature.</strong> A value produced from an entry and a private key, that fits that entry and that public key and no others.</li>
+          <li><strong>Shared secret.</strong> One value both sides hold. Good for a check between two parties who already trust each other, and not a signature. Part 3 shows why, live.</li>
+          <li><strong>Key management.</strong> Issuing, holding, rotating and withdrawing key material, and binding a public key to a person. A discipline of its own, covered in the security and access control courses rather than here.</li>
+          <li><strong>Oracle.</strong> Whatever puts a statement about the world into the register. Leader session 5's term, and it comes back tonight wearing different clothes.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the two guarantees</span>
+      <h2>Has this changed, and who put it there</h2>
+      <span class="tag concept">11 min live</span>
+    </div>
+    <p class="lede">These are routinely spoken as one property called security, and they come apart the moment anything goes wrong. A register can pass every check in session 3 and still be a flawless record of entries written by somebody who had no business writing them. Nothing detects that, because nothing is looking for it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 292" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels side by side. The left panel is labelled integrity and asks: has this record changed since it was written. Its machinery is a hash over the whole block and a link to the block before it, and it is answered by the register itself, by anyone holding a copy. The right panel is labelled authenticity and asks: who put this record there. Its machinery is something only one holder could have produced that anyone can check, and it is not answered by the register, because nothing in a hash records who typed the entry. A bar beneath says a register can verify perfectly and be entirely anonymous, and that the two guarantees need different machinery with the second one bought separately.">
+        <style>
+          .p7aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p7aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p7aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p7aF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p7aW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p7aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p7aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p7aH" x="14" y="20">Two questions that get spoken as one</text>
+        <text class="p7aM" x="14" y="38">Everything measured so far answers the left one. Nothing measured so far touches the right one.</text>
+
+        <rect x="14" y="50" width="418" height="156" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <rect x="30" y="64" width="92" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p7aW" x="40" y="79">INTEGRITY</text>
+        <text class="p7aF" x="30" y="110">Has this record changed since it was written?</text>
+        <text class="p7aB" x="30" y="134">Machinery: a hash over the whole block, and a</text>
+        <text class="p7aB" x="30" y="151">link to the block before it.</text>
+        <text class="p7aL" x="30" y="177">ANSWERED BY THE REGISTER ITSELF,</text>
+        <text class="p7aL" x="30" y="193">BY ANYONE HOLDING A COPY.</text>
+
+        <rect x="448" y="50" width="418" height="156" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="464" y="64" width="122" height="22" rx="6" fill="#B45309"></rect>
+        <text class="p7aW" x="474" y="79">AUTHENTICITY</text>
+        <text class="p7aF" x="464" y="110">Who put this record there?</text>
+        <text class="p7aB" x="464" y="134">Machinery: something only one holder could</text>
+        <text class="p7aB" x="464" y="151">have produced, that anyone can check.</text>
+        <text class="p7aK" x="464" y="177">NOT ANSWERED BY THE REGISTER.</text>
+        <text class="p7aK" x="464" y="193">NO HASH RECORDS WHO TYPED THE ENTRY.</text>
+
+        <rect x="14" y="218" width="852" height="62" rx="10" fill="#0E2C3F"></rect>
+        <text class="p7aW" x="30" y="243" style="font-size:12px">A register can verify perfectly and be entirely anonymous.</text>
+        <text class="p7aW" x="30" y="264" style="font-weight:400">Two guarantees, two machineries, two budgets. The second one is never a consequence of the first.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left panel is the whole of sessions 1 to 6. The right panel has not been touched once.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why this gap is where real systems fail<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Attacks on the left hand column are difficult, visible and rare. An attacker has to edit a record and then rebuild every hash above it, and session 5 counted what that costs. Attacks on the right hand column are none of those things. Somebody writes an entry they were not supposed to write, using credentials that work, and every check in the building returns clean because the entry is genuinely unaltered since it was created.</p>
+        <p>That is the shape of most incidents worth the name. Not arithmetic defeated, but a write path used by the wrong hands. The register records the outcome faithfully and reports no problems, which is exactly what it was built to do.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What a clean verify actually rules out<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Run <code>CHAIN.verify()</code> on the six block register and it returns ok. Say precisely what that rules out: any edit to any of the five hashed fields of any block, after the block was hashed. That is a real and narrow claim, and it is the whole of it.</p>
+        <p>It does not rule out an entry written by the wrong party, an entry written at a convenient time, an entry written by an automated job nobody remembers configuring, or an entry that everybody agrees is untrue. None of those leaves a mark a recomputation can find.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the signature</span>
+      <h2>What a signature says, in plain terms</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">A signature is a value produced from two things: the entry, and something one party holds and nobody else does. It is checked using a different value, one that is published and holds no power to produce anything. The asymmetry between those two values is the entire product. Everything else about it is detail belonging to a course where key material is the subject.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A diagram split by a dashed vertical line into a producing side and a checking side. On the producing side, held by one party only: the writer's private key, held by one party, never sent and never shown, and below it the entry plus a signature produced from the entry and that private key. On the checking side, open to anyone: the writer's public key, published and held by everybody, and below it the check, which asks whether this signature fits this entry and this public key, answering yes or no. An arrow carries the entry and its signature across the divider; the private key does not cross. A bar beneath states what a valid signature establishes exactly: the holder of that private key produced this entry, and it has not been altered since, and anyone can establish that without holding the private key.">
+        <style>
+          .p7bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p7bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p7bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p7bF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p7bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p7bS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p7bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p7bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p7bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p7bH" x="14" y="20">One value produces. A different value checks.</text>
+
+        <line x1="440" y1="30" x2="440" y2="206" stroke="#CBD8E0" stroke-width="1.5" stroke-dasharray="4 4"></line>
+
+        <text class="p7bL" x="14" y="46">PRODUCING SIDE · one holder</text>
+        <text class="p7bL" x="458" y="46">CHECKING SIDE · anyone at all</text>
+
+        <rect x="14" y="56" width="408" height="60" rx="10" fill="#1E4D6B"></rect>
+        <text class="p7bW" x="30" y="80">The writer's private key</text>
+        <text class="p7bS" x="30" y="101">Held by one party. Never sent, never shown.</text>
+
+        <rect x="458" y="56" width="408" height="60" rx="10" fill="#0E2C3F"></rect>
+        <text class="p7bW" x="474" y="80">The writer's public key</text>
+        <text class="p7bS" x="474" y="101">Published. Checking needs nothing else.</text>
+
+        <rect x="14" y="128" width="408" height="66" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p7bF" x="30" y="152">The entry, and a signature over it</text>
+        <text class="p7bB" x="30" y="173">The signature depends on the entry and on the</text>
+        <text class="p7bB" x="30" y="188">private key. Change either and it no longer fits.</text>
+
+        <rect x="458" y="128" width="408" height="66" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p7bF" x="474" y="152">Does this signature fit this entry?</text>
+        <text class="p7bM" x="474" y="173">Yes or no. No partial credit, no near miss, and</text>
+        <text class="p7bM" x="474" y="188">no need to hold the private key to ask.</text>
+
+        <path d="M 428 161 L 452 161" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p7bAr)"></path>
+        <text class="p7bM" x="292" y="212">the entry and its signature cross</text>
+        <text class="p7bK" x="500" y="212">the private key never does</text>
+
+        <rect x="14" y="224" width="852" height="66" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p7bK" x="30" y="248">What a valid signature establishes, exactly:</text>
+        <text class="p7bB" x="30" y="268">the holder of that private key produced this entry, and the entry has not been altered since.</text>
+        <text class="p7bB" x="30" y="284">Anybody can establish that. Nobody needs the private key to do it, and that is the whole of the product.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the dashed line is the only thing that matters. Everything that crosses it is public, and the thing that does not cross it is what the claim rests on.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Read the claim once more, slowly<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The holder of that private key produced this entry. Not the inspector. Not a person. The holder. Every word that a reasonable listener would supply for free is missing on purpose, and each missing word is somebody's job to supply by other means.</p>
+        <p>It is worth saying the sentence out loud with the register in front of you, because the hostile version of the same sentence is what you will hear in a dispute, and it is the same sentence.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why this pairs so naturally with a chain<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The two guarantees compose well. Signing binds an entry to a key holder at the moment of writing. Hashing binds every entry to every entry after it, so the signed entry cannot be quietly swapped for a different one later. Neither does the other's work and the pair covers more than either alone.</p>
+        <p>What the pair still does not cover is everything in part 4, and the reason that part exists is that the composition is so tidy that people stop reading at this point.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the two sets</span>
+      <h2>Who can produce one, and who can check one</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">Here is the part the engine can actually run. A shared value held by both sides gives a check that works and is not a signature, and the difference is visible without any signature machinery at all. Count the people who can produce a valid tag, count the people who can check one, and compare the two counts.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A two row comparison with three columns: the arrangement, who can produce a valid tag, and who can check one. Row one, a shared placeholder held by both sides: everyone holding the placeholder can produce a tag, and everyone holding the placeholder can check one, so the two sets are the same set. Row two, one private key and one published public key: exactly one holder can produce a signature, and everybody can check one, so the two sets are different. A bar beneath says this page can build row one for real because it has a hash, and cannot build row two because the engine has no signature functions, and that an honest sentence is worth more than a demonstration that does not run.">
+        <style>
+          .p7cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p7cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p7cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p7cF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p7cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p7cK { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p7cW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+        </style>
+
+        <text class="p7cH" x="14" y="20">Two sets. Compare their size.</text>
+
+        <text class="p7cL" x="30" y="44">THE ARRANGEMENT</text>
+        <text class="p7cL" x="356" y="44">WHO CAN PRODUCE A VALID TAG</text>
+        <text class="p7cL" x="628" y="44">WHO CAN CHECK ONE</text>
+
+        <rect x="14" y="54" width="852" height="80" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p7cF" x="30" y="80">A shared placeholder</text>
+        <text class="p7cM" x="30" y="99">Both sides hold the same value</text>
+        <text class="p7cM" x="30" y="116">and use it the same way</text>
+        <text class="p7cB" x="356" y="88">Everyone holding the placeholder</text>
+        <text class="p7cB" x="628" y="88">Everyone holding the placeholder</text>
+        <rect x="356" y="100" width="480" height="22" rx="6" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p7cK" x="368" y="115">The same set. A checker who can check can also forge.</text>
+
+        <rect x="14" y="146" width="852" height="80" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p7cF" x="30" y="172">A signature</text>
+        <text class="p7cB" x="30" y="191">One private key produces,</text>
+        <text class="p7cB" x="30" y="208">one published public key checks</text>
+        <text class="p7cB" x="356" y="180">Exactly one holder</text>
+        <text class="p7cB" x="628" y="180">Everybody, forever</text>
+        <rect x="356" y="192" width="480" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p7cW" x="368" y="207">Different sets. That difference is the entire point.</text>
+
+        <rect x="14" y="238" width="852" height="52" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p7cK" x="30" y="261">Row one runs live below. Row two does not run anywhere on this page.</text>
+        <text class="p7cB" x="30" y="280">The engine here has a hash and no signature functions, so row two is walked on paper and labelled as paper.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the only difference between the rows is whether the checking value and the producing value are the same value.</figcaption>
+    </figure>
+
+    <div class="wk" id="p7-tag">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">CHAIN.sha256 only, running in this page. Row one of the table above, built for real.</span>
+      </div>
+      <div class="wk-body">
+        <label class="sql-label" for="p7-entry">The entry being tagged</label>
+        <input class="sql-code" id="p7-entry" type="text" value="Consignment 41 inspected, seal intact">
+        <label class="sql-label" for="p7-shared">The shared value, which is the word placeholder and nothing else</label>
+        <input class="sql-code" id="p7-shared" type="text" value="placeholder">
+        <p class="p7-formula">tag = sha256( shared value + "|" + entry )</p>
+        <p class="p7-digest" id="p7-tag-out">...</p>
+        <div class="p7-btns" id="p7-who">
+          <button class="btn primary" type="button" data-w="same">A checker holding the same value</button>
+          <button class="btn" type="button" data-w="other">A checker holding a different value</button>
+        </div>
+        <p class="p7-digest" id="p7-check-out">...</p>
+        <p class="sql-note" id="p7-note">...</p>
+      </div>
+      <div class="wk-foot" id="p7-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Press the first button and read what it means<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The checker holding the same value recomputes the tag and it matches. That looks like a successful check and it is one, in a narrow sense: the entry has not been altered since the tag was made, by anybody who does not hold the shared value. What it does not establish is who made the tag, because the checker just made an identical one themselves, from nothing but the entry and a value they already had.</p>
+        <p>So the check answers integrity between two parties and answers authenticity not at all. Give the shared value to a third party so they can check, and you have given them the ability to write. There is no arrangement of that value that avoids it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Press the second button and read that too<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A checker holding a different value gets a completely unrelated digest, which is the avalanche property from session 1 doing its ordinary work. They cannot forge a tag, and they also cannot check one. The ability to check and the ability to forge arrived and departed together.</p>
+        <p>That is the sentence to keep. A signature is the arrangement in which those two abilities are separated, and separating them is the thing being bought.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Never a real value in a box like that<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The field above holds the word placeholder because a teaching page is exactly the sort of place real key material ends up and never leaves. Screenshots get circulated, pages get forked, a value typed once for a demonstration gets copied into a script, and eighteen months later it is in production and nobody remembers where it came from.</p>
+        <p>The rule is simpler than any policy: a value that matters is never typed into anything that renders. Where such values do live, how they get there and how they are taken away is the subject of <code>learn-cyber-security-with-phoebe</code> and <code>learn-data-access-control-with-phoebe</code>.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers what it shifts</span>
+      <h2>The signature checks out, and now what</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">A working signature does not remove the trust problem. It relocates it, from the register to a key and from a key to whoever holds it. That is a real improvement, because the new location is a place with a named owner and an operating procedure, and it is an improvement only if somebody actually owns it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 272" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four boxes in a row joined by arrows. The first, in solid indigo, says the signature checks out. The second asks who says this public key belongs to that inspector, and who maintains that binding. The third asks who holds the private key today, and whether it has ever been copied. The fourth asks whether that holder is still authorised, and how quickly permission is withdrawn. A bar beneath says none of those questions is a question about hashing, that they are key management, that key management is the subject of learn-cyber-security-with-phoebe and learn-data-access-control-with-phoebe, and that a signature moves the problem into their hands without removing it.">
+        <style>
+          .p7dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p7dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p7dB { font: 400 10px Inter, sans-serif; fill: #141C22; }
+          .p7dF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p7dW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p7dS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p7dL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+        </style>
+        <defs>
+          <marker id="p7dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p7dH" x="14" y="20">One question answered, three opened</text>
+
+        <rect x="14" y="34" width="196" height="106" rx="10" fill="#1E4D6B"></rect>
+        <text class="p7dW" x="28" y="60">The signature</text>
+        <text class="p7dW" x="28" y="77">checks out</text>
+        <text class="p7dS" x="28" y="100">Arithmetic, and it is</text>
+        <text class="p7dS" x="28" y="115">not in dispute.</text>
+
+        <path d="M 216 87 L 226 87" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p7dAr)"></path>
+
+        <rect x="231" y="34" width="196" height="106" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p7dF" x="245" y="60">Whose key is it?</text>
+        <text class="p7dM" x="245" y="82">Who says this public key</text>
+        <text class="p7dM" x="245" y="97">belongs to that inspector,</text>
+        <text class="p7dM" x="245" y="112">and who maintains it?</text>
+
+        <path d="M 433 87 L 443 87" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p7dAr)"></path>
+
+        <rect x="448" y="34" width="196" height="106" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p7dF" x="462" y="60">Who holds it now?</text>
+        <text class="p7dM" x="462" y="82">One person, a team, a</text>
+        <text class="p7dM" x="462" y="97">running job? Has it ever</text>
+        <text class="p7dM" x="462" y="112">been copied anywhere?</text>
+
+        <path d="M 650 87 L 660 87" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p7dAr)"></path>
+
+        <rect x="665" y="34" width="196" height="106" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p7dF" x="679" y="60">Still authorised?</text>
+        <text class="p7dM" x="679" y="82">On the day somebody</text>
+        <text class="p7dM" x="679" y="97">leaves, how long does</text>
+        <text class="p7dM" x="679" y="112">their key keep working?</text>
+
+        <rect x="14" y="156" width="852" height="102" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p7dL" x="30" y="182">NOT ONE OF THOSE IS A QUESTION ABOUT HASHING.</text>
+        <text class="p7dB" x="30" y="206" style="font-size:11px">They are key management: issuing, binding, holding, rotating and withdrawing. That discipline is the subject of</text>
+        <text class="p7dB" x="30" y="224" style="font-size:11px">learn-cyber-security-with-phoebe and learn-data-access-control-with-phoebe, and no register design substitutes for it.</text>
+        <text class="p7dB" x="30" y="246" style="font-size:11px; font-weight:800">A signature moves the problem into their hands. It does not remove it, and it does not answer it here.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the first box is arithmetic and nobody argues with it. The other three are operations, and that is where the argument always is.</figcaption>
+    </figure>
+
+    <p class="lede">Put that against the Harbourgate entry everybody has been reading since session 1, and the shape of leader session 5's oracle problem shows up again in a place people do not expect it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 282" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three stacked rows about a signed version of Harbourgate block 2, which reads consignment 41 inspected, seal intact. The first row, marked proved, says the holder of the inspector's private key produced this entry and it has not changed since. The second row, marked assumed, says that key was in the inspector's hands and nobody else's at that moment, and that this is an operational claim rather than an arithmetic one. The third row, marked not proved, says that anybody opened the container and looked at the seal. A bar beneath says this is the oracle problem from leader session 5 arriving in a new place, and that a signature moves trust from a register to a person without creating any.">
+        <style>
+          .p7eH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p7eM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p7eB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p7eF { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .p7eW { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p7eX { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p7eK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p7eH" x="14" y="20">A signed Harbourgate block 2, read three ways</text>
+        <rect x="14" y="30" width="852" height="30" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p7eX" x="30" y="50">Consignment 41 inspected, seal intact</text>
+
+        <rect x="14" y="70" width="852" height="52" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="26" y="82" width="86" height="28" rx="7" fill="#1E4D6B"></rect>
+        <text class="p7eW" x="40" y="101">PROVED</text>
+        <text class="p7eB" x="130" y="95">The holder of the inspector's private key produced this entry,</text>
+        <text class="p7eB" x="130" y="112">and the entry has not changed since.</text>
+
+        <rect x="14" y="132" width="852" height="52" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="26" y="144" width="86" height="28" rx="7" fill="#B45309"></rect>
+        <text class="p7eW" x="36" y="163">ASSUMED</text>
+        <text class="p7eB" x="130" y="157">That key was in the inspector's hands and nobody else's at that</text>
+        <text class="p7eB" x="130" y="174">moment. An operational claim, not an arithmetic one.</text>
+
+        <rect x="14" y="194" width="852" height="42" rx="10" fill="#FFFFFF" stroke="#CBD8E0"></rect>
+        <rect x="26" y="203" width="86" height="24" rx="7" fill="#0E2C3F"></rect>
+        <text class="p7eW" x="34" y="220">NOT PROVED</text>
+        <text class="p7eF" x="130" y="220">That anybody opened the container and looked at the seal.</text>
+
+        <rect x="14" y="246" width="852" height="34" rx="10" fill="#0E2C3F"></rect>
+        <text class="p7eW" x="30" y="268" style="font-weight:400">The oracle problem from leader session 5, in a new place. Trust moved from a register to a person. None was created.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the middle row is the one that gets read as if it were the top row, and the bottom row is the one the dispute will actually be about.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What signing does buy at Harbourgate<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Do not read the diagram as a reason not to sign. Before signing, an entry in the register is an anonymous sentence, and the argument about who wrote it is an argument about access logs held by the party being accused. After signing, the entry is pinned to a specific key holder at the time of writing, and that pin survives in every copy of the register held by anybody.</p>
+        <p>What that changes in a dispute is real. It moves the argument from what happened on our system to a named party explaining their own key. That is a much better argument to be having, and it is worth paying for.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The failure mode to design against<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The middle row hardens over time until people forget it is an assumption. Eighteen months in, a signed entry is spoken about as though the inspector personally attested to it, and the procedure for what happens when a key holder says that was not me has never been written, because nobody believed the situation could arise.</p>
+        <p>Write that procedure before go live. Who investigates, what evidence exists besides the signature, what the register says about entries already accepted under that key, and who decides. It is a short document and it is never written afterwards in time.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that a key must be bound to a named, credentialled person, because accountability is the point. An entry signed by a key nobody can attach to a human being is an entry nobody can be asked about, and a register full of those is an elaborate way of recording that something was written by something. On this view the binding is not an inconvenience around the edge of the design, it is the design.</p>
+        <p>The other camp holds that the binding quietly reintroduces exactly what the arrangement was built to remove. Somebody has to run the list that says this key is that person, somebody has to be trusted to keep it right, and that somebody is an administrator with a new title. Better, on this view, to treat a key as a capability rather than an identity, hold the accountability in the contract and the operating procedure, and keep the register out of the business of knowing who anybody is.</p>
+        <p>Both are held by serious practitioners and they build different systems. Notice that they do not disagree about any arithmetic; they disagree about where an organisation would rather carry its trust, and that is a question about your own operation.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · build-along</span>
+      <h2>Run what runs, walk what does not</h2>
+      <span class="tag build">14 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. The first line is the important one, because it tells you what the engine can and cannot do before you build any expectation on top of it.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>Object.keys(CHAIN)
+CHAIN.selfTest().ok
+var ENTRY = "Consignment 41 inspected, seal intact";
+var SHARED = "placeholder";
+var tag = CHAIN.sha256(SHARED + "|" + ENTRY);
+tag === CHAIN.sha256(SHARED + "|" + ENTRY)
+tag === CHAIN.sha256("another placeholder" + "|" + ENTRY)
+tag === CHAIN.sha256(SHARED + "|" + ENTRY + " and the door was locked")</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>List what the engine actually has</h4>
+        <p>Run <code>Object.keys(CHAIN)</code> and read the list. There is a hash, a chain, mining, tampering, reforging and Merkle work. There is nothing that signs and nothing that checks a signature. Say out loud why a page that invented one would be worse than a page that admits the gap.</p>
+      </div>
+      <div class="step">
+        <h4>Make a tag and check it with the same value</h4>
+        <p>Produce the tag, then recompute it. It matches. Now write down the full list of people who could have produced that tag, and compare it with the list of people who could have checked it. The two lists are the same list.</p>
+      </div>
+      <div class="step">
+        <h4>Break it twice</h4>
+        <p>Recompute with a different shared value, then with the original value and one extra clause on the entry. Both return false, for two different reasons. Name each reason in one sentence.</p>
+      </div>
+      <div class="step">
+        <h4>Walk the signature check on paper</h4>
+        <p>No code for this one. Take the same entry and say, step by step, what changes when the checking value is a published value that cannot produce anything. Stop at the point where you would need a function the engine does not have, and note where you stopped.</p>
+      </div>
+      <div class="step">
+        <h4>Write the two sentences</h4>
+        <p>One sentence a signed Harbourgate entry supports, and one sentence it does not support that somebody will say anyway. Keep both. The second one is the more useful of the pair.</p>
+      </div>
+      <div class="step">
+        <h4>Find the four questions in your own write path</h4>
+        <p>For a system you run, answer the three operational questions from part 4 on paper: who binds the public key to the person, who holds the private key today, and how fast permission is withdrawn. Any you cannot answer is the finding.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says a record is signed, ask what the signature establishes and then wait through the pause. The useful answer names a key holder. The answer to worry about names a person, because the gap between those two is exactly where a dispute will end up.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A buyer recomputes every hash and every link in the Harbourgate register and finds no problems. What does that establish about who wrote block 2?</p>
+      <div class="qopt">A · That an authorised writer produced it, since an unauthorised entry would break the chain</div>
+      <div class="qopt">B · That the port authority wrote it, because the register is theirs</div>
+      <div class="qopt">C · Nothing at all; a hash covers the bytes of a block and records nothing about who assembled them</div>
+      <q class="qwhy">Integrity and authenticity are separate guarantees. A block hash is taken over the whole assembled block, and the identity of the writer is not one of the things in it. An entry written by the wrong hands verifies exactly as cleanly as one written by the right hands.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Two parties hold the same shared value and use it to tag entries. A tag checks out. Who could have produced it?</p>
+      <div class="qopt">A · Only the party that wrote the entry, since the tag depends on the entry</div>
+      <div class="qopt">B · Anyone holding the shared value, which includes the party doing the checking</div>
+      <div class="qopt">C · Nobody but the original writer, because the hash function is one way</div>
+      <q class="qwhy">Checking means recomputing, and recomputing means producing. The ability to check and the ability to forge arrive together and leave together, which is exactly what the live box demonstrates. A signature is the arrangement that separates them, by making the checking value different from the producing value.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A signed inspection entry verifies against the inspector's public key. What has been established?</p>
+      <div class="qopt">A · That the holder of that private key produced the entry and it has not changed since, and nothing about whether the key was in the right hands or whether anybody looked at the seal</div>
+      <div class="qopt">B · That the inspector personally attested to the condition of the consignment</div>
+      <div class="qopt">C · That the entry is accurate, since a signature is cryptographic proof</div>
+      <q class="qwhy">The claim names a key holder, not a person and not an event. Whether the key was where it should have been is an operational assumption owned by key management, and whether anybody opened the container is the oracle problem from leader session 5, untouched by any signature.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 8</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a write path that already exists near you.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Separate your two columns</h4>
+        <p>For one record store you rely on, write two headings: what proves this has not changed, and what proves who put it there. Fill both. If the second column is empty or says access control, write down what a reader of that store can actually establish on their own.</p>
+      </div>
+      <div class="step">
+        <h4>Write the that-was-not-me procedure</h4>
+        <p>Assume a key holder denies an entry signed with their key. Write the first three steps of what happens next, and who takes them. Bring it to session 8, which asks a related question about entries that were accepted and then were not.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Integrity and authenticity as separate guarantees</span><span class="note">Has this changed, and who put it there. Different machinery, bought separately.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What a signature establishes, in plain terms</span><span class="note">The holder of a private key produced this, checkable by anyone holding the public key.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why a shared value is not a signature</span><span class="note">Built live with sha256: the set that can check equals the set that can forge.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What a signed Harbourgate entry does not prove</span><span class="note">Proved, assumed and not proved, kept apart. The oracle problem in a new place.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Which history a signed entry ends up in</span><span class="note">Named tonight. A signed entry can leave the accepted history without being invalid. Session 8.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Correcting a signed entry that was wrong when written</span><span class="note">Named tonight. Appending is the only mechanism, from leader session 5.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management: issuing, binding, holding, rotating, withdrawing</span><span class="note">Named in a clause and handed on. learn-cyber-security-with-phoebe and learn-data-access-control-with-phoebe.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Algorithms, key sizes and the arithmetic inside a signature</span><span class="note">Not needed for any decision on this page, and covered where key material is the subject.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price or market</span><span class="note">A separate subject in the crypto course, and nothing here is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> The chain proves a record has not changed. It says nothing about who wrote it.</div>
+      <div class="cheat-item"><strong>Two guarantees.</strong> Integrity is has this changed. Authenticity is who put it there. Separate machinery, separate budget.</div>
+      <div class="cheat-item"><strong>A signature.</strong> The holder of a private key produced this entry, and it has not changed since. That is the claim, in full.</div>
+      <div class="cheat-item"><strong>The asymmetry.</strong> One value produces, a different published value checks. Checking never needs the private key.</div>
+      <div class="cheat-item"><strong>A shared value.</strong> Whoever can check can also forge. Useful, and not a signature.</div>
+      <div class="cheat-item"><strong>What it shifts.</strong> Whose key, who holds it now, are they still authorised. All key management, all elsewhere.</div>
+      <div class="cheat-item"><strong>Harbourgate.</strong> A signed inspection proves a key signed it. Not that anybody looked at the seal.</div>
+      <div class="cheat-item"><strong>The rule for pages like this.</strong> A value that matters is never typed into anything that renders. Use the word placeholder.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 7 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p6-merkle-trees.html">← Practitioner session 6 · Merkle trees</a>
+        <a href="p8-consensus.html">Practitioner session 8 · Consensus →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("p7-tag");
+  if (!box) return;
+
+  var entryEl = document.getElementById("p7-entry");
+  var sharedEl = document.getElementById("p7-shared");
+  var tagEl = document.getElementById("p7-tag-out");
+  var checkEl = document.getElementById("p7-check-out");
+  var noteEl = document.getElementById("p7-note");
+  var footEl = document.getElementById("p7-foot");
+  var whoEl = document.getElementById("p7-who");
+
+  var who = "same";
+  var OTHER = "another placeholder";
+
+  function tagOf(shared, entry) {
+    return CHAIN.sha256(shared + "|" + entry);
+  }
+
+  function render() {
+    var entry = entryEl.value;
+    var shared = sharedEl.value;
+    var real = tagOf(shared, entry);
+    tagEl.textContent = real;
+
+    var used = who === "same" ? shared : OTHER;
+    var got = tagOf(used, entry);
+    checkEl.textContent = got;
+
+    if (who === "same") {
+      noteEl.textContent = got === real
+        ? "The checker recomputed the tag and it matches. They did that by producing the tag themselves, from the entry and a value they already hold, so they could have produced a tag for any entry they liked. The check establishes that the entry has not changed. It establishes nothing about who made the original."
+        : "The two values differ, which should not happen with the same shared value. Something on this page is wrong and nothing below should be believed.";
+    } else {
+      noteEl.textContent = "The checker holds a different value, so the digest is unrelated to the real one and the check fails. They cannot forge a tag, and they cannot check one either. Those two abilities arrived together and left together, which is the whole reason a shared value is not a signature.";
+    }
+  }
+
+  whoEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    who = b.getAttribute("data-w");
+    Array.prototype.forEach.call(whoEl.querySelectorAll("button"), function (x) {
+      x.className = x === b ? "btn primary" : "btn";
+    });
+    render();
+  });
+
+  entryEl.addEventListener("input", render);
+  sharedEl.addEventListener("input", render);
+
+  var t = CHAIN.selfTest();
+  var hasSigning = Object.keys(CHAIN).some(function (k) { return /sign/i.test(k); });
+  footEl.textContent = (t.ok
+      ? "The three published test vectors pass in this browser, so the digests above are the digests any correct implementation gives. "
+      : "The test vectors did not pass in this browser, so nothing above should be believed. ")
+    + (hasSigning
+      ? "This engine now exposes a signing function, which it did not when this page was written."
+      : "This engine exposes no signing function and no signature check, which is why only the shared value arrangement is run here.");
+
+  render();
+})();
+</script>
+<style>
+  #p7-tag .sql-code { border: 1px solid var(--hairline); border-radius: 8px; }
+  #p7-tag .p7-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin: .2rem 0 .8rem; }
+  #p7-tag .p7-formula {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .78rem;
+    color: var(--indigo);
+    margin: .9rem 0 .35rem;
+  }
+  #p7-tag .p7-digest {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+    background: var(--indigo-50);
+    border-radius: 8px;
+    padding: .5rem .7rem;
+    margin: .35rem 0 1rem;
+  }
+</style>
+</body>
+</html>

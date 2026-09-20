@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 9 of 10. Code stored in the register, run by every participant against the same inputs. Why determinism is the whole design constraint, and the three things running on a chain does not guarantee.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Smart contracts, mechanically - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 9 of 10. It is not a contract and it is not smart. Strip the name off and the mechanism is small, strict and honest about what it cannot do.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p9-smart-contracts-mechanically.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Smart contracts, mechanically - learn blockchain with phoebe">
+<meta name="twitter:description" content="A rule everybody runs and nobody can quietly change. It still knows nothing about the world, and it is still exactly as correct as it was written.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 9 · Smart contracts, mechanically - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 9 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 9 of 10</div>
+    <h1>Smart contracts, <span class="accent">mechanically</span></h1>
+    <p class="sub">Harbourgate wants one thing automated. When an inspection entry records that a seal was intact, the consignment should be released without anybody deciding again. Write that as a rule, file it in the register, and every participant will run it and reach the same answer. Tonight is what that arrangement actually is, the single requirement that shapes every odd thing about how such rules are written, and the three guarantees people assume it carries and it does not.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone being sold automation on a register</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · The mechanism</span>
+      <span class="a3" style="flex:4">16-32 · What it does not guarantee</span>
+      <span class="a4" style="flex:3">32-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The name does most of the damage</h2>
+    </div>
+    <p class="lede">Two words, both wrong. It is not a contract in the legal sense, because nothing in it binds anybody and nothing in it knows what anybody intended. It is not smart, because it does exactly what it was written to do and has no opinion about whether that is sensible. Say both of those out loud before anything else, because almost every disappointment in this area is somebody taking the name at face value.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> One sentence for the mechanism: code stored in the register, which every participant runs against the same inputs and therefore agrees on the output of. One requirement that explains the rest: same inputs, same output, on every machine. And three limits stated plainly enough to say to somebody selling you the idea.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Without the hype<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rule is filed in the register the same way an entry about a consignment is filed. It is hashed with everything else, it is linked to what came before it, and anybody holding a copy can see which version of it is there. When something happens that the rule cares about, every participant runs the rule against the register they hold. Because they hold the same register and run the same rule, they produce the same output, and there is nothing left to argue about.</p>
+        <p>That is the whole of it. The interesting property is not that code runs, which is unremarkable. It is that a rule nobody can quietly swap out produces a result nobody has to take on trust, because everybody computed it themselves.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Tokens, dapps and the wider stack built on top of this idea belong to <code>learn-web3-with-phoebe</code>, and none of the mechanism tonight depends on any of it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Deterministic.</strong> Same inputs, same output, every time, on every machine. The single requirement the whole design is built around.</li>
+          <li><strong>State.</strong> What the rule is allowed to read: the register, and nothing else.</li>
+          <li><strong>Oracle.</strong> Whatever puts outside information into the register so a rule can react to it. A person typing, or a sensor reporting. Session a5.</li>
+          <li><strong>Append only.</strong> A rule adds entries. It does not replace them, so a rule that behaved wrongly leaves its wrong output in place.</li>
+          <li><strong>Immutability.</strong> The property that makes an old entry trustworthy, and the same property that makes a mistake permanent.</li>
+          <li><strong>Code is the agreement.</strong> The position that what the rule does is what was agreed, with no appeal above it. Part 4, argued both ways.</li>
+          <li><strong>Upgradeability.</strong> Whatever arrangement lets a filed rule be replaced later. Every such arrangement gives somebody the power to change the rule, which is the thing filing it was meant to prevent.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the mechanism</span>
+      <h2>Code in the register, run by everybody</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Nothing about the storage is special. The rule is an entry. What is special is what happens next: every participant runs it for themselves, rather than asking anybody what the answer was.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three stages across the top. An entry in the register, filed like any other line and hashed with it, leads to every participant running it against the same inputs in the same order, which leads to the same output so there is nothing to disagree about. Below, three participant boxes each showing that participant one, two and three read the same entries, run the same rule and arrive at the same output. An amber band states that it is not a contract and it is not smart, it is a rule stored where everybody can see it, run by everybody, with nothing to argue about afterwards. A closing note says the difference from an ordinary stored procedure is not the code, it is that no single party can quietly replace it and every party can check which version ran.">
+        <style>
+          .p9aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p9aT { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9aS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p9aN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .p9aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p9aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p9aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p9aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p9aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p9aH" x="14" y="20">A rule is an entry. Agreement comes from everybody running it, not from anybody reporting it.</text>
+
+        <rect x="14" y="32" width="252" height="76" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p9aN" x="30" y="58">An entry in the register</text>
+        <text class="p9aM" x="30" y="80">Filed like any other line,</text>
+        <text class="p9aM" x="30" y="96">hashed and linked with it</text>
+
+        <path d="M 274 70 L 304 70" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p9aAr)"></path>
+
+        <rect x="312" y="32" width="250" height="76" rx="10" fill="#1E4D6B"></rect>
+        <text class="p9aT" x="328" y="58">Every participant runs it</text>
+        <text class="p9aS" x="328" y="80">Same inputs, same order</text>
+
+        <path d="M 570 70 L 600 70" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p9aAr)"></path>
+
+        <rect x="610" y="32" width="256" height="76" rx="10" fill="#0E2C3F"></rect>
+        <text class="p9aT" x="626" y="58">The same output</text>
+        <text class="p9aS" x="626" y="80">Nothing left to disagree</text>
+        <text class="p9aS" x="626" y="96">about</text>
+
+        <text class="p9aL" x="16" y="132">WHAT EACH PARTICIPANT DOES, WITHOUT ASKING ANYBODY</text>
+
+        <rect x="14" y="142" width="278" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9aN" x="30" y="166">Participant one</text>
+        <text class="p9aB" x="30" y="188">Reads the same entries,</text>
+        <text class="p9aB" x="30" y="206">runs the same rule</text>
+
+        <rect x="301" y="142" width="278" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9aN" x="317" y="166">Participant two</text>
+        <text class="p9aB" x="317" y="188">Reads the same entries,</text>
+        <text class="p9aB" x="317" y="206">runs the same rule</text>
+
+        <rect x="588" y="142" width="278" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9aN" x="604" y="166">Participant three</text>
+        <text class="p9aB" x="604" y="188">Reads the same entries,</text>
+        <text class="p9aB" x="604" y="206">runs the same rule</text>
+
+        <rect x="14" y="232" width="852" height="60" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9aK" x="30" y="255">It is not a contract, and it is not smart.</text>
+        <text class="p9aB" x="30" y="277">It is a rule stored where everybody can see it, run by everybody, with nothing left to take on trust.</text>
+
+        <rect x="14" y="304" width="852" height="46" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p9aB" x="30" y="325" style="font-weight:700">The difference from an ordinary stored procedure is not the code.</text>
+        <text class="p9aM" x="30" y="342">It is that no single party can quietly replace it, and every party can check which version ran.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the rule is stored the way an entry is stored. Everything unusual is in who runs it and how many of them do.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why everybody running it is the point<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ordinary automation runs in one place and reports its answer. Everyone downstream believes the report, because checking would mean holding the same data and the same code, which they do not. The report is a trust relationship wearing the clothes of a computation.</p>
+        <p>Here the computation is repeated by everybody who cares. There is no report to believe. A participant who thinks the output is wrong recomputes it, and either they are wrong or the others are, and the disagreement is settled by arithmetic rather than by seniority.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the rule is allowed to see<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rule reads the register and nothing else. That is not a restriction somebody added for safety, it is the only thing every participant demonstrably holds in common. Anything outside it is something one machine has and another does not, and the moment a rule depends on such a thing the participants stop agreeing.</p>
+        <p>The practical consequence is that any fact the rule needs must already be an entry. Somebody has to have written it down first, which is where Part 3 starts.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers determinism</span>
+      <h2>One requirement, and the strangeness follows from it</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">Most lists of rules about writing these programs read as arbitrary. They are not. Every one of them is the same requirement applied to a different temptation: every machine must reach the same result from the same inputs, or the agreement that made the whole thing worth doing collapses.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table of three things ruled out and why agreement breaks in each case. Reaching out to the network while the rule runs: two machines ask a moment apart and get two answers, so they compute two outputs and the agreement is gone. The clock and the dice, meaning a wall clock reading or a fresh random draw: neither is shared, so neither can be agreed, and a value nobody else can reproduce is a value nobody else can check. Arithmetic that drifts, meaning any operation whose last digit depends on the machine: one digit of disagreement is disagreement, and there is no close enough in a system built on exact comparison. An amber band says the strangeness is not a house style, every restriction is this one requirement applied to a different temptation. A closing line says determinism is why the same rule can be trusted to have run the same way on a machine you have never seen.">
+        <style>
+          .p9bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p9bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p9bN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .p9bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p9bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p9bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p9bH" x="14" y="20">Every machine must reach the same result from the same inputs. Everything else is a consequence.</text>
+
+        <text class="p9bL" x="30" y="44">RULED OUT</text>
+        <text class="p9bL" x="340" y="44">WHY THE AGREEMENT BREAKS IF YOU DO IT</text>
+
+        <rect x="14" y="52" width="852" height="62" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9bN" x="30" y="78">Reaching out to the network</text>
+        <text class="p9bM" x="30" y="98">Asking anything outside the register</text>
+        <text class="p9bB" x="340" y="78">Two machines ask a moment apart and get two answers,</text>
+        <text class="p9bB" x="340" y="98">so they compute two outputs and there is no agreement left.</text>
+
+        <rect x="14" y="122" width="852" height="62" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9bN" x="30" y="148">The clock and the dice</text>
+        <text class="p9bM" x="30" y="168">A wall clock reading, a fresh random draw</text>
+        <text class="p9bB" x="340" y="148">Neither is shared, so neither can be agreed. A value nobody</text>
+        <text class="p9bB" x="340" y="168">else can reproduce is a value nobody else can check.</text>
+
+        <rect x="14" y="192" width="852" height="62" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9bN" x="30" y="218">Arithmetic that drifts</text>
+        <text class="p9bM" x="30" y="238">Any operation whose last digit depends on the machine</text>
+        <text class="p9bB" x="340" y="218">One digit of disagreement is disagreement. There is no</text>
+        <text class="p9bB" x="340" y="238">close enough in a system built on exact comparison.</text>
+
+        <rect x="14" y="266" width="852" height="60" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9bK" x="30" y="289">The strangeness is not a house style.</text>
+        <text class="p9bB" x="30" y="311">Each restriction is this one requirement, meeting a different temptation to reach outside the register.</text>
+
+        <rect x="14" y="338" width="852" height="40" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p9bB" x="30" y="363">Determinism is why a rule can be trusted to have run the same way on a machine you have never seen.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - learn the requirement and you can derive the rules. Learn the rules and you will be surprised by the next one.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Randomness is the sharpest case<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rule that needs to pick something at random cannot simply draw a number, because every participant would draw a different one and the register would fork into as many versions as there are participants. Anything used as randomness has to be a value they all already hold, which means it is not secret from anybody who holds the register, including whoever stands to gain from the outcome.</p>
+        <p>That is a genuinely hard problem, and it is hard for a reason that is now obvious rather than mysterious: shared and unpredictable are close to opposites when everybody has the same copy.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Time, which people assume is free<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A rule cannot ask what time it is. Each participant's clock says something slightly different, and slightly different is enough. What a rule can use is a value recorded in the register, which is a claim somebody made about the time rather than the time itself.</p>
+        <p>So a deadline enforced by such a rule is enforced against a written claim, not against the world. That is a smaller thing than it sounds like when somebody says the deadline is enforced automatically, and it is the same shape as the limit in Part 3.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the limits</span>
+      <h2>Three things it does not guarantee</h2>
+      <span class="tag concept">10 min live</span>
+    </div>
+    <p class="lede">These are the session. Each one is assumed by somebody buying this idea, none of them is delivered by it, and all three failures verify perfectly clean, because from inside the system nothing has gone wrong.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 376" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table with three columns: what people hear, what is actually true, and where the answer lives. First, people hear that the code is correct; in truth it runs exactly as written, bugs included, a mistake is kept as firmly as a rule, and permanence applies to both; the answer lives in review and testing, before the rule is filed. Second, people hear that it knows the seal held; in truth it knows an entry says so, somebody put that entry there, and the rule cannot see past it; the answer lives at the point of entry, exactly as in any other register. Third, people hear that it is legally binding; in truth running is not agreeing, nothing in the mechanism decides what anybody meant or what to do when the result surprises them; the answer lives with contracts, jurisdiction and people, not the register. An amber band says all three failures verify clean, the structure reports no problem because from inside the system there is no problem, and that is the design working.">
+        <style>
+          .p9cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p9cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p9cN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .p9cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p9cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p9cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="p9cH" x="14" y="20">Three assumptions people bring, and what is actually on offer</text>
+
+        <text class="p9cL" x="30" y="42">WHAT PEOPLE HEAR</text>
+        <text class="p9cL" x="300" y="42">WHAT IS ACTUALLY TRUE</text>
+        <text class="p9cL" x="648" y="42">WHERE THE ANSWER LIVES</text>
+
+        <rect x="14" y="50" width="852" height="76" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9cN" x="30" y="78">The code is correct</text>
+        <text class="p9cM" x="30" y="98">Limit one</text>
+        <text class="p9cB" x="300" y="76">It runs exactly as written, bugs included.</text>
+        <text class="p9cB" x="300" y="94">A mistake is kept as firmly as a rule, and</text>
+        <text class="p9cB" x="300" y="112">permanence applies to both of them.</text>
+        <text class="p9cB" x="648" y="76">Review and testing,</text>
+        <text class="p9cB" x="648" y="94">before the rule is filed.</text>
+
+        <rect x="14" y="134" width="852" height="76" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9cN" x="30" y="162">It knows the seal held</text>
+        <text class="p9cM" x="30" y="182">Limit two</text>
+        <text class="p9cB" x="300" y="160">It knows an entry says so. Somebody put</text>
+        <text class="p9cB" x="300" y="178">that entry there, and the rule has no way</text>
+        <text class="p9cB" x="300" y="196">of seeing past it.</text>
+        <text class="p9cB" x="648" y="160">The point of entry,</text>
+        <text class="p9cB" x="648" y="178">as in any register.</text>
+
+        <rect x="14" y="218" width="852" height="76" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9cN" x="30" y="246">It is legally binding</text>
+        <text class="p9cM" x="30" y="266">Limit three</text>
+        <text class="p9cB" x="300" y="244">Running is not agreeing. Nothing in the</text>
+        <text class="p9cB" x="300" y="262">mechanism decides what anybody meant, or</text>
+        <text class="p9cB" x="300" y="280">what to do when the result surprises them.</text>
+        <text class="p9cB" x="648" y="244">Contracts, jurisdiction</text>
+        <text class="p9cB" x="648" y="262">and people.</text>
+
+        <rect x="14" y="306" width="852" height="58" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9cK" x="30" y="329">All three failures verify clean.</text>
+        <text class="p9cB" x="30" y="351">The structure reports no problem, because from inside the system there is no problem. That is it working.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - none of these three is a defect to be fixed. They are the edges of what the mechanism was ever able to claim.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A bug is as permanent as a feature<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Take the property that makes an old entry trustworthy and apply it to a rule. Nobody can change the rule after the fact, which is exactly what you wanted when you imagined somebody tampering with it. It is exactly what you did not want the moment you notice the rule says intact where it should have said broken.</p>
+        <p>The mechanism draws no distinction between those two cases, because a distinction would require knowing what was intended, and that is precisely the thing it has no access to. Correctness has to be bought before filing, with review and testing, by the ordinary unglamorous means. There is no arrangement that keeps a rule beyond reach and also lets you fix it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The oracle problem, with money or goods attached<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session a5 established that whatever a register knows about the world, a person or a sensor put there, at unchanged trustworthiness. A rule that reacts automatically makes that limit sharper rather than softer. Before, a false entry sat in a register and somebody might notice before acting on it. Now the entry is the action: write the sentence and the consignment moves.</p>
+        <p>So automation raises the value of lying at the point of entry, and every defence against that is in the physical world. Two signatures instead of one, a photograph hashed alongside the entry, a second sensor that would have to fail in the same direction at the same moment. None of them is a chain technique.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What happens when nobody intended the result<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Suppose a rule does something every party agrees was not what they meant. The register holds a valid output, produced correctly by a rule everybody ran. There is no error to report and nothing to verify differently. The question of what should happen now is a question the chain has no answer to, and never claimed to.</p>
+        <p>It goes where such questions went before: to whatever written agreement exists outside the register, to whoever has jurisdiction over the parties, and to what the parties are willing to do voluntarily. Any organisation relying on automatic rules should know which of those it would be reaching for, before it needs one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers the open argument</span>
+      <h2>Code is the agreement: feature, or bug</h2>
+      <span class="tag concept">6 min live</span>
+    </div>
+    <p class="lede">This one is not settled and is not going to be settled here. It is worth knowing both readings well enough to state either, because which one the person opposite you holds will predict most of what else they think.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. Held as a feature: ambiguity in an ordinary agreement is expensive, it is argued over and settled late by whoever can afford to keep arguing, a rule that simply runs removes all of that, everybody knows the outcome before they commit, and nobody can reinterpret it afterwards. Held as a bug: ambiguity is where judgement lives, every serious agreement has a way to stop, to appeal, to say the letter and the intent came apart, a rule that simply runs has no such door, and when the result is one nobody wanted there is no mechanism, only the result. A closing dark band says both positions are held by people who understand the mechanism perfectly well, they agree on what happens and disagree on how much a missing escape hatch is worth, which is a question about your own exposure.">
+        <style>
+          .p9dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p9dP { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p9dA { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p9dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p9dT { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p9dS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+        </style>
+
+        <text class="p9dH" x="14" y="20">Serious people hold both of these. Neither side is missing the mechanism.</text>
+
+        <rect x="14" y="32" width="420" height="200" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p9dP" x="30" y="58">HELD AS A FEATURE</text>
+        <text class="p9dB" x="30" y="86">Ambiguity in an ordinary agreement is expensive.</text>
+        <text class="p9dB" x="30" y="108">It is argued over, lawyered over and settled late,</text>
+        <text class="p9dB" x="30" y="130">by whoever can afford to keep arguing longest.</text>
+        <text class="p9dB" x="30" y="158">A rule that simply runs removes all of that.</text>
+        <text class="p9dB" x="30" y="180">Everybody knows the outcome before committing,</text>
+        <text class="p9dB" x="30" y="202">and nobody can reinterpret it afterwards.</text>
+
+        <rect x="446" y="32" width="420" height="200" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9dA" x="462" y="58">HELD AS A BUG</text>
+        <text class="p9dB" x="462" y="86">Ambiguity is where judgement lives.</text>
+        <text class="p9dB" x="462" y="108">Every serious agreement has a way to pause, to</text>
+        <text class="p9dB" x="462" y="130">appeal, to say letter and intent came apart.</text>
+        <text class="p9dB" x="462" y="158">A rule that simply runs has no such door.</text>
+        <text class="p9dB" x="462" y="180">When the result is one nobody wanted, there is</text>
+        <text class="p9dB" x="462" y="202">no mechanism to reach for, only the result.</text>
+
+        <rect x="14" y="244" width="852" height="62" rx="10" fill="#0E2C3F"></rect>
+        <text class="p9dT" x="30" y="268">They agree on what happens. They disagree on what a missing escape hatch is worth.</text>
+        <text class="p9dS" x="30" y="290">Which makes it a question about your own exposure and your own counterparties, not a question about chains.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the disagreement is about how often the letter and the intent come apart in your line of work. That is empirical, and it is about you.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The escape hatch that eats itself<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The obvious compromise is to file the rule and keep a way to replace it if it turns out wrong. Notice what that does. Whoever holds the power to replace the rule now holds the power to decide outcomes, which is the position the arrangement was built to remove. Participants are back to trusting a party, and the rule is a strong default rather than a guarantee.</p>
+        <p>That is not an argument against it. Plenty of operations would rather have a strong default with a named owner than an unstoppable rule. It is an argument for saying which one you have bought, because the two are sold with the same vocabulary and they are not the same product.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · covers the worked case</span>
+      <h2>The Harbourgate seal rule, traced</h2>
+      <span class="tag concept">6 min live</span>
+    </div>
+    <p class="lede">Take the rule seriously and follow it end to end. Two entries of the Harbourgate register are already the input and the output: block 2 records the inspection, block 4 records the release. The question is what putting a rule between them buys, and what it leaves exactly where it was.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 366" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A flow of three boxes. The input it reads is the entry consignment 41 inspected seal intact, whose hash begins f325e5d96bee6a1d. The rule: if the seal is recorded intact, append the release. The output it writes is the entry consignment 41 released to the buyer, whose hash begins e5526e6e0bbc1aed. A short amber line points from the first box down to an amber band saying the first box is the one step nobody can verify from inside the system, everything after it is arithmetic anybody can redo, and that entry is a person's word arriving the way every entry arrives. Two panels follow. What this buys: nobody can argue about whether the rule was applied, it cannot be applied to one consignment and withheld from another, and the decision is visible to everybody holding the register. What it does not buy: no assurance the inspector opened the door, and the rule cannot tell an inspection from a sentence about an inspection because only one of those exists inside the register. A closing note says automatic application of a rule is a real gain and a different thing from assurance about the world.">
+        <style>
+          .p9eH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p9eL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p9eW { font: 800 10px Inter, sans-serif; fill: #FFFFFF; }
+          .p9eS { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p9eB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p9eM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p9eX { font: 700 10px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p9eK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p9eP { font: 800 11px Inter, sans-serif; fill: #1E4D6B; }
+          .p9eA { font: 800 11px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p9eAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p9eH" x="14" y="20">Release the consignment when an inspection entry records the seal intact</text>
+
+        <rect x="14" y="34" width="250" height="72" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9eL" x="30" y="54">THE INPUT IT READS</text>
+        <text class="p9eB" x="30" y="76">Consignment 41 inspected,</text>
+        <text class="p9eB" x="30" y="92">seal intact</text>
+        <text class="p9eX" x="176" y="92">f325e5d9</text>
+
+        <path d="M 272 70 L 302 70" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p9eAr)"></path>
+
+        <rect x="312" y="34" width="250" height="72" rx="10" fill="#1E4D6B"></rect>
+        <text class="p9eW" x="328" y="54">THE RULE</text>
+        <text class="p9eS" x="328" y="76">If the seal is recorded intact,</text>
+        <text class="p9eS" x="328" y="94">append the release.</text>
+
+        <path d="M 570 70 L 600 70" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#p9eAr)"></path>
+
+        <rect x="610" y="34" width="256" height="72" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9eL" x="626" y="54">THE OUTPUT IT WRITES</text>
+        <text class="p9eB" x="626" y="76">Consignment 41 released</text>
+        <text class="p9eB" x="626" y="92">to the buyer</text>
+        <text class="p9eX" x="772" y="92">e5526e6e</text>
+
+        <line x1="139" y1="108" x2="139" y2="120" stroke="#B45309" stroke-width="2"></line>
+
+        <rect x="14" y="120" width="852" height="60" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9eK" x="30" y="143">The first box is the one step nobody can verify from inside the system.</text>
+        <text class="p9eB" x="30" y="165">Everything after it is arithmetic anybody can redo. That entry is a person's word, arriving as every entry does.</text>
+
+        <rect x="14" y="192" width="420" height="104" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p9eP" x="30" y="216">WHAT THIS BUYS</text>
+        <text class="p9eB" x="30" y="240">No argument about whether the rule was applied.</text>
+        <text class="p9eB" x="30" y="260">It cannot be applied to one consignment and</text>
+        <text class="p9eB" x="30" y="280">withheld from another without everybody seeing.</text>
+
+        <rect x="446" y="192" width="420" height="104" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p9eA" x="462" y="216">WHAT IT DOES NOT BUY</text>
+        <text class="p9eB" x="462" y="240">No assurance the inspector opened the door.</text>
+        <text class="p9eB" x="462" y="260">The rule cannot tell an inspection from a sentence</text>
+        <text class="p9eB" x="462" y="280">about one, since only the sentence is in here.</text>
+
+        <rect x="14" y="308" width="852" height="46" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p9eB" x="30" y="329" style="font-weight:700">Automatic application of a rule is a real gain, and it is worth buying.</text>
+        <text class="p9eM" x="30" y="346">It is a different thing from assurance about the world, and the two are sold in the same sentence.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - block 2 and block 4 of the register are the real input and the real output. The rule only removes the step in the middle where a person decided.</figcaption>
+    </figure>
+
+    <div class="wk" id="p9-rule">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">makeChain, tamper and verify, running in this page. The engine hashes, links and checks. It does not execute the rule.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p9-btns" id="p9-modes">
+          <button class="btn primary" type="button" data-m="filed">The register as filed</button>
+          <button class="btn" type="button" data-m="edited">Somebody edits the inspection line afterwards</button>
+        </div>
+        <div class="p9-rows" id="p9-rows"></div>
+        <p class="sql-note" id="p9-note">...</p>
+      </div>
+      <div class="wk-foot" id="p9-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Two ways the same sentence can be false<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Press the second button and the inspection line is changed after the fact. Verification reports a mismatch at that block immediately, which is the case the structure was built for and it handles it loudly.</p>
+        <p>Now consider the other case. The false line was filed at the time, by the person entitled to file it. Nothing to detect, nothing to report, and the rule runs on it. The register is in perfect health and the consignment is gone. Only one of these two is a chain problem, and it is the less likely one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 6 ============ -->
+  <section class="section" id="part-6">
+    <div class="section-kicker">
+      <span class="klabel">Part 6 · build-along</span>
+      <h2>Write the rule, file the inputs, find the step nobody can check</h2>
+      <span class="tag build">13 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. Nothing here executes the rule, and nothing pretends to. You write the rule as deterministic pseudocode, file the entries it would read using the real engine, verify them, and then say out loud which step the structure cannot support.</p>
+
+    <div class="prompt-box"><span class="label">Pseudocode</span>on each new entry E in the register:
+  if E reads "Consignment 41 inspected, seal intact"
+     and the register already holds "Consignment 41 signed over to Pell and Sons"
+     and the register holds no release for consignment 41:
+    append "Consignment 41 released to the buyer"
+
+reads: the register, and nothing else
+does not read: a clock, a network, a random draw</div>
+
+    <div class="prompt-box"><span class="label">Console</span>CHAIN.selfTest().ok
+
+var RULE = "Rule filed: release consignment 41 once an inspection entry records the seal intact";
+var entries = [
+  "Harbourgate opens the register",
+  RULE,
+  "Consignment 41 signed over to Pell and Sons",
+  "Consignment 41 inspected, seal intact",
+  "Consignment 41 released to the buyer"
+];
+var chain = CHAIN.makeChain(entries);
+CHAIN.verify(chain).ok
+chain.map(function (b) { return b.index + " " + b.hash.slice(0, 16); })
+
+var edited = CHAIN.tamper(chain, 3, "Consignment 41 inspected, seal broken");
+CHAIN.verify(edited).problems</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Check the hash first</h4>
+        <p>Run <code>CHAIN.selfTest().ok</code>. Four seconds, and everything below is worth nothing without it.</p>
+      </div>
+      <div class="step">
+        <h4>Write the rule so two strangers get the same answer</h4>
+        <p>Rewrite the pseudocode above for a rule of your own. Then hand it to somebody and ask them to find an input on which the two of you would disagree. Every disagreement they find is a place the rule reached outside the register.</p>
+      </div>
+      <div class="step">
+        <h4>Hunt your own non-determinism</h4>
+        <p>Go back through your rule and mark every point where you wanted a time, a lookup, or a choice. Write beside each one what a second machine would have got instead. Three is a normal score.</p>
+      </div>
+      <div class="step">
+        <h4>File the inputs as ordinary entries</h4>
+        <p>Build the chain above and confirm <code>verify(chain).ok</code> is true. Note that the rule itself is entry 1 and is hashed and linked exactly like the consignment lines around it. There is nothing special about how it is stored.</p>
+      </div>
+      <div class="step">
+        <h4>Name the step nobody can verify</h4>
+        <p>Five entries. Point at the one whose truth cannot be established from inside the register, and say who would have to be trusted for it instead. Then say what you would put in place around that person, given that no amount of chain helps.</p>
+      </div>
+      <div class="step">
+        <h4>Break it the easy way and the hard way</h4>
+        <p>Run the tamper line and read what <code>verify</code> reports. Then describe, in one sentence, the version of the same falsehood that verification would never report, and which of the two you would actually expect to face.</p>
+      </div>
+      <div class="step">
+        <h4>Write the bug you would not be able to fix</h4>
+        <p>Take one rule your organisation runs today and invert a single condition in it. Write what would happen for a week. Then write what you would do if that rule could not be edited, only appended to.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says a rule runs automatically on a register, ask two questions. What does it read, and who wrote that. The first answer tells you whether it can be agreed on. The second tells you what it is actually worth.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Why can a rule of this kind not ask the network for a value while it is running?</p>
+      <div class="qopt">A · Because network calls are slow, and a register cannot afford the delay</div>
+      <div class="qopt">B · Because the register has no way to store the answer once it arrives</div>
+      <div class="qopt">C · Because each participant would ask at a slightly different moment, get a different answer, and compute a different output, which is the end of the agreement that made the arrangement worth anything</div>
+      <q class="qwhy">Every restriction of this kind comes from one requirement: same inputs, same output, on every machine. A value that is not already in the register is not shared, and anything not shared cannot be agreed. Speed is not the issue and storage is not the issue.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A rule releases a consignment when an inspection entry records the seal intact. The inspector never opened the door and filed the entry anyway. What does the system report?</p>
+      <div class="qopt">A · A verification failure at the inspection block, since the entry does not match reality</div>
+      <div class="qopt">B · Nothing at all. The entry is genuine, the rule ran correctly on it, and every hash and link checks out</div>
+      <div class="qopt">C · A warning, because the rule cannot confirm the entry against an external source</div>
+      <q class="qwhy">Nothing has gone wrong from inside the system. The entry was filed by somebody entitled to file it, the rule read it and did what it was written to do, and verification has nothing to object to. This is the oracle problem from session a5 with a consignment attached to the outcome.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Which statement about "the code is the agreement" is honest?</p>
+      <div class="qopt">A · It is a live disagreement: one side values removing costly ambiguity, the other values keeping a way to say that letter and intent came apart, and both understand the mechanism</div>
+      <div class="qopt">B · It is settled in favour of the code, because a rule that runs cannot be argued with</div>
+      <div class="qopt">C · It is settled against the code, because no automatic rule can ever be fair</div>
+      <q class="qwhy">The two camps agree completely about what the mechanism does and disagree about how much a missing escape hatch costs, which depends on how often the letter and the intent come apart in your own operation. That is an empirical question about you, not a question about chains.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 10</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on one rule your organisation already runs without a human deciding each time.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Write down what it reads</h4>
+        <p>List every input that rule depends on, and beside each one write who or what produced it. Circle any input that came from a person typing or a sensor reporting. Those are the ones automation makes more valuable to falsify.</p>
+      </div>
+      <div class="step">
+        <h4>Write down what you would do if it could not be changed</h4>
+        <p>Assume the rule is filed permanently and can only be added to, never edited. Say in two sentences how you would handle the week it turns out to be wrong. Bring both answers to session 10, where the engine runs end to end.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The mechanism, stripped of the name</span><span class="note">Code stored in the register, run by every participant against the same inputs, so the output is agreed rather than reported.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Determinism as the design constraint</span><span class="note">No network mid run, no clock, no fresh randomness, no arithmetic that drifts. One requirement, three consequences.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The three non-guarantees</span><span class="note">It does not make the code correct, it knows nothing about the world, and it binds nobody by itself.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Code is the agreement, both sides</span><span class="note">Removing costly ambiguity against removing a necessary escape hatch. Left open, because it is open.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The Harbourgate seal rule, traced</span><span class="note">From the inspection entry at f325e5d96bee6a1d to the release at e5526e6e0bbc1aed, and the step in between that nobody can check.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Tokens, dapps and the wider stack</span><span class="note">Named here as what gets built on the mechanism, and handed to <code>learn-web3-with-phoebe</code>.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Running the whole engine end to end</span><span class="note">Build, tamper, mine, reforge and prove together. Session 10.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named languages, platforms and execution environments</span><span class="note">None of the mechanism depends on which one, and they move faster than a course can.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management and who may file a rule</span><span class="note">Session 7 for identity; the security and access control courses for the discipline itself.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Anything about currency, price or markets</span><span class="note">Not taught here, and nothing on this page is investment advice.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Code stored in the register, run by everybody, so the output is agreed rather than reported.</div>
+      <div class="cheat-item"><strong>The name.</strong> Not a contract, and not smart. Both halves mislead, and most disappointment starts there.</div>
+      <div class="cheat-item"><strong>The requirement.</strong> Same inputs, same output, on every machine. Everything odd follows from it.</div>
+      <div class="cheat-item"><strong>Ruled out.</strong> Network calls mid run, the wall clock, fresh randomness, arithmetic that drifts.</div>
+      <div class="cheat-item"><strong>Limit one.</strong> It runs as written, bugs included, and a bug is as permanent as a rule.</div>
+      <div class="cheat-item"><strong>Limit two.</strong> It knows only what an entry says. Somebody put that entry there.</div>
+      <div class="cheat-item"><strong>Limit three.</strong> Running is not agreeing. What was intended is a question it cannot hold.</div>
+      <div class="cheat-item"><strong>The open argument.</strong> Removing ambiguity, or removing the escape hatch. Both held by serious people.</div>
+      <div class="cheat-item"><strong>The two questions.</strong> What does the rule read, and who wrote that.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 9 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p8-consensus.html">← Practitioner session 8 · Consensus</a>
+        <a href="p10-the-chain-bench.html">Practitioner session 10 · The chain bench →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("p9-rule");
+  if (!box) return;
+
+  var RULE = "Rule filed: release consignment 41 once an inspection entry records the seal intact";
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    RULE,
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 41 released to the buyer"
+  ];
+  var ROLES = [
+    "The register opens",
+    "The rule, filed as an ordinary entry and hashed with the rest",
+    "An input the rule reads",
+    "The input the rule turns on, and the one nobody inside can check",
+    "The output the rule writes"
+  ];
+  var ORACLE = 3;
+
+  var base = CHAIN.makeChain(ENTRIES);
+  var rows = document.getElementById("p9-rows");
+  var note = document.getElementById("p9-note");
+  var foot = document.getElementById("p9-foot");
+  var btns = box.querySelectorAll("#p9-modes button");
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function render(mode) {
+    var chain = (mode === "edited")
+      ? CHAIN.tamper(base, ORACLE, "Consignment 41 inspected, seal broken")
+      : base;
+    var res = CHAIN.verify(chain);
+
+    var html = "";
+    for (var i = 0; i < chain.length; i++) {
+      var bad = res.problems.some(function (p) { return p.index === i; });
+      var cls = "p9-row" + (i === ORACLE ? " p9-oracle" : "") + (bad ? " p9-bad" : "");
+      html += '<div class="' + cls + '">'
+            + '<b>' + i + '</b>'
+            + '<span class="p9-entry">' + esc(chain[i].data) + '</span>'
+            + '<span class="p9-role">' + esc(ROLES[i]) + '</span>'
+            + '<span class="p9-hash">' + chain[i].hash.slice(0, 16) + '</span>'
+            + '</div>';
+    }
+    rows.innerHTML = html;
+
+    if (res.ok) {
+      note.textContent = "verify() reports no problems across all " + chain.length
+        + " entries. Every hash recomputes and every link holds, which says the entries are the entries that were written. It says nothing about whether the inspection happened.";
+    } else {
+      var p = res.problems[0];
+      note.textContent = "verify() reports " + res.problems.length + " problem"
+        + (res.problems.length === 1 ? "" : "s") + ", the first a " + p.kind
+        + " mismatch at block " + p.index
+        + ". An edit made after the fact is caught at once. The same falsehood filed at the time would have been reported by nothing.";
+    }
+  }
+
+  var t = CHAIN.selfTest();
+  foot.textContent = t.ok
+    ? "The three published test vectors pass in this browser, so these digests are real. The engine hashes, links and verifies; it has no way to execute a rule, and nothing here pretends otherwise."
+    : "The test vectors did not pass in this browser, so nothing above should be believed.";
+
+  for (var b = 0; b < btns.length; b++) {
+    btns[b].addEventListener("click", function (ev) {
+      for (var k = 0; k < btns.length; k++) btns[k].className = "btn";
+      ev.currentTarget.className = "btn primary";
+      render(ev.currentTarget.getAttribute("data-m"));
+    });
+  }
+
+  render("filed");
+})();
+</script>
+<style>
+  #p9-rule .p9-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .8rem; }
+  #p9-rule .p9-rows { display: grid; gap: .45rem; margin-bottom: .8rem; }
+  #p9-rule .p9-row {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
+    gap: .7rem;
+    align-items: baseline;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: #FFFFFF;
+    padding: .55rem .7rem;
+  }
+  #p9-rule .p9-row.p9-oracle { background: var(--amber-50); border-color: var(--amber); }
+  #p9-rule .p9-row.p9-bad { border-color: var(--amber); box-shadow: inset 3px 0 0 var(--amber); }
+  #p9-rule .p9-row b {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .76rem;
+    color: var(--indigo);
+  }
+  #p9-rule .p9-entry { font-size: .82rem; color: var(--ink); }
+  #p9-rule .p9-role { font-size: .72rem; color: var(--muted); }
+  #p9-rule .p9-hash {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .74rem;
+    color: var(--indigo-deep);
+    word-break: break-all;
+  }
+  @media (max-width: 720px) {
+    #p9-rule .p9-row { grid-template-columns: 1.6rem minmax(0, 1fr); }
+    #p9-rule .p9-hash, #p9-rule .p9-role { grid-column: 2; }
+  }
+</style>
+</body>
+</html>

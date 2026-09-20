@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 2 of 6. Edit block 2 of the Harbourgate register and verify reports a hash mismatch. Recompute that block's hash and the failure moves to block 3. Make the whole register consistent and you have redone 4 blocks, 2 through 5.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Tamper evident is not tamper proof - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 2 of 6. A chain makes an edit visible. It does not make an edit impossible, and the difference decides what you can honestly claim.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a2-tamper-evident-not-tamper-proof.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tamper evident is not tamper proof - learn blockchain with phoebe">
+<meta name="twitter:description" content="Fixing the hash does not hide the edit. It moves the failure one block along.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 2 · Tamper evident is not tamper proof - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 2 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 2 of 6</div>
+    <h1>Tamper evident is <span class="accent">not tamper proof</span></h1>
+    <p class="sub">Block 2 of the Harbourgate register says consignment 41 was inspected and the seal was intact. Someone with write access to the database would like it to say the opposite. What follows is not one event, it is three, and they are usually described as though they were one. The edit is caught. The attacker's repair is also caught, one block further down. And then the attacker does the thing that actually works, which takes four blocks and, at difficulty 0, no time at all. The gap between visible and impossible is the whole of tonight.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · The edit, and the repair</span>
+      <span class="a3" style="flex:3">18-26 · What consistency costs</span>
+      <span class="a4" style="flex:4">26-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The attacker who is allowed in</h2>
+    </div>
+    <p class="lede">Assume the worst realistic case rather than a dramatic one. Nobody breaks any hash function, nobody guesses a secret, and nothing is stolen. Someone who already has legitimate write access to the register decides that block 2 should read differently, and they are patient, competent and unhurried. Every result below comes from running that scenario against the six block register and reading what the verification routine says.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The three stages in order, so you never again describe tamper detection as a single event. The number 4, which is how many blocks have to be redone to make the Harbourgate register consistent after an edit at block 2. And a sentence you can say in a procurement meeting without later having to walk it back: the chain makes an edit visible, it does not make an edit impossible.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Two words that get swapped<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Tamper evident means an alteration leaves a mark that anyone checking will find. A seal on a shipping container is tamper evident. Tamper proof means an alteration cannot be made at all, which almost nothing in the physical or digital world is, and which a chain certainly is not.</p>
+        <p>A chain sits firmly in the first category. Its contribution is that the mark left by an alteration is arithmetic rather than physical, so it cannot be faked by a careful hand, and it can be checked by anyone holding a copy without asking permission from whoever keeps the register. That is a genuinely useful property. It is also a much smaller property than the word immutable implies.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>At Harbourgate the edit is caught instantly, the attacker's fix is caught instantly, and the full rewrite succeeds instantly. All three are true at once, and a description that stops after the first one is a description that will embarrass you later.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Hash mismatch.</strong> A block's stored hash is not the hash of its own contents. The signature of an edit with no repair attempt.</li>
+          <li><strong>Link mismatch.</strong> A block's previous hash field does not match the hash of the block above it. The signature of a repair that stopped too early.</li>
+          <li><strong>Reforge.</strong> Redoing a block and every block after it so the register is internally consistent again. Practitioner session 5.</li>
+          <li><strong>Tamper evident.</strong> An alteration leaves a detectable mark.</li>
+          <li><strong>Tamper proof.</strong> An alteration cannot be made. Not a property of any chain.</li>
+          <li><strong>Difficulty.</strong> How much work a single block's hash has to cost. Zero here, which is why the rewrite is free. Session 3.</li>
+          <li><strong>Independent copy.</strong> The register somebody else holds, which is what turns detection into consequences. Session 4.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers stages one and two</span>
+      <h2>The edit, and the repair that does not work</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">Verification recomputes every block's hash and compares every block's previous hash field against the block above it. Run it after the edit and it returns one problem. Run it after the attacker's repair and it still returns one problem, in a different place. The count does not improve, which is the part that gets skipped.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two stages stacked. In stage one, block 2's entry is edited and every stored hash is left alone, and verify reports one problem, a hash mismatch at block 2. In stage two, the attacker also recomputes block 2's hash, and verify still reports one problem, now a link mismatch at block 3, because block 3 still records the hash block 2 had before the edit. A note between the two says the failure moves and does not vanish.">
+        <style>
+          .a2aH { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a2aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a2aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a2aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a2aN { font: 700 11px Inter, sans-serif; fill: #141C22; }
+          .a2aW { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+        </style>
+
+        <rect x="14" y="30" width="852" height="142" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a2aH" x="30" y="54">Stage one · edit block 2's entry, leave every stored hash alone</text>
+
+        <rect x="30" y="66" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="44" y="96">block 0</text>
+        <rect x="122" y="66" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="136" y="96">block 1</text>
+        <rect x="214" y="66" width="84" height="50" rx="8" fill="#B45309"></rect>
+        <text class="a2aW" x="228" y="96">block 2</text>
+        <rect x="306" y="66" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="320" y="96">block 3</text>
+        <rect x="398" y="66" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="412" y="96">block 4</text>
+        <rect x="490" y="66" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="504" y="96">block 5</text>
+
+        <rect x="596" y="66" width="254" height="50" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a2aK" x="612" y="88">1 problem</text>
+        <text class="a2aB" x="612" y="106">hash mismatch at block 2</text>
+
+        <text class="a2aB" x="30" y="140">Block 2 now reads seal BROKEN, and the hash stored in block 2 was not touched.</text>
+        <text class="a2aM" x="30" y="158">Recomputing block 2 from its own contents gives something else, so the block disagrees with itself.</text>
+
+        <text class="a2aK" x="316" y="192">The failure moves. It does not vanish.</text>
+
+        <rect x="14" y="204" width="852" height="142" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a2aH" x="30" y="228">Stage two · the attacker recomputes block 2's hash as well</text>
+
+        <rect x="30" y="240" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="44" y="270">block 0</text>
+        <rect x="122" y="240" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="136" y="270">block 1</text>
+        <rect x="214" y="240" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="228" y="270">block 2</text>
+        <rect x="306" y="240" width="84" height="50" rx="8" fill="#B45309"></rect>
+        <text class="a2aW" x="320" y="270">block 3</text>
+        <rect x="398" y="240" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="412" y="270">block 4</text>
+        <rect x="490" y="240" width="84" height="50" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2aN" x="504" y="270">block 5</text>
+
+        <rect x="596" y="240" width="254" height="50" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a2aK" x="612" y="262">1 problem</text>
+        <text class="a2aB" x="612" y="280">link mismatch at block 3</text>
+
+        <text class="a2aB" x="30" y="312">Block 2 now agrees with itself again, and block 3 has not been touched at all.</text>
+        <text class="a2aM" x="30" y="330">Block 3 still records the hash block 2 had before the edit, so the join between them has come apart.</text>
+
+        <rect x="14" y="358" width="852" height="52" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a2aK" x="30" y="381">One problem before the repair, one problem after it.</text>
+        <text class="a2aM" x="30" y="399">The attacker has not reduced the evidence, only relocated it, and the location is a clue to where the edit was.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two runs of the same verification against the same register, one before the attacker's repair and one after.</figcaption>
+    </figure>
+
+    <div class="wk" id="a2-bench">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">The six block register, tampered and verified in this page. Step through the stages.</span>
+      </div>
+      <div class="wk-body">
+        <div class="a2-btns">
+          <button class="btn primary" type="button" data-stage="0">As written</button>
+          <button class="btn" type="button" data-stage="1">Stage one</button>
+          <button class="btn" type="button" data-stage="2">Stage two</button>
+          <button class="btn" type="button" data-stage="3">Stage three</button>
+        </div>
+        <p class="a2-caption" id="a2-caption">...</p>
+        <div class="a2-blocks" id="a2-blocks"></div>
+        <p class="sql-note" id="a2-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a2-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the failure has to move rather than clear<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Block 2's hash is a fingerprint of block 2's contents. Change the contents and the old fingerprint is wrong, which is the first failure. Compute the new fingerprint and block 2 is consistent, but block 3 contains a copy of the old fingerprint, which it recorded when it was written, and nothing about editing block 2 reaches into block 3 to update it.</p>
+        <p>So the repair cannot terminate. Every fix creates the next mismatch one block along, and the only place the sequence can stop is the end of the register. That is the mechanism behind every claim you will hear about rewriting history being harder the further back you go.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading the output like an auditor<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The two failure kinds say different things and are worth telling apart. A hash mismatch at block N means block N's contents were changed and nothing else was done. A link mismatch at block N means block N minus one was changed and repaired, and the repair stopped short.</p>
+        <p>So the location of a link mismatch points one block upwards at where the edit actually was. An attacker who works from the back of the register forwards leaves the mismatch at the very last block they failed to reach, which is why the first index reported is the one worth reading.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The disagreement about the word immutable<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that a chain record is immutable in any sense that matters. Rewriting is detectable by every holder of a copy and, once work is attached to each block, expensive enough that nobody rational attempts it. On that reading the word is a fair summary of the practical situation, and insisting on precision is pedantry.</p>
+        <p>The other camp holds that immutability is not a property of the data at all. The bytes can be changed by anyone with write access, as tonight demonstrates. What resists the change is the network of independent copies and the people who refuse to accept the rewritten version. Calling the data immutable moves the trust question out of sight rather than solving it, and buyers then skip the question of who holds the other copies.</p>
+        <p>The split is real and it is not going to be settled here. What is worth noticing is that the second camp's objection is unanswerable on a register with only one copy, which is the shape most organisations actually build.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers stage three</span>
+      <h2>What making it consistent actually costs</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">The attacker's only winning move is to stop repairing one block at a time and redo everything from the edit to the end of the register. At Harbourgate that is 4 blocks, 2 through 5. The register then verifies clean, with no problems reported at all.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 336" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stage three. Blocks 0 and 1 are untouched. Blocks 2, 3, 4 and 5 must all be redone, marked by a bracket labelled 4 blocks, 2 through 5, which is every block from the edit to the end of the register. At difficulty 0 this is instant and the register verifies clean, which is why mining exists. A closing note says visible is not impossible: a chain guarantees a rewrite can be seen by anyone holding a copy, not that a rewrite cannot happen.">
+        <style>
+          .a2bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a2bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a2bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a2bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a2bN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a2bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a2bV { font: 400 10px Inter, sans-serif; fill: #FFFFFF; }
+          .a2bS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+
+        <text class="a2bH" x="20" y="20">Stage three · everything from the edit to the end of the register</text>
+
+        <rect x="20" y="36" width="130" height="64" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2bN" x="34" y="62">block 0</text>
+        <text class="a2bM" x="34" y="82">untouched</text>
+
+        <rect x="160" y="36" width="130" height="64" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2bN" x="174" y="62">block 1</text>
+        <text class="a2bM" x="174" y="82">untouched</text>
+
+        <rect x="300" y="36" width="130" height="64" rx="9" fill="#B45309"></rect>
+        <text class="a2bW" x="314" y="62">block 2</text>
+        <text class="a2bV" x="314" y="82">edited, must be redone</text>
+
+        <rect x="440" y="36" width="130" height="64" rx="9" fill="#B45309"></rect>
+        <text class="a2bW" x="454" y="62">block 3</text>
+        <text class="a2bV" x="454" y="82">must be redone</text>
+
+        <rect x="580" y="36" width="130" height="64" rx="9" fill="#B45309"></rect>
+        <text class="a2bW" x="594" y="62">block 4</text>
+        <text class="a2bV" x="594" y="82">must be redone</text>
+
+        <rect x="720" y="36" width="130" height="64" rx="9" fill="#B45309"></rect>
+        <text class="a2bW" x="734" y="62">block 5</text>
+        <text class="a2bV" x="734" y="82">must be redone</text>
+
+        <path d="M 300 110 L 300 120 L 850 120 L 850 110" fill="none" stroke="#B45309" stroke-width="2"></path>
+
+        <text class="a2bM" x="20" y="142">unchanged</text>
+        <text class="a2bK" x="300" y="142">4 blocks, 2 through 5</text>
+        <text class="a2bM" x="470" y="142">every block from the edit to the end of the register</text>
+
+        <rect x="14" y="156" width="418" height="78" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a2bN" x="30" y="180">At difficulty 0 this is instant</text>
+        <text class="a2bB" x="30" y="200">Four hashes recomputed, and the register verifies clean.</text>
+        <text class="a2bM" x="30" y="218">Nothing in the structure slowed the attacker down at all.</text>
+
+        <rect x="448" y="156" width="418" height="78" rx="10" fill="#0E2C3F"></rect>
+        <text class="a2bW" x="464" y="180">Which is exactly why mining exists</text>
+        <text class="a2bV" x="464" y="200">Make one hash expensive to find and four of them become real work.</text>
+        <text class="a2bS" x="464" y="218">Session 3 measures what that work actually costs.</text>
+
+        <rect x="14" y="250" width="852" height="72" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a2bK" x="30" y="274">Visible is not impossible.</text>
+        <text class="a2bB" x="30" y="294">A chain guarantees a rewrite can be seen by anyone holding a copy. It does not guarantee a rewrite cannot happen.</text>
+        <text class="a2bM" x="30" y="312">What you can honestly claim about a system built on one stops at the first of those two sentences.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the bracket is the attacker's real workload, and its length is set by how far back the edit is.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The number that matters is the distance from the end<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Editing block 2 of a six block register means redoing 4 blocks. Editing block 5 would mean redoing 1. Editing block 0 would mean redoing all six. The cost of a rewrite is set entirely by how much register sits after the entry being changed, which has an uncomfortable implication for anything recent.</p>
+        <p>The most recent entry is always the cheapest to rewrite, and it is usually the entry someone has a live reason to change. A register that has been quiet for a year protects last year's entries very well and this morning's hardly at all.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What actually stops the rewrite<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nothing in the six block register stops it. The attacker redoes four blocks, verification passes, and the register now says the seal was broken on the earlier inspection as well. On a single copy held by a single organisation, tamper evidence buys nothing at all against an insider with write access, because that insider can also rebuild the evidence.</p>
+        <p>What turns detection into consequence is somebody else holding a copy. If a buyer, an insurer and the port authority each hold the register, the rewritten version differs from two others and the disagreement is the alarm. The chain provides the comparison; the independent copies provide the reason anyone is comparing. Session 4 is about who those copies belong to.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where difficulty enters the argument<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Harbourgate runs at difficulty 0, so producing a block's hash costs one computation. Raise the difficulty and a valid hash has to start with a required number of zeros, which cannot be arranged directly and has to be found by trying nonces until one works. The attacker's four blocks each acquire a cost, and an honest register keeps growing while the attacker works, so the target moves.</p>
+        <p>The temptation at this point is to quote a number for what that costs. A single mining run is close to uninformative, because the spread around the expected figure is enormous, so any cost claim has to be a mean with its trial count attached. Session 3 does exactly that and the spread is the interesting half.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Run the attack out loud</h2>
+      <span class="tag build">19 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps using the live box above and the register from session 1. The aim is to be able to narrate all three stages without notes, and to stop before the sentence that overclaims.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Predict before you press</h4>
+        <p>Before stepping to stage one, say how many problems verification will report and at which block. Then press it. Getting this right matters less than noticing whether you expected more than one.</p>
+      </div>
+      <div class="step">
+        <h4>Say what the attacker learned</h4>
+        <p>Stage two fixes the hash and the problem count stays at one. Say in a sentence what the attacker gained and what they gave up, given that the new problem is at block 3 rather than block 2.</p>
+      </div>
+      <div class="step">
+        <h4>Read the mismatch backwards</h4>
+        <p>You are handed a register you have never seen and verification reports a link mismatch at block 4. Say which block was edited and how you know. Then say what you would still not know.</p>
+      </div>
+      <div class="step">
+        <h4>Count the workload at each position</h4>
+        <p>For an edit at block 2, block 4 and block 0 in turn, say how many blocks must be redone. Then state the rule in general terms, and say which entries in a long lived register are the cheapest to change.</p>
+      </div>
+      <div class="step">
+        <h4>Ask who else has a copy</h4>
+        <p>Take a register in your own organisation. Name every party that holds an independent copy. If the answer is none, say what your tamper evidence is actually buying you against someone with write access.</p>
+      </div>
+      <div class="step">
+        <h4>Repair last week's sentence</h4>
+        <p>Take the honest claim you wrote in session 1 and edit it until it survives everything on this page. Most sentences lose the word prevents and gain the word detects. Keep it for session 6.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says records on their chain cannot be changed, ask two questions. Who has write access to the underlying store, and who else holds a copy to compare against. The first question tells you who can rewrite. The second tells you whether anyone would find out.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Block 2's entry is edited and every stored hash is left alone. What does verification report?</p>
+      <div class="qopt">A · Four problems, one at block 2 and one at each block after it, because the damage spreads down the register</div>
+      <div class="qopt">B · One problem, a hash mismatch at block 2, because block 2's stored hash no longer matches its own contents</div>
+      <div class="qopt">C · Nothing, because the stored hashes were not altered and the links are all still intact</div>
+      <q class="qwhy">Every later block still records the hash its predecessor stored, and none of those stored hashes changed, so every link still joins. The only disagreement is inside block 2, between its contents and the fingerprint sitting in it.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">The attacker then recomputes block 2's hash so the block agrees with itself again. What happens to the detection?</p>
+      <div class="qopt">A · It clears, because a block that is internally consistent passes verification</div>
+      <div class="qopt">B · It doubles, because both the old and the new hash are now wrong somewhere</div>
+      <div class="qopt">C · It moves to a link mismatch at block 3, because block 3 still records the hash block 2 had before the edit</div>
+      <q class="qwhy">Fixing the hash does not hide the edit, it relocates the failure one block along. Block 3 recorded its predecessor's fingerprint when it was written and nothing about editing block 2 updates that copy. The problem count stays at one throughout.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">To make the six block register internally consistent after an edit at block 2, how much must the attacker redo, and what does that prove?</p>
+      <div class="qopt">A · 4 blocks, 2 through 5, and at difficulty 0 it is instant, which shows the structure makes an edit visible rather than impossible</div>
+      <div class="qopt">B · All six blocks, including the genesis block, because the whole register depends on it</div>
+      <div class="qopt">C · Only block 2 and block 3, since the failure was at block 3 and repairing it ends the chain of consequences</div>
+      <q class="qwhy">Each repair creates the next mismatch, so the sequence only terminates at the end of the register: blocks 2, 3, 4 and 5. With no work attached to a hash, redoing four of them costs nothing, which is why difficulty exists and why detection alone is not protection.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 3</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a claim somebody has already made to you or that you have made yourself.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find an overclaim in the wild</h4>
+        <p>Locate one sentence in a vendor page, an internal deck or a policy document that says records cannot be altered. Write down what it would have to say instead to be accurate, and note how much weaker it reads.</p>
+      </div>
+      <div class="step">
+        <h4>Size a rewrite in your own terms</h4>
+        <p>For the register you picked in session 1, say how many entries sit after a row someone might want to change today. That count is the attacker's workload before any difficulty is applied, and session 3 puts a cost on each unit of it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Stage one, the plain edit</span><span class="note">One problem reported, a hash mismatch at block 2.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Stage two, the repair that relocates</span><span class="note">Still one problem, now a link mismatch at block 3.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Stage three, the full rewrite</span><span class="note">4 blocks, 2 through 5, and at difficulty 0 it is instant.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Tamper evident against tamper proof</span><span class="note">What a chain makes visible, and what it leaves entirely possible.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">What difficulty does to the rewrite</span><span class="note">Named tonight, measured in session 3 as a mean with its trial count.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Why independent copies turn detection into consequence</span><span class="note">Session 4.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A chain makes an edit visible. It does not make an edit impossible.</div>
+      <div class="cheat-item"><strong>Stage one.</strong> Edit the entry only: 1 problem, hash mismatch at block 2.</div>
+      <div class="cheat-item"><strong>Stage two.</strong> Recompute that hash: still 1 problem, link mismatch at block 3.</div>
+      <div class="cheat-item"><strong>Stage three.</strong> Make it consistent: 4 blocks, 2 through 5, instant at difficulty 0.</div>
+      <div class="cheat-item"><strong>Hash mismatch.</strong> This block was edited and nothing else was done.</div>
+      <div class="cheat-item"><strong>Link mismatch at N.</strong> Block N minus one was edited and the repair stopped short.</div>
+      <div class="cheat-item"><strong>The workload rule.</strong> Redo everything after the edit, so recent entries are the cheapest to rewrite.</div>
+      <div class="cheat-item"><strong>The two questions.</strong> Who has write access, and who else holds a copy to compare against.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 2 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a1-what-a-chain-actually-is.html">← Leader session 1 · What a chain actually is</a>
+        <a href="a3-the-cost-of-rewriting-history.html">Leader session 3 · What it costs to rewrite history →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("a2-bench");
+  if (!box) return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var EDITED = "Consignment 41 inspected, seal BROKEN";
+
+  function clone(chain) {
+    return chain.map(function (b) { var o = {}; for (var k in b) o[k] = b[k]; return o; });
+  }
+
+  var base = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+  var s1 = CHAIN.tamper(base, 2, EDITED);
+  var s2 = clone(s1);
+  s2[2].hash = CHAIN.hashBlock(s2[2]);
+  var s3 = CHAIN.reforge(s1, 2, 0).chain;
+
+  var STAGES = [
+    { chain: base, caption: "The register as written. Nothing has been touched." },
+    { chain: s1, caption: "Block 2's entry now reads seal BROKEN. Every stored hash was left alone." },
+    { chain: s2, caption: "Block 2's hash has been recomputed, so the block agrees with itself again." },
+    { chain: s3, caption: "Every block from 2 to the end has been redone, so the register is consistent." }
+  ];
+
+  var blocksEl = document.getElementById("a2-blocks");
+  var capEl = document.getElementById("a2-caption");
+  var verdictEl = document.getElementById("a2-verdict");
+  var footEl = document.getElementById("a2-foot");
+  var btns = box.querySelectorAll(".a2-btns button");
+
+  function describe(p) {
+    return p.kind === "hash"
+      ? "hash mismatch at block " + p.index
+      : "link mismatch at block " + p.index;
+  }
+
+  function show(n) {
+    var stage = STAGES[n];
+    var result = CHAIN.verify(stage.chain);
+    var flagged = {};
+    result.problems.forEach(function (p) { flagged[p.index] = p.kind; });
+
+    capEl.textContent = stage.caption;
+    blocksEl.innerHTML = "";
+    stage.chain.forEach(function (b, i) {
+      var d = document.createElement("div");
+      d.className = "a2-blk" + (flagged[i] ? " bad" : "") + (b.data !== ENTRIES[i] ? " ed" : "");
+      d.innerHTML = "<b>block " + i + "</b><span>" + b.data + "</span><em>"
+        + (flagged[i] ? flagged[i] + " mismatch" : "checks out") + "</em>";
+      blocksEl.appendChild(d);
+    });
+
+    verdictEl.textContent = result.ok
+      ? "verify(): no problems. The register is internally consistent."
+      : "verify(): " + result.problems.length + " problem"
+        + (result.problems.length === 1 ? "" : "s") + " - "
+        + result.problems.map(describe).join(", ");
+
+    var redone = 0;
+    for (var i = 0; i < base.length; i++) if (stage.chain[i].hash !== base[i].hash) redone++;
+    footEl.textContent = redone === 0
+      ? "Blocks whose hash differs from the register as written: 0."
+      : "Blocks whose hash differs from the register as written: " + redone + ".";
+
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].className = (j === n) ? "btn primary" : "btn";
+    }
+  }
+
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].addEventListener("click", function () {
+      show(parseInt(this.getAttribute("data-stage"), 10));
+    });
+  }
+  show(0);
+})();
+</script>
+<style>
+  #a2-bench .a2-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #a2-bench .a2-caption { font-size: .88rem; color: var(--ink); margin: 0 0 .8rem; }
+  #a2-bench .a2-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .5rem; }
+  #a2-bench .a2-blk {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+    line-height: 1.45;
+  }
+  #a2-bench .a2-blk b { display: block; font-size: .78rem; color: var(--indigo-deep); }
+  #a2-bench .a2-blk span { display: block; font-size: .74rem; color: var(--muted); }
+  #a2-bench .a2-blk em { display: block; font-style: normal; font-size: .72rem; font-weight: 700; color: var(--indigo); }
+  #a2-bench .a2-blk.ed { border-color: var(--amber); }
+  #a2-bench .a2-blk.bad { background: var(--amber-50); border-color: var(--amber); }
+  #a2-bench .a2-blk.bad em { color: var(--amber); }
+</style>
+</body>
+</html>

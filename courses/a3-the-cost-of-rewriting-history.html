@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 3 of 6. Mining is finding a nonce whose block hash starts with a given number of zeros, and there is no shortcut. Measured means of 16, 277, 4,115 and 74,190 attempts at difficulties 1 to 4, and a spread far wider than any of them.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="What it costs to rewrite history - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 3 of 6. The expected number of guesses is known. Any single run is close to uninformative, and that is the lesson worth keeping.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a3-the-cost-of-rewriting-history.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What it costs to rewrite history - learn blockchain with phoebe">
+<meta name="twitter:description" content="A mean of 4,115 attempts over 120 trials, and a measured range from 40 to 17,343. Quote the mean, never the run.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 3 · What it costs to rewrite history - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 3 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 3 of 6</div>
+    <h1>What it costs to <span class="accent">rewrite history</span></h1>
+    <p class="sub">The attacker in session 2 had to redo 4 blocks, and at difficulty 0 that took no time at all. Difficulty is the mechanism that turns those four blocks into work somebody has to pay for. It does it by requiring each block's hash to begin with a run of zeros, which cannot be arranged and has to be found by guessing. The expected number of guesses is known exactly. What any one attempt will cost is not, and the gap between those two statements is the more useful half of tonight.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-18 · Guessing, on purpose</span>
+      <span class="a3" style="flex:2">18-27 · The mean and the spread</span>
+      <span class="a4" style="flex:4">27-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Making the rewrite expensive on purpose</h2>
+    </div>
+    <p class="lede">Nothing in the Harbourgate register stopped the attacker. Four hashes were recomputed, verification came back clean, and the whole rewrite cost four computations. Difficulty is the deliberate answer to that: a rule saying a block's hash is only acceptable if it begins with a required number of zero characters. The rule adds no security to the hash itself. It adds price, and price is the only thing that was missing.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> A plain account of what mining is: trying nonces until a block's hash begins with the required zeros, with no method better than trying. The four measured means, 16, 277, 4,115 and 74,190 attempts at difficulties 1 to 4, each with its trial count. And a habit that outlives the subject: a cost quoted without a trial count beside it is not a cost, it is an anecdote.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The one field a block will let you change<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A block's hash is taken over its position, its timestamp, its entry, the previous block's hash and its nonce. The first four are what the block is for and cannot be altered without altering the record. The nonce is different. It says nothing, carries no meaning, and exists so that the hash can be moved without the record being touched.</p>
+        <p>That is why the nonce looked like a flaw when it was introduced. It is the handle the whole mechanism turns on. Set a rule about what an acceptable hash must look like, and the nonce becomes the only thing anyone can turn while looking for one.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Harbourgate's six entries were built at difficulty 0, which imposes no rule at all, so every nonce stayed at zero and every block was accepted on its first computation. Everything about tamper evidence held anyway. Difficulty was never about detection.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Nonce.</strong> A number in every block that can be set to anything without changing what the block says.</li>
+          <li><strong>Difficulty.</strong> How many leading zero characters a block's hash is required to have before the block is accepted.</li>
+          <li><strong>Mining.</strong> Trying nonce values until the block's hash meets that requirement.</li>
+          <li><strong>Attempt.</strong> One nonce tried and one hash computed. The unit every cost figure here is counted in.</li>
+          <li><strong>Expected attempts.</strong> 16 to the power of the difficulty, because each hexadecimal character takes one of 16 values and the leading ones must all land on zero.</li>
+          <li><strong>Mean.</strong> The average over many independent blocks. The only honest way to state a mining cost.</li>
+          <li><strong>Spread.</strong> How far individual runs sit from that mean. At difficulty 4 the measured runs went from 149 attempts to 339,789.</li>
+          <li><strong>Reforge.</strong> Redoing a block and every block after it, now at a price per block. Practitioner session 5.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers proof of work</span>
+      <h2>Guessing is not a weakness of the method, it is the method</h2>
+      <span class="tag concept">15 min live</span>
+    </div>
+    <p class="lede">The requirement is arbitrary and that is the point: a valid block is one whose hash begins with a given number of zeros. Nobody can compute a nonce that produces such a hash, because the avalanche property means the digest for nonce 1 carries no information about the digest for nonce 2. So the nonce is counted upwards and the hash is computed again, until one lands.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mining shown as a loop. A block has five fields: index, timestamp, entry and previous hash are all fixed, and the nonce is free to change. The whole block is hashed with SHA-256. Nonce 0 gives a hash that does not begin with the required zeros and is rejected, nonce 1 is rejected too, and after many tries some nonce n gives a hash whose first three characters are 000 and is accepted. A note says there is no way to aim, only to try, and that expected attempts at difficulty d are 16 to the power of d: 16 at difficulty 1, 256 at 2, 4,096 at 3 and 65,536 at 4. Four boxes then show what each difficulty asks for, from one leading zero at difficulty 1 to four leading zeros at difficulty 4.">
+        <style>
+          .a3aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a3aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a3aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a3aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a3aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a3aN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a3aT { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a3aS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .a3aA { font: 700 10px Inter, sans-serif; fill: #B45309; }
+          .a3aG { font: 700 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a3aY { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .a3aD { font: 400 10px Inter, sans-serif; fill: #141C22; }
+        </style>
+        <defs>
+          <marker id="a3aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a3aH" x="14" y="20">One field may be changed freely. Mining is changing it until the hash lands.</text>
+
+        <rect x="14" y="32" width="250" height="170" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a3aL" x="30" y="54">ONE BLOCK, FIVE FIELDS</text>
+        <text class="a3aB" x="30" y="78">index</text>
+        <text class="a3aM" x="196" y="78">fixed</text>
+        <text class="a3aB" x="30" y="98">timestamp</text>
+        <text class="a3aM" x="196" y="98">fixed</text>
+        <text class="a3aB" x="30" y="118">entry</text>
+        <text class="a3aM" x="196" y="118">fixed</text>
+        <text class="a3aB" x="30" y="138">previous hash</text>
+        <text class="a3aM" x="196" y="138">fixed</text>
+        <path d="M 30 150 L 248 150" fill="none" stroke="#DBE4EB" stroke-width="1"></path>
+        <text class="a3aN" x="30" y="174">nonce</text>
+        <text class="a3aA" x="196" y="174">free</text>
+        <text class="a3aM" x="30" y="192">says nothing, changes the hash</text>
+
+        <path d="M 272 117 L 306 117" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a3aAr)"></path>
+
+        <rect x="316" y="88" width="150" height="58" rx="10" fill="#1E4D6B"></rect>
+        <text class="a3aT" x="332" y="112">SHA-256</text>
+        <text class="a3aS" x="332" y="132">over the whole block</text>
+
+        <path d="M 474 117 L 508 117" fill="none" stroke="#B45309" stroke-width="1.8" marker-end="url(#a3aAr)"></path>
+
+        <rect x="518" y="32" width="348" height="170" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3aL" x="534" y="54">EACH TRY IS A FRESH DRAW</text>
+
+        <rect x="530" y="64" width="324" height="38" rx="8" fill="#EFF5F9"></rect>
+        <text class="a3aY" x="544" y="88">nonce 0</text>
+        <text class="a3aM" x="620" y="88">not the required zeros</text>
+        <text class="a3aA" x="790" y="88">rejected</text>
+
+        <rect x="530" y="108" width="324" height="38" rx="8" fill="#EFF5F9"></rect>
+        <text class="a3aY" x="544" y="132">nonce 1</text>
+        <text class="a3aM" x="620" y="132">not the required zeros</text>
+        <text class="a3aA" x="790" y="132">rejected</text>
+
+        <rect x="530" y="152" width="324" height="38" rx="8" fill="#CBDDE9"></rect>
+        <text class="a3aY" x="544" y="176">nonce n</text>
+        <text class="a3aD" x="620" y="176">first 3 characters are 000</text>
+        <text class="a3aG" x="790" y="176">accepted</text>
+
+        <rect x="14" y="218" width="852" height="72" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a3aK" x="30" y="242">There is no way to aim, only to try.</text>
+        <text class="a3aB" x="30" y="262">A near miss brings the next attempt no closer, because neighbouring nonces do not produce neighbouring digests.</text>
+        <text class="a3aM" x="30" y="280">Expected attempts at difficulty d are 16 to the power of d: 16 at difficulty 1, 256 at 2, 4,096 at 3, 65,536 at 4.</text>
+
+        <text class="a3aL" x="14" y="306">WHAT EACH DIFFICULTY ASKS FOR</text>
+
+        <rect x="14" y="312" width="204" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3aN" x="30" y="336">difficulty 1</text>
+        <text class="a3aM" x="30" y="356">hash must begin 0</text>
+        <text class="a3aB" x="30" y="374">expected 16 attempts</text>
+
+        <rect x="230" y="312" width="204" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3aN" x="246" y="336">difficulty 2</text>
+        <text class="a3aM" x="246" y="356">hash must begin 00</text>
+        <text class="a3aB" x="246" y="374">expected 256 attempts</text>
+
+        <rect x="446" y="312" width="204" height="76" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3aN" x="462" y="336">difficulty 3</text>
+        <text class="a3aM" x="462" y="356">hash must begin 000</text>
+        <text class="a3aB" x="462" y="374">expected 4,096 attempts</text>
+
+        <rect x="662" y="312" width="204" height="76" rx="9" fill="#0E2C3F"></rect>
+        <text class="a3aT" x="678" y="336">difficulty 4</text>
+        <text class="a3aS" x="678" y="356">hash must begin 0000</text>
+        <text class="a3aS" x="678" y="374">expected 65,536 attempts</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - each step up in difficulty multiplies the expected number of attempts by sixteen.</figcaption>
+    </figure>
+
+    <div class="wk" id="a3-mine">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Real mining, in this page. Take one draw, then a batch, and watch the mean settle while the draws do not.</span>
+      </div>
+      <div class="wk-body">
+        <div class="a3-btns" id="a3-diffs">
+          <button class="btn primary" type="button" data-d="1">Difficulty 1</button>
+          <button class="btn" type="button" data-d="2">Difficulty 2</button>
+          <button class="btn" type="button" data-d="3">Difficulty 3</button>
+          <button class="btn" type="button" data-d="4">Difficulty 4</button>
+        </div>
+        <div class="a3-btns">
+          <button class="btn" type="button" id="a3-one">Mine one block</button>
+          <button class="btn" type="button" id="a3-batch">Mine 25 more</button>
+          <button class="btn" type="button" id="a3-reset">Clear the draws</button>
+        </div>
+        <p class="a3-caption" id="a3-caption">...</p>
+        <div class="a3-stats" id="a3-stats"></div>
+        <p class="sql-note" id="a3-note">...</p>
+      </div>
+      <div class="wk-foot" id="a3-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why sixteen to the power of the difficulty<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A digest is written in hexadecimal, so each character is one of sixteen. A hash function with no gradient scatters its output evenly across every possible digest, which means the first character lands on zero about one time in sixteen. Requiring two leading zeros asks for two independent one in sixteen events at once, and so on upwards.</p>
+        <p>That gives the expected attempt counts directly: 16, 256, 4,096 and 65,536 for difficulties 1 to 4. It is worth noticing what this expectation is not. It is not a limit, not a guarantee, and not a schedule. It is the average of a process whose individual outcomes are wild.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What difficulty does to the attacker's four blocks<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 2 left the attacker needing to redo blocks 2, 3, 4 and 5. At difficulty 0 each of those cost one computation. At difficulty 3 each one costs a mean of 4,115 attempts, measured over 120 trials, and the attacker has to pay that four times over rather than once.</p>
+        <p>There is a second cost that is easy to miss. While the attacker is redoing four blocks, an honest register is still adding new ones, and every new block is another block the attacker must also redo before the rewritten version can be as long as the real one. The work is not a fixed bill, it is a race against a register that keeps moving.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp treats proof of work as a security mechanism in the full sense. There is no administrator to appeal to, so the only thing that can deter a rewrite is making it cost more than it is worth, and a cost that anybody can verify from the data alone is exactly the right shape for a system with nobody in charge.</p>
+        <p>The other camp says calling cost security mislabels a deterrent as a guarantee. A cryptographic property holds regardless of who is attacking. A cost only holds while the attacker's budget is smaller than the honest work being done, which is a claim about economics, not about mathematics, and it can change without anything in the code changing.</p>
+        <p>Both positions are held by people who understand the mechanism perfectly well, and the disagreement is about what kind of assurance has been bought rather than about how the mechanism works. It matters in a procurement conversation because the two camps write very different warranties.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the measurement</span>
+      <h2>The mean is known. Any single run is not.</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">Every figure below was measured by mining many independent blocks and counting attempts. The means sit close to the expectation, which is reassuring and mostly uninteresting. The columns worth looking at are the last two, because they are the ones that decide whether a number somebody quotes you means anything.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A measured table of four difficulties. Difficulty 1 over 500 trials: mean 16 attempts against an expected 16, minimum 1, maximum 101. Difficulty 2 over 300 trials: mean 277 against an expected 256, minimum 1, maximum 2,147. Difficulty 3 over 120 trials: mean 4,115 against an expected 4,096, minimum 40, maximum 17,343. Difficulty 4 over 150 trials: mean 74,190 against an expected 65,536, minimum 149, maximum 339,789. A bar beside each row shows the measured range on a logarithmic scale with the mean marked inside it, and each bar is far wider than its mean. A closing note says the mean tracks the expectation and the spread does not.">
+        <style>
+          .a3bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a3bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a3bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a3bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a3bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a3bN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a3bX { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .a3bZ { font: 400 11px "SF Mono", Menlo, monospace; fill: #566670; }
+        </style>
+
+        <text class="a3bH" x="14" y="20">Attempts to mine one block, measured over many independent blocks</text>
+
+        <text class="a3bL" x="30" y="42">DIFFICULTY</text>
+        <text class="a3bL" x="118" y="42">TRIALS</text>
+        <text class="a3bL" x="190" y="42">MEAN</text>
+        <text class="a3bL" x="270" y="42">EXPECTED</text>
+        <text class="a3bL" x="360" y="42">MIN</text>
+        <text class="a3bL" x="430" y="42">MAX</text>
+        <text class="a3bL" x="510" y="42">THE MEASURED RANGE, MEAN MARKED IN AMBER</text>
+
+        <rect x="14" y="50" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3bN" x="30" y="77">1</text>
+        <text class="a3bZ" x="118" y="77">500</text>
+        <text class="a3bX" x="190" y="77">16</text>
+        <text class="a3bZ" x="270" y="77">16</text>
+        <text class="a3bZ" x="360" y="77">1</text>
+        <text class="a3bZ" x="430" y="77">101</text>
+        <rect x="510" y="68" width="123" height="8" rx="4" fill="#CBDDE9"></rect>
+        <line x1="584.5" y1="62.0" x2="584.5" y2="82.0" stroke="#B45309" stroke-width="3"></line>
+
+        <rect x="14" y="100" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3bN" x="30" y="127">2</text>
+        <text class="a3bZ" x="118" y="127">300</text>
+        <text class="a3bX" x="190" y="127">277</text>
+        <text class="a3bZ" x="270" y="127">256</text>
+        <text class="a3bZ" x="360" y="127">1</text>
+        <text class="a3bZ" x="430" y="127">2,147</text>
+        <rect x="510" y="118" width="205" height="8" rx="4" fill="#CBDDE9"></rect>
+        <line x1="660.5" y1="112.0" x2="660.5" y2="132.0" stroke="#B45309" stroke-width="3"></line>
+
+        <rect x="14" y="150" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3bN" x="30" y="177">3</text>
+        <text class="a3bZ" x="118" y="177">120</text>
+        <text class="a3bX" x="190" y="177">4,115</text>
+        <text class="a3bZ" x="270" y="177">4,096</text>
+        <text class="a3bZ" x="360" y="177">40</text>
+        <text class="a3bZ" x="430" y="177">17,343</text>
+        <rect x="608" y="168" width="163" height="8" rx="4" fill="#CBDDE9"></rect>
+        <line x1="732.5" y1="162.0" x2="732.5" y2="182.0" stroke="#B45309" stroke-width="3"></line>
+
+        <rect x="14" y="200" width="852" height="44" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3bN" x="30" y="227">4</text>
+        <text class="a3bZ" x="118" y="227">150</text>
+        <text class="a3bX" x="190" y="227">74,190</text>
+        <text class="a3bZ" x="270" y="227">65,536</text>
+        <text class="a3bZ" x="360" y="227">149</text>
+        <text class="a3bZ" x="430" y="227">339,789</text>
+        <rect x="644" y="218" width="206" height="8" rx="4" fill="#CBDDE9"></rect>
+        <line x1="809.5" y1="212.0" x2="809.5" y2="232.0" stroke="#B45309" stroke-width="3"></line>
+
+        <text class="a3bM" x="14" y="262">The bars share one logarithmic scale, so equal lengths mean equal multiples rather than equal counts.</text>
+
+        <rect x="14" y="272" width="852" height="60" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a3bK" x="30" y="296">The mean tracks the expectation. The spread does not.</text>
+        <text class="a3bB" x="30" y="316">At difficulty 3 the measured range runs from 40 attempts to 17,343, more than 400 times, around a mean of 4,115 over 120 trials.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - four means, four trial counts, and four ranges that are each far wider than the mean sitting inside them.</figcaption>
+    </figure>
+
+    <p class="lede">The first time this measurement was taken it was taken once, and once is what produced the two numbers below. Both are real results from the real engine. Both would have been quoted with a straight face, and both would have been wrong, in opposite directions.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="What a single run would have told you. On the left, difficulty 1: a first single run gave 3 attempts while the mean over 500 trials is 16, so one run would have read far too cheap. On the right, difficulty 3: a first single run gave 12,462 attempts while the mean over 120 trials is 4,115, so one run would have read far too dear. A closing note says every cost figure is a mean with its trial count beside it, and that the same procedure can mislead in either direction with nothing in the draw to say which.">
+        <style>
+          .a3cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a3cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a3cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a3cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a3cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a3cN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a3cX { font: 700 12px "SF Mono", Menlo, monospace; fill: #B45309; }
+          .a3cY { font: 700 12px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+        </style>
+
+        <text class="a3cH" x="14" y="20">What one run would have told you</text>
+
+        <rect x="14" y="32" width="418" height="112" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3cN" x="30" y="56">Difficulty 1</text>
+        <text class="a3cL" x="30" y="78">ONE RUN</text>
+        <text class="a3cX" x="150" y="78">3 attempts</text>
+        <text class="a3cL" x="30" y="100">MEAN OVER 500 TRIALS</text>
+        <text class="a3cY" x="230" y="100">16 attempts</text>
+        <text class="a3cM" x="30" y="126">Quoting the run would have read far too cheap.</text>
+
+        <rect x="448" y="32" width="418" height="112" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a3cN" x="464" y="56">Difficulty 3</text>
+        <text class="a3cL" x="464" y="78">ONE RUN</text>
+        <text class="a3cX" x="584" y="78">12,462 attempts</text>
+        <text class="a3cL" x="464" y="100">MEAN OVER 120 TRIALS</text>
+        <text class="a3cY" x="664" y="100">4,115 attempts</text>
+        <text class="a3cM" x="464" y="126">Quoting the run would have read far too dear.</text>
+
+        <rect x="14" y="156" width="852" height="66" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a3cK" x="30" y="180">Every cost figure is a mean with its trial count beside it.</text>
+        <text class="a3cB" x="30" y="200">The same measurement overstated one difficulty and understated another on the same afternoon.</text>
+        <text class="a3cM" x="30" y="218">Nothing inside a single draw says which of the two you are holding, which is why the count of draws has to travel with the number.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two honest runs, both misleading, neither detectable as misleading from inside itself.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A lottery with a known ticket count<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Mining behaves like drawing until a rare event happens. The average wait is exactly what the arithmetic predicts, and a single wait can be almost anything. At difficulty 1 the measured runs went from 1 attempt to 101 around a mean of 16. At difficulty 4 they went from 149 to 339,789 around a mean of 74,190, all over 150 trials.</p>
+        <p>The practical consequence is that a lucky attacker exists, always, and does not need to be clever. Difficulty does not promise that a rewrite is slow. It promises that rewriting a long stretch of register, block after block, is slow on average, and averages only assert themselves over many blocks.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What to ask when somebody quotes you a cost<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three questions, in order. How many runs is that averaged over. What were the smallest and largest results. And was the measurement taken on the same configuration you are being sold. A supplier who has the first two answers has measured something. A supplier who has only a single impressive figure has run the thing once.</p>
+        <p>This generalises well past mining. Any figure produced by a process with a long tail behaves the same way, and a benchmark quoted from one run of a model, one load test or one query plan carries exactly the same defect.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why difficulty protects a public register better than a private one<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Difficulty raises the cost of producing a block for everybody, honest or not. On a register maintained by many independent parties, the honest total is large and an attacker has to outspend it, so the price is paid by the attacker and inherited by everyone else as protection.</p>
+        <p>On a register where one organisation runs all the machines, the same rule raises that organisation's own running cost and raises nothing for an insider, because the insider is the one with the capacity. Adding difficulty to a single operator register buys a slower system and very little else, which is an awkward result for a lot of internal chain projects.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Take the draws yourself</h2>
+      <span class="tag build">18 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps using the live box above, which mines real blocks with the real hash. The aim is to leave with a number you would defend and a refusal you would hold.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Predict, then take one draw</h4>
+        <p>At difficulty 2, write down how many attempts you expect before you press anything. Take one draw. Write down what you got. Resist the temptation to explain the gap, because there is nothing to explain.</p>
+      </div>
+      <div class="step">
+        <h4>Take four more single draws</h4>
+        <p>Say out loud, after each one, whether you would be comfortable quoting it as the cost. By the fourth you should be able to say why the question is badly formed.</p>
+      </div>
+      <div class="step">
+        <h4>Run a batch and watch which number moves</h4>
+        <p>Add twenty five draws. The mean walks towards 256 and settles. The smallest and largest keep moving apart. Name which of those two behaviours a cost estimate depends on.</p>
+      </div>
+      <div class="step">
+        <h4>Step up one difficulty and estimate first</h4>
+        <p>Before switching to difficulty 3, say what you expect the mean to become. Then run a batch and compare against 4,115 over 120 trials. Being close is less interesting than knowing why you were able to predict it at all.</p>
+      </div>
+      <div class="step">
+        <h4>Price the attacker's rewrite in blocks</h4>
+        <p>The rewrite from session 2 is 4 blocks. State its cost as a sentence a sceptic could not pull apart, using the mean per block and its trial count, and without multiplying anything you have not measured.</p>
+      </div>
+      <div class="step">
+        <h4>Write the refusal</h4>
+        <p>One sentence you will say when somebody quotes a single benchmark figure as a cost. Keep it short enough to use in a meeting without sounding like an accusation.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> A mean without a trial count is an anecdote wearing a decimal point. Ask how many runs, ask for the smallest and largest, and treat a refusal to answer as the answer.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">What does a machine actually do when it mines a block at difficulty 3?</p>
+      <div class="qopt">A · It computes the nonce that will produce a hash beginning with three zeros, then writes it into the block</div>
+      <div class="qopt">B · It compresses the block until the hash is short enough to begin with zeros</div>
+      <div class="qopt">C · It sets the nonce to one value after another, hashing the whole block each time, until a hash comes back beginning with three zeros</div>
+      <q class="qwhy">There is no method for computing a suitable nonce, because neighbouring nonces do not produce neighbouring digests. The expected number of tries at difficulty 3 is 4,096 and the measured mean over 120 trials is 4,115, which is what trying rather than solving looks like.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A single mining run at difficulty 3 comes back at 12,462 attempts. What have you learned?</p>
+      <div class="qopt">A · That this configuration is roughly three times more expensive than expected, and the expectation needs revising</div>
+      <div class="qopt">B · Almost nothing, because single runs at difficulty 3 were measured anywhere from 40 attempts to 17,343 around a mean of 4,115</div>
+      <div class="qopt">C · That the hash function is behaving incorrectly, since the result is far from 4,096</div>
+      <q class="qwhy">12,462 was a real first run and it sits inside the measured range. A draw that far from the mean is unremarkable in a process with this spread, and treating it as evidence about the cost is the exact mistake the trial counts exist to prevent.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Why does raising difficulty change what an attacker faces, when session 2 showed the rewrite succeeding at difficulty 0?</p>
+      <div class="qopt">A · Because the four blocks that must be redone each acquire a price, a mean of 4,115 attempts at difficulty 3 over 120 trials, while the honest register keeps adding blocks the attacker must also redo</div>
+      <div class="qopt">B · Because a higher difficulty makes the hashes harder to reverse, so the edit can no longer be made at all</div>
+      <div class="qopt">C · Because verification checks the difficulty and refuses to report problems below it</div>
+      <q class="qwhy">Difficulty changes price, not detectability and not reversibility. The edit is still possible and still visible; what changes is that the attacker now pays per block, four times over, against a target that keeps moving.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 4</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a number somebody in your organisation is already relying on.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Find a single run being quoted as a cost</h4>
+        <p>A latency figure, a training time, a batch duration, a price per request. Find out how many runs it came from. Write down the answer, including when the answer is that nobody knows.</p>
+      </div>
+      <div class="step">
+        <h4>Name who holds the other copy</h4>
+        <p>For the register you have been tracking since session 1, list every party outside your own team that holds an independent copy. Session 4 is about what that list does and what happens when it is empty.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Mining as a search over nonces</span><span class="note">A block is accepted when its hash begins with the required zeros, and the only method is trying.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Expected attempts are 16 to the power of the difficulty</span><span class="note">16, 256, 4,096 and 65,536 for difficulties 1 to 4.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The measured means, each with its trial count</span><span class="note">16 over 500 trials, 277 over 300, 4,115 over 120, 74,190 over 150.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The spread, which is the real lesson</span><span class="note">40 to 17,343 at difficulty 3; 149 to 339,789 at difficulty 4.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Why a race against a growing register is the deeper cost</span><span class="note">Named tonight, worked through in session 4.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Reforging from a block, in code</span><span class="note">Practitioner sessions 4 and 5.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price or market</span><span class="note">A separate subject in the crypto course, and nothing here is investment advice.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> Mining is guessing nonces until the block's hash begins with the required zeros.</div>
+      <div class="cheat-item"><strong>The nonce.</strong> The only field that can change without changing what the block says.</div>
+      <div class="cheat-item"><strong>Expected attempts.</strong> 16 to the power of the difficulty: 16, 256, 4,096, 65,536.</div>
+      <div class="cheat-item"><strong>Measured means.</strong> 16 over 500 trials, 277 over 300, 4,115 over 120, 74,190 over 150.</div>
+      <div class="cheat-item"><strong>The spread at difficulty 3.</strong> 40 to 17,343 around a mean of 4,115, more than 400 times.</div>
+      <div class="cheat-item"><strong>The spread at difficulty 4.</strong> 149 to 339,789 around a mean of 74,190.</div>
+      <div class="cheat-item"><strong>The trap.</strong> A first run gave 3 at difficulty 1 and 12,462 at difficulty 3. Both would have misled.</div>
+      <div class="cheat-item"><strong>The habit.</strong> Every cost is a mean with its trial count beside it, or it is an anecdote.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 3 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a2-tamper-evident-not-tamper-proof.html">← Leader session 2 · Tamper evident is not tamper proof</a>
+        <a href="a4-who-agrees-and-how.html">Leader session 4 · Who agrees, and how →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("a3-mine");
+  if (!box) return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var base = CHAIN.makeChain(ENTRIES, { difficulty: 0 });
+
+  var CANON = {
+    1: { trials: 500, mean: "16", expected: "16", min: "1", max: "101" },
+    2: { trials: 300, mean: "277", expected: "256", min: "1", max: "2,147" },
+    3: { trials: 120, mean: "4,115", expected: "4,096", min: "40", max: "17,343" },
+    4: { trials: 150, mean: "74,190", expected: "65,536", min: "149", max: "339,789" }
+  };
+
+  var difficulty = 1;
+  var draws = { 1: [], 2: [], 3: [], 4: [] };
+  var counter = 0;
+
+  var capEl = document.getElementById("a3-caption");
+  var statsEl = document.getElementById("a3-stats");
+  var noteEl = document.getElementById("a3-note");
+  var footEl = document.getElementById("a3-foot");
+  var diffBtns = document.getElementById("a3-diffs").querySelectorAll("button");
+  var batchBtn = document.getElementById("a3-batch");
+
+  function batchSize() { return difficulty === 4 ? 5 : 25; }
+
+  function group(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function drawOne() {
+    counter++;
+    var b = {
+      index: 2,
+      timestamp: 1758001200,
+      data: "Consignment 41 inspected, seal BROKEN, candidate " + counter,
+      prev: base[1].hash,
+      nonce: 0
+    };
+    var m = CHAIN.mine(b, difficulty);
+    draws[difficulty].push(m.attempts);
+  }
+
+  function tile(label, value, sub) {
+    return '<div class="a3-tile"><b>' + label + '</b><span>' + value + '</span><em>' + sub + '</em></div>';
+  }
+
+  function render() {
+    var d = draws[difficulty];
+    var c = CANON[difficulty];
+    capEl.textContent = "Difficulty " + difficulty + ". A block is accepted only if its hash begins with "
+      + difficulty + (difficulty === 1 ? " zero" : " zeros") + ", and the expected number of attempts is "
+      + c.expected + ".";
+
+    if (!d.length) {
+      statsEl.innerHTML = tile("Draws taken", "0", "press a button")
+        + tile("Your mean", "no draws yet", "nothing to average")
+        + tile("Smallest so far", "-", "waiting")
+        + tile("Largest so far", "-", "waiting");
+      noteEl.textContent = "Measured canon at this difficulty: a mean of " + c.mean + " attempts over "
+        + c.trials + " trials, with runs from " + c.min + " to " + c.max + ".";
+      return;
+    }
+
+    var total = 0, mn = d[0], mx = d[0];
+    for (var i = 0; i < d.length; i++) {
+      total += d[i];
+      if (d[i] < mn) mn = d[i];
+      if (d[i] > mx) mx = d[i];
+    }
+    var mean = Math.round(total / d.length);
+    var last = d[d.length - 1];
+
+    statsEl.innerHTML =
+        tile("Draws taken", group(d.length), d.length === 1 ? "one draw is an anecdote" : "each one an independent block")
+      + tile("Your mean", group(mean), "against an expected " + c.expected)
+      + tile("Smallest so far", group(mn), "one lucky block")
+      + tile("Largest so far", group(mx), "one unlucky block");
+
+    noteEl.textContent = "Your last draw took " + group(last) + " attempts. Measured canon at this difficulty: a mean of "
+      + c.mean + " attempts over " + c.trials + " trials, with runs from " + c.min + " to " + c.max
+      + ". Your mean is over " + d.length + (d.length === 1 ? " draw." : " draws.");
+  }
+
+  function setDifficulty(d) {
+    difficulty = d;
+    for (var i = 0; i < diffBtns.length; i++) {
+      diffBtns[i].className = (parseInt(diffBtns[i].getAttribute("data-d"), 10) === d) ? "btn primary" : "btn";
+    }
+    batchBtn.textContent = "Mine " + batchSize() + " more";
+    render();
+  }
+
+  for (var k = 0; k < diffBtns.length; k++) {
+    diffBtns[k].addEventListener("click", function () {
+      setDifficulty(parseInt(this.getAttribute("data-d"), 10));
+    });
+  }
+
+  document.getElementById("a3-one").addEventListener("click", function () {
+    drawOne();
+    render();
+  });
+
+  batchBtn.addEventListener("click", function () {
+    var n = batchSize();
+    for (var i = 0; i < n; i++) drawOne();
+    render();
+  });
+
+  document.getElementById("a3-reset").addEventListener("click", function () {
+    draws = { 1: [], 2: [], 3: [], 4: [] };
+    render();
+  });
+
+  var t = CHAIN.selfTest();
+  footEl.textContent = t.ok
+    ? "The three published test vectors pass in this browser, so every attempt counted above was counted against a correct SHA-256."
+    : "The test vectors did not pass in this browser, so nothing counted above should be believed.";
+
+  setDifficulty(1);
+})();
+</script>
+<style>
+  #a3-mine .a3-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .6rem; }
+  #a3-mine .a3-caption { font-size: .88rem; color: var(--ink); margin: .5rem 0 .9rem; }
+  #a3-mine .a3-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .5rem; }
+  #a3-mine .a3-tile {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .6rem .7rem;
+    line-height: 1.4;
+  }
+  #a3-mine .a3-tile b { display: block; font-size: .72rem; font-weight: 800; color: var(--indigo); text-transform: uppercase; letter-spacing: .04em; }
+  #a3-mine .a3-tile span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--indigo-deep);
+    margin: .15rem 0;
+  }
+  #a3-mine .a3-tile em { display: block; font-style: normal; font-size: .72rem; color: var(--muted); }
+</style>
+</body>
+</html>

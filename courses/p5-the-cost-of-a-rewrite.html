@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 5 of 10. Rewriting block 2 of the Harbourgate register means re-mining blocks 2 through 5, four blocks, four independent lottery draws. Drive reforge live, read the total attempts, and see why depth is what confirmations count.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="The cost of a rewrite - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 5 of 10. Four blocks, four draws, and a total that is different every time you run it.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p5-the-cost-of-a-rewrite.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The cost of a rewrite - learn blockchain with phoebe">
+<meta name="twitter:description" content="Four blocks to redo, one lottery draw each, and a total you cannot predict from the mean.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 5 · The cost of a rewrite - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 5 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 5 of 10</div>
+    <h1>The cost of <span class="accent">a rewrite</span></h1>
+    <p class="sub">Two halves are waiting to be put together. Session 3 showed that an attacker who edits block 2 has to redo block 2 and everything after it, and that at difficulty 0 redoing it costs nothing at all. Session 4 attached a price to one block and showed that the price is a lottery draw with a known mean and a wild spread. Tonight both arrive at once. Rewriting block 2 of the six block register means re-mining blocks 2, 3, 4 and 5, which is four blocks, which is four separate draws. Run it twice and you will not get the same answer.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone pricing a threat model</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · Four blocks</span>
+      <span class="a3" style="flex:3">16-28 · Four draws</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Putting the tamper and the price together</h2>
+    </div>
+    <p class="lede">A rewrite has two quantities in it and they are usually mixed up. One is how many blocks have to be redone, which is set by where in the register the edit sits and is not random at all. The other is what one block costs to redo, which is set by the difficulty and is random every single time. Tonight the first is counted, the second is drawn live, and the two are kept apart on purpose.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The count: an edit at block 2 of a six block register forces four blocks to be re-mined. The shape of the price: four independent draws, so the total swings far harder than the per block mean suggests. And the reason depth matters, which is the argument underneath every confirmation count you have ever seen quoted.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Reforge.</strong> Re-mine a block and every block after it, so the register becomes internally consistent again. <code>CHAIN.reforge(chain, index, difficulty)</code>.</li>
+          <li><strong>attempts.</strong> The field <code>reforge</code> returns alongside the rebuilt chain. It is the total across every block it re-mined, not a per block figure.</li>
+          <li><strong>Draw.</strong> One block's search for a qualifying nonce. Independent of the last one, with no memory and no progress.</li>
+          <li><strong>Depth.</strong> How many blocks sit on top of the entry you want to change. The count of blocks to redo is exactly that number plus the block itself.</li>
+          <li><strong>Confirmation.</strong> One block added on top of the block holding your entry. Counting them is counting depth.</li>
+          <li><strong>Finality.</strong> The point at which a rewrite stops being worth worrying about. A probability that strengthens, not a line that is crossed.</li>
+          <li><strong>Mean.</strong> An average over many independent blocks, quoted with its trial count. A single run is not one.</li>
+          <li><strong>Spread.</strong> How far individual runs sit from the mean. At difficulty 3 the measured range ran from 40 attempts to 17,343.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the count</span>
+      <h2>Four blocks, and the count is not the random part</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Edit block 2 and block 2's own hash changes. Block 3 records the old one, so block 3 has to be rebuilt, which changes block 3's hash, so block 4 has to be rebuilt, and so on to the end. Blocks 0 and 1 are untouched because nothing above them moved. The register has six blocks, the edit is at index 2, and that makes the count 4.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 306" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The six block Harbourgate register drawn as six cards. Block 0 and block 1 are untouched with no work to redo. Block 2 has its entry edited and needs a fresh draw. Blocks 3, 4 and 5 each have their previous hash broken and each needs a fresh draw. A bracket spans blocks 2 to 5 and is labelled four blocks to re-mine, four independent lottery draws. A bar beneath says the count is arithmetic and not random: it is the number of blocks from the edited one to the end of the register, and that every one of those four blocks pays a full draw at the chosen difficulty rather than a share of one.">
+        <style>
+          .p5aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p5aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p5aB { font: 700 10px Inter, sans-serif; fill: #141C22; }
+          .p5aA { font: 700 10px Inter, sans-serif; fill: #B45309; }
+          .p5aN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p5aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+        </style>
+
+        <text class="p5aH" x="14" y="20">Edit block 2, and the damage runs to the end of the register</text>
+        <text class="p5aM" x="14" y="38">Nothing below an edit is affected. Everything above it is.</text>
+
+        <rect x="14" y="50" width="132" height="104" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="26" y="62" width="28" height="22" rx="6" fill="#0E2C3F"></rect>
+        <text class="p5aN" x="35" y="78">0</text>
+        <text class="p5aB" x="26" y="106">untouched</text>
+        <text class="p5aM" x="26" y="124">nothing above it</text>
+        <text class="p5aM" x="26" y="140">moved</text>
+
+        <rect x="158" y="50" width="132" height="104" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="170" y="62" width="28" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p5aN" x="179" y="78">1</text>
+        <text class="p5aB" x="170" y="106">untouched</text>
+        <text class="p5aM" x="170" y="124">no work to redo</text>
+
+        <rect x="302" y="50" width="132" height="104" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="314" y="62" width="28" height="22" rx="6" fill="#B45309"></rect>
+        <text class="p5aN" x="323" y="78">2</text>
+        <text class="p5aA" x="314" y="106">entry edited</text>
+        <text class="p5aM" x="314" y="124">its own hash</text>
+        <text class="p5aM" x="314" y="140">no longer matches</text>
+
+        <rect x="446" y="50" width="132" height="104" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="458" y="62" width="28" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p5aN" x="467" y="78">3</text>
+        <text class="p5aA" x="458" y="106">prev broken</text>
+        <text class="p5aM" x="458" y="124">records the hash</text>
+        <text class="p5aM" x="458" y="140">block 2 used to have</text>
+
+        <rect x="590" y="50" width="132" height="104" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="602" y="62" width="28" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p5aN" x="611" y="78">4</text>
+        <text class="p5aA" x="602" y="106">prev broken</text>
+        <text class="p5aM" x="602" y="124">block 3 moved</text>
+        <text class="p5aM" x="602" y="140">underneath it</text>
+
+        <rect x="734" y="50" width="132" height="104" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <rect x="746" y="62" width="28" height="22" rx="6" fill="#B45309"></rect>
+        <text class="p5aN" x="755" y="78">5</text>
+        <text class="p5aA" x="746" y="106">prev broken</text>
+        <text class="p5aM" x="746" y="124">the last block</text>
+        <text class="p5aM" x="746" y="140">in the register</text>
+
+        <line x1="302" y1="170" x2="866" y2="170" stroke="#B45309" stroke-width="1.8"></line>
+        <line x1="302" y1="163" x2="302" y2="177" stroke="#B45309" stroke-width="1.8"></line>
+        <line x1="866" y1="163" x2="866" y2="177" stroke="#B45309" stroke-width="1.8"></line>
+        <text class="p5aL" x="302" y="192">4 BLOCKS TO RE-MINE · 4 INDEPENDENT LOTTERY DRAWS</text>
+
+        <rect x="14" y="206" width="852" height="86" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p5aK" x="30" y="230">The count is arithmetic. Only the price is a lottery.</text>
+        <text class="p5aB" x="30" y="252">Six blocks in the register, the edit at index 2, so blocks 2, 3, 4 and 5 have to be produced again.</text>
+        <text class="p5aM" x="30" y="272">Each of the four pays a full draw at the chosen difficulty. None of them gets a discount for being late in the queue.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - blocks 0 and 1 survive untouched because an edit propagates upward through the prev field, never downward.</figcaption>
+    </figure>
+
+    <div class="wk" id="p5-forge">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">tamper then reforge, running in this page. Block 2's entry is edited and blocks 2 to 5 are re-mined for real.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p5-btns" id="p5-dbtns">
+          <button class="btn primary" type="button" data-d="1">Difficulty 1</button>
+          <button class="btn" type="button" data-d="2">Difficulty 2</button>
+          <button class="btn" type="button" data-d="3">Difficulty 3</button>
+        </div>
+        <div class="p5-btns">
+          <button class="btn primary" type="button" id="p5-run">Rewrite block 2 and re-mine</button>
+          <button class="btn" type="button" id="p5-clear">Clear the runs</button>
+        </div>
+        <div class="p5-grid" id="p5-grid"></div>
+        <div class="p5-runs" id="p5-runs"></div>
+        <p class="sql-note" id="p5-note">...</p>
+      </div>
+      <div class="wk-foot" id="p5-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Press it again, and again<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The first total means almost nothing on its own. Press the same button a second time at the same difficulty and watch the total land somewhere else entirely, sometimes by a factor of several. Same register, same edit, same difficulty, same four blocks. Four fresh draws.</p>
+        <p>That is the correct mental model of a rewrite cost, and it is why a single measured figure is not a number you should quote to anybody. It is one sample of a quantity with an enormous tail.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Where the randomness in the box comes from<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Worth being exact about, because it is easy to mistake for a trick. The nonce search itself is not random: it starts at zero and counts upward, so searching the identical bytes twice finds the identical nonce after the identical number of attempts. Re-running a fixed model gives a fixed answer, which is the same reproducibility that lets session 2 print hashes in a diagram.</p>
+        <p>What varies between runs is the block being searched. An attacker forging blocks 2 to 5 writes their own timestamps into them, and the box does exactly that, stamping a different second on each forged block each time you press it. Different bytes, different search, an independent draw per block. That is what a real block does anyway, since no two blocks ever carry the same contents.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What reforge actually does, step by step<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Starting at the index you give it, <code>reforge</code> copies the chain, then walks forward. For each block it sets <code>prev</code> to the hash the block below it now has, searches for a nonce that satisfies the difficulty, stores the new nonce and the new hash, and adds that block's attempts to a running total. When it reaches the end it hands back the rebuilt chain and one number.</p>
+        <p>Note the order. Block 3 cannot be mined until block 2 is finished, because block 3's <code>prev</code> is an input to block 3's hash. The four draws are independent in their outcomes and strictly sequential in their execution, and that distinction does real work in session 8.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why the rebuilt register verifies cleanly<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Run <code>CHAIN.verify()</code> on the reforged chain and it returns ok. Every hash recomputes, every link matches, and the entry at block 2 now says whatever the attacker wanted it to say. Nothing inside the register objects.</p>
+        <p>This is the uncomfortable half of proof of work and it is worth being blunt about it. Work does not make a rewrite detectable. Session 3 already made it detectable, with no work at all. Work makes a rewrite expensive, and expensive is a completely different property from visible. A reader holding only the rewritten register sees a perfect chain.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the price</span>
+      <h2>Four draws, not four times the mean</h2>
+      <span class="tag concept">12 min live</span>
+    </div>
+    <p class="lede">Session 4 measured what one block costs at each difficulty, as a mean across many independent blocks, with the trial count beside it. Those are the figures below and they are per block. They are also the only cost figures on this page, because the total for four blocks is not a figure at all: it is whatever your four draws happen to come to, and the live box above is where you get yours.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 366" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A table of measured mining cost for one block at four difficulties. Difficulty 1 over 500 trials had a mean of 16 attempts with a lowest seen of 1 and a highest seen of 101. Difficulty 2 over 300 trials had a mean of 277 attempts, lowest 1, highest 2147. Difficulty 3 over 120 trials had a mean of 4115 attempts, lowest 40, highest 17343. Difficulty 4 over 150 trials had a mean of 74190 attempts, lowest 149, highest 339789. A bar beneath says every figure in the table is for one block, that a rewrite from block 2 is four of these draws, and that adding four means together would describe a run nobody will ever have because the spread on a single draw already covers more than a factor of four hundred at difficulty 3.">
+        <style>
+          .p5bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p5bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p5bL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p5bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p5bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p5bN { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5bX { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p5bZ { font: 400 11px "SF Mono", Menlo, monospace; fill: #566670; }
+        </style>
+
+        <text class="p5bH" x="14" y="20">What one block costs, measured. Per block, never per rewrite.</text>
+        <text class="p5bM" x="14" y="38">Each row is a mean over many independent blocks, with its trial count beside it.</text>
+
+        <text class="p5bL" x="30" y="60">DIFFICULTY</text>
+        <text class="p5bL" x="170" y="60">TRIALS</text>
+        <text class="p5bL" x="300" y="60">MEAN ATTEMPTS FOR ONE BLOCK</text>
+        <text class="p5bL" x="580" y="60">LOWEST SEEN</text>
+        <text class="p5bL" x="720" y="60">HIGHEST SEEN</text>
+
+        <rect x="14" y="68" width="852" height="42" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="78" width="28" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p5bN" x="39" y="94">1</text>
+        <text class="p5bZ" x="170" y="94">500</text>
+        <text class="p5bX" x="300" y="94">16</text>
+        <text class="p5bZ" x="580" y="94">1</text>
+        <text class="p5bZ" x="720" y="94">101</text>
+
+        <rect x="14" y="114" width="852" height="42" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="124" width="28" height="22" rx="6" fill="#1E4D6B"></rect>
+        <text class="p5bN" x="39" y="140">2</text>
+        <text class="p5bZ" x="170" y="140">300</text>
+        <text class="p5bX" x="300" y="140">277</text>
+        <text class="p5bZ" x="580" y="140">1</text>
+        <text class="p5bZ" x="720" y="140">2,147</text>
+
+        <rect x="14" y="160" width="852" height="42" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="170" width="28" height="22" rx="6" fill="#B45309"></rect>
+        <text class="p5bN" x="39" y="186">3</text>
+        <text class="p5bZ" x="170" y="186">120</text>
+        <text class="p5bX" x="300" y="186">4,115</text>
+        <text class="p5bZ" x="580" y="186">40</text>
+        <text class="p5bZ" x="720" y="186">17,343</text>
+
+        <rect x="14" y="206" width="852" height="42" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <rect x="30" y="216" width="28" height="22" rx="6" fill="#B45309"></rect>
+        <text class="p5bN" x="39" y="232">4</text>
+        <text class="p5bZ" x="170" y="232">150</text>
+        <text class="p5bX" x="300" y="232">74,190</text>
+        <text class="p5bZ" x="580" y="232">149</text>
+        <text class="p5bZ" x="720" y="232">339,789</text>
+
+        <rect x="14" y="264" width="852" height="88" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p5bK" x="30" y="288">Every figure above is for one block. A rewrite from block 2 is four of these.</text>
+        <text class="p5bB" x="30" y="310">Four means multiplied together would describe a tidy run that nobody is ever going to have. At difficulty 3 a</text>
+        <text class="p5bB" x="30" y="330">single block already ranged from 40 attempts to 17,343, and a rewrite draws that dice four times over.</text>
+        <text class="p5bM" x="30" y="346">The number worth having is the one your own run produced, next to the one it produced the time before.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the mean column is the only column with a stable meaning. The lowest and highest columns are there to stop you trusting it too far.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why four draws are wilder than one, and tamer at the same time<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Both things are true and they sound contradictory. In absolute terms four draws swing further than one, because one unlucky block is enough to blow the total out on its own and there are now four chances of that happening. In relative terms four draws are steadier than one, because a very short draw and a very long draw can land in the same total and partly cancel.</p>
+        <p>So a four block rewrite is a little more predictable as a proportion of itself and a lot less predictable as a raw count. Neither of those makes any single run a cost estimate. Run the box several times at difficulty 2 and write the totals down before you believe anything about them.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Each extra zero is a step change, not a step<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Read the mean column downward: 16, then 277, then 4,115, then 74,190. Each row is roughly sixteen times the one above it, because one more required leading zero divides the qualifying hashes by sixteen. The difficulty dial is not a slider with linear notches, it is an exponent.</p>
+        <p>That is what makes difficulty a usable defence at all. A modest increase in what one block costs honest writers is a huge increase in what four blocks cost an attacker, and both sides feel it, which is the trade the next card is about.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that this cost is the security. The register is safe to the extent that redoing it is expensive, the expense is measurable, and a threat model can be written with the measurement in it. On that reading, work is the thing that turns a detectable edit into an edit nobody will attempt, and everything else is commentary.</p>
+        <p>The other camp holds that cost is the wrong unit entirely. Honest writers pay the cost continuously, for as long as the register is in use; an attacker pays it once, for the short window they care about. A quantity that one side pays forever and the other side pays once is not a fair comparison, and calling it security smuggles in an assumption about the attacker's budget that nobody has checked.</p>
+        <p>Both camps agree completely about the arithmetic on this page and disagree about what the arithmetic licenses you to claim. It is worth knowing which one you are talking to before agreeing that a chain is secure, because they mean different things by the word.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers depth</span>
+      <h2>The deeper it is buried, the dearer it is to move</h2>
+      <span class="tag concept">7 min live</span>
+    </div>
+    <p class="lede">The count of blocks to redo is the depth of the entry plus one. Change the last block and you redo one. Change block 2 of six and you redo four. Change block 0 and you redo all six. Nothing about the entry matters, only how much has been written on top of it since.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three rows showing the same six block register with a different entry targeted each time. Targeting block 4, two from the end, leaves blocks 0 to 3 untouched and requires blocks 4 and 5 to be re-mined, so 2 blocks and 2 draws. Targeting block 2, in the middle, leaves blocks 0 and 1 untouched and requires blocks 2, 3, 4 and 5, so 4 blocks and 4 draws. Targeting block 0, the genesis entry, requires all six blocks, so 6 blocks and 6 draws. A dark bar beneath says cost grows with depth, which is the whole reason confirmations are counted, that an entry with four blocks on top costs four draws and the same entry with forty on top costs forty, and that finality here is a probability that strengthens with every block rather than a moment that arrives.">
+        <style>
+          .p5cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p5cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p5cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p5cB { font: 700 11px Inter, sans-serif; fill: #141C22; }
+          .p5cA { font: 800 11px Inter, sans-serif; fill: #B45309; }
+          .p5cN { font: 800 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p5cD { font: 700 11px Inter, sans-serif; fill: #566670; }
+          .p5cW { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .p5cV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .p5cS { font: 400 11px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+
+        <text class="p5cH" x="14" y="20">Same register, same difficulty, three different targets</text>
+        <text class="p5cM" x="14" y="38">Amber is a block that has to be produced again.</text>
+
+        <text class="p5cL" x="30" y="60">THE ENTRY SOMEBODY WANTS CHANGED</text>
+        <text class="p5cL" x="560" y="60">WHAT THAT COSTS</text>
+
+        <text class="p5cB" x="30" y="92">Block 4, two from the end</text>
+        <rect x="230" y="68" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="245" y="91">0</text>
+        <rect x="280" y="68" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="295" y="91">1</text>
+        <rect x="330" y="68" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="345" y="91">2</text>
+        <rect x="380" y="68" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="395" y="91">3</text>
+        <rect x="430" y="68" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="445" y="91">4</text>
+        <rect x="480" y="68" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="495" y="91">5</text>
+        <text class="p5cA" x="560" y="91">2 blocks, 2 draws</text>
+
+        <text class="p5cB" x="30" y="142">Block 2, in the middle</text>
+        <rect x="230" y="118" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="245" y="141">0</text>
+        <rect x="280" y="118" width="40" height="36" rx="7" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5cD" x="295" y="141">1</text>
+        <rect x="330" y="118" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="345" y="141">2</text>
+        <rect x="380" y="118" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="395" y="141">3</text>
+        <rect x="430" y="118" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="445" y="141">4</text>
+        <rect x="480" y="118" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="495" y="141">5</text>
+        <text class="p5cA" x="560" y="141">4 blocks, 4 draws</text>
+
+        <text class="p5cB" x="30" y="192">Block 0, the genesis entry</text>
+        <rect x="230" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="245" y="191">0</text>
+        <rect x="280" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="295" y="191">1</text>
+        <rect x="330" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="345" y="191">2</text>
+        <rect x="380" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="395" y="191">3</text>
+        <rect x="430" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="445" y="191">4</text>
+        <rect x="480" y="168" width="40" height="36" rx="7" fill="#B45309"></rect>
+        <text class="p5cN" x="495" y="191">5</text>
+        <text class="p5cA" x="560" y="191">6 blocks, 6 draws</text>
+
+        <rect x="14" y="220" width="852" height="94" rx="10" fill="#0E2C3F"></rect>
+        <text class="p5cW" x="30" y="246">Cost grows with depth, and that is the whole reason confirmations get counted.</text>
+        <text class="p5cV" x="30" y="270">An entry with four blocks written on top of it costs four draws to move. The same entry with forty on top costs forty.</text>
+        <text class="p5cS" x="30" y="292">Which is why finality here is a probability that keeps strengthening, rather than a moment that arrives and settles it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - waiting is the only thing a reader can do that makes an old entry harder to move, and it works because somebody else keeps adding blocks.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>A confirmation is just another block on top<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When a register is described as waiting for six confirmations before an entry is acted on, that is this arithmetic being used as a policy. Six confirmations means six blocks have been written on top, so a rewrite now has seven draws to win instead of one, and each of those draws is the full price at the current difficulty.</p>
+        <p>The choice of six is not a property of the mathematics. It is somebody deciding how much residual risk they will carry, on what they are willing to lose, and reasonable people pick different numbers for different consignments. Treat any confirmation count you are quoted as a risk appetite, not a fact.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why it is a probability and never a certainty<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A draw with an enormous tail can always come in short. Difficulty 3 has a mean of 4,115 attempts and it has produced a block in 40. There is no depth at which the chance of a lucky sequence becomes zero, only depths at which it becomes small enough that nobody reasonable would plan around it.</p>
+        <p>So the honest sentence is that an entry gets harder to move every time a block lands on it, without limit and without ever arriving anywhere. If somebody tells you a record on a chain is final, the useful question is what depth they mean and what they are willing to lose if they are unlucky.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Depth does nothing for a register nobody is extending<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Everything in this part assumes blocks keep arriving. Depth is accumulated by other people writing, and an entry in a register that has been quiet for a year is exactly as deep as it was a year ago. The protection did not grow; it stopped growing the moment the writing stopped.</p>
+        <p>Worth checking against whatever you are being sold. A private register with one writer and a handful of entries a month accumulates depth very slowly, so the cost argument that makes this structure interesting is doing almost no work there. The tamper evidence from session 3 still holds, and it holds at difficulty 0 for free.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers the limit</span>
+      <h2>What this prices, and what it says nothing about</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Everything measured tonight is one machine, working alone, redoing four blocks in sequence. That is a real and useful quantity. It is also not the threat most people mean when they ask whether a chain can be rewritten, and pretending otherwise is the commonest overclaim in the subject.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 276" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels. The left panel, what the live run prices, covers one machine working alone: four blocks re-mined one after another, one full draw each at the chosen difficulty, and attempts counted by the engine in this page. The right panel, what it says nothing about, covers an attacker with more machines than everyone else: draws that run alongside each other rather than in sequence, a register that can be outpaced while it is still being written, and the observation that no number on this page measures any of that. A bar beneath says the honest scope is a single worker redoing a fixed number of blocks, and that who wins when two versions of the register are being extended at once is session 8.">
+        <style>
+          .p5dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p5dT { font: 800 12px Inter, sans-serif; fill: #1E4D6B; }
+          .p5dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p5dB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p5dM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p5dW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p5dV { font: 400 11px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+
+        <text class="p5dH" x="14" y="20">The scope of tonight's number, stated plainly</text>
+
+        <rect x="14" y="34" width="418" height="156" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p5dT" x="30" y="58">What the live run prices</text>
+        <text class="p5dB" x="30" y="84">One machine, working alone.</text>
+        <text class="p5dM" x="30" y="108">Four blocks re-mined one after another, in order.</text>
+        <text class="p5dM" x="30" y="130">One full draw each, at the difficulty you chose.</text>
+        <text class="p5dM" x="30" y="152">Attempts counted by the engine, not estimated.</text>
+        <text class="p5dM" x="30" y="174">A real quantity, and a narrow one.</text>
+
+        <rect x="448" y="34" width="418" height="156" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p5dK" x="464" y="58">What it says nothing about</text>
+        <text class="p5dB" x="464" y="84">An attacker with more machines than everyone else.</text>
+        <text class="p5dM" x="464" y="108">Draws running alongside each other, not in sequence.</text>
+        <text class="p5dM" x="464" y="130">A register outpaced while it is still being written.</text>
+        <text class="p5dM" x="464" y="152">Two versions of history competing to be the longer one.</text>
+        <text class="p5dM" x="464" y="174">No number on this page measures any of that.</text>
+
+        <rect x="14" y="206" width="852" height="54" rx="10" fill="#0E2C3F"></rect>
+        <text class="p5dW" x="30" y="230">Tonight: a single worker redoing a fixed number of blocks, priced honestly.</text>
+        <text class="p5dV" x="30" y="250">Who wins when two versions of the register are being extended at the same time is session 8, and it is a different argument.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the left panel is what the engine can measure. The right panel is what the engine cannot see, which is why it is named rather than guessed at.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · build-along</span>
+      <h2>Price it yourself</h2>
+      <span class="tag build">14 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. Build the register at a difficulty, tamper it, reforge it, and read the total. Then do the whole thing again and compare.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>var ENTRIES = [
+  "Harbourgate opens the register",
+  "Consignment 41 signed over to Pell and Sons",
+  "Consignment 41 inspected, seal intact",
+  "Consignment 42 signed over to Ardwick Cold Store",
+  "Consignment 41 released to the buyer",
+  "Consignment 42 inspected, seal broken"
+];
+var chain = CHAIN.makeChain(ENTRIES, { difficulty: 2 });
+var bent = CHAIN.tamper(chain, 2, "Consignment 41 inspected, seal BROKEN");
+CHAIN.verify(bent).problems
+
+// the attacker writes their own timestamps into the blocks they forge
+function restamp(c) {
+  var d = c.map(function (b) { var o = {}; for (var k in b) o[k] = b[k]; return o; });
+  for (var i = 2; i &lt; d.length; i++) d[i].timestamp += Math.floor(Math.random() * 600);
+  return d;
+}
+var r = CHAIN.reforge(restamp(bent), 2, 2);
+r.attempts
+CHAIN.verify(r.chain).ok
+r.chain.length - 2</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Check the hash before you price anything</h4>
+        <p>Run <code>CHAIN.selfTest().ok</code>. If the published test vectors do not pass in your browser, every attempt count you are about to read is meaningless, and that is worth four seconds.</p>
+      </div>
+      <div class="step">
+        <h4>Count the blocks before you mine them</h4>
+        <p>Print <code>r.chain.length - 2</code> and confirm it is 4. Then say why it is 4 without using the word hash, using only the words register, position and end.</p>
+      </div>
+      <div class="step">
+        <h4>Prove to yourself that the search is not random</h4>
+        <p>Run <code>CHAIN.reforge(bent, 2, 2).attempts</code> twice, with no restamp. Identical both times, because the same bytes get the same search. Reproducibility is a property of the model, exactly as in session 2, and it is why the restamp is there.</p>
+      </div>
+      <div class="step">
+        <h4>Read a total, then throw it away</h4>
+        <p>Now run <code>CHAIN.reforge(restamp(bent), 2, 2).attempts</code> twice. Different blocks, different searches, two independent totals. Write both down. Anyone quoting one of them as the cost of a rewrite has shown you they did not run it twice.</p>
+      </div>
+      <div class="step">
+        <h4>Do it five times at difficulty 2</h4>
+        <p>Loop the restamped reforge five times and collect the totals. Look at the lowest and the highest. Compare that gap with the per block figures in the table above, where difficulty 2 has a mean of 277 attempts over 300 trials and a single block ranged from 1 to 2,147.</p>
+      </div>
+      <div class="step">
+        <h4>Move the target and watch the count move</h4>
+        <p>Reforge from index 4 instead of 2. Confirm the rebuilt chain still verifies and that only two blocks were touched. Then reforge from index 0 and confirm all six were. The count is the only part of tonight you can predict.</p>
+      </div>
+      <div class="step">
+        <h4>Raise the difficulty one notch and feel the exponent</h4>
+        <p>Rebuild at difficulty 3 and reforge again. It will take noticeably longer, and the mean per block moves from 277 to 4,115. Say out loud what a fifth zero would do to the same four blocks, given the pattern in the mean column.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody quotes you the cost of rewriting a register, ask two questions in this order. How many blocks, which is arithmetic they should be able to answer exactly. And how many runs is that figure averaged over, which is where most quoted costs quietly fall apart.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">An attacker edits block 2 of the six block Harbourgate register. How many blocks must be re-mined, and is that number random?</p>
+      <div class="qopt">A · One, because only the edited block's hash changed and the others still verify against each other</div>
+      <div class="qopt">B · Four, blocks 2 through 5, and the count is fixed arithmetic; only the price of each of those four is random</div>
+      <div class="qopt">C · Six, because any edit invalidates the whole register including the blocks below the edit</div>
+      <q class="qwhy">An edit propagates upward through the prev field and never downward, so blocks 0 and 1 are untouched. Blocks 2, 3, 4 and 5 all have to be produced again, which is 4. That count comes from the position of the edit and the length of the register, and it is the one quantity tonight that is not a lottery.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">At difficulty 3 one block has a mean of 4,115 attempts over 120 trials. What can you say about the cost of a four block rewrite at that difficulty?</p>
+      <div class="qopt">A · It is four times 4,115, because expectations add and that is the answer to quote</div>
+      <div class="qopt">B · It is somewhere between 40 and 17,343, since those were the measured extremes</div>
+      <div class="qopt">C · It is four independent draws, so any single total is one sample of a quantity with a very long tail, and the figure worth having is your own run set beside your other runs</div>
+      <q class="qwhy">A single block at difficulty 3 was measured at 40 attempts at one extreme and 17,343 at the other, a factor of more than 400 around the mean. Drawing that four times gives a total nobody can hand you in advance. The per block mean with its trial count is a real figure; a rewrite total from one run is a sample, and should be labelled as one.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">Why are confirmations counted at all, and what does a high count actually give you?</p>
+      <div class="qopt">A · Because every block written on top adds one more full draw an attacker has to win, so depth raises the cost without limit and without ever reaching certainty</div>
+      <div class="qopt">B · Because each confirmation independently re-checks the entry, so enough of them prove the entry is accurate</div>
+      <div class="qopt">C · Because after a fixed number of blocks the register locks the entry and rewriting it becomes impossible</div>
+      <q class="qwhy">Depth is the count of blocks on top, and the count of blocks to redo is that depth plus one. Nothing re-checks the entry and nothing locks. A draw with a long tail can always come in short, so waiting buys a probability that keeps strengthening and never arrives at a guarantee. Any specific confirmation count is a risk appetite somebody chose.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 6</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty five minutes, turning tonight's arithmetic into a sentence you would sign.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Run the restamped reforge ten times and keep the list</h4>
+        <p>Difficulty 2, index 2, ten totals. Write down the lowest and the highest you saw. Bring the gap to session 6, because it is the cleanest evidence you will get that a single measurement of anything in this subject is not a measurement.</p>
+      </div>
+      <div class="step">
+        <h4>Find the depth in a register you rely on</h4>
+        <p>Take a log or audit trail from your own work and ask how much gets written after a given row before anybody acts on it. That is your depth. Then ask what it costs anybody to rewrite from there today, and whether the honest answer is nothing at all.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The count of blocks a rewrite forces</span><span class="note">An edit at block 2 of six means blocks 2, 3, 4 and 5, which is 4, and the count is arithmetic rather than chance.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">reforge driven live, and its total attempts</span><span class="note">tamper then reforge in this page, with the total read off the engine and a run log so two runs can be compared.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Four independent draws, not four times a mean</span><span class="note">Per block means of 16, 277, 4,115 and 74,190 over 500, 300, 120 and 150 trials, with the measured extremes beside them.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Depth, confirmations and probabilistic finality</span><span class="note">Blocks to redo equal depth plus one, so waiting raises the cost without ever reaching a guarantee.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">An attacker with more machines than everyone else</span><span class="note">Named tonight as the limit of the measurement. Session 8.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Forks and the longest chain rule</span><span class="note">Implied by two versions of the register being extended at once. Session 8 works it through.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Who is allowed to write an entry in the first place</span><span class="note">Nothing tonight asks. Signatures and identity are session 7.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Energy, hardware and what any of this costs to run</span><span class="note">Attempts are the unit here. Turning attempts into anything else is outside these sessions.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The count.</strong> Edit at index i in a register of n blocks means n minus i blocks to re-mine. Here, 4.</div>
+      <div class="cheat-item"><strong>The call.</strong> <code>CHAIN.reforge(chain, 2, d)</code> returns the rebuilt chain and one total <code>attempts</code>.</div>
+      <div class="cheat-item"><strong>The shape.</strong> Four independent draws. Any single total is a sample, never a cost.</div>
+      <div class="cheat-item"><strong>Per block, measured.</strong> 16 over 500 trials, 277 over 300, 4,115 over 120, 74,190 over 150.</div>
+      <div class="cheat-item"><strong>The spread.</strong> One block at difficulty 3 ran from 40 attempts to 17,343. Four draws of that.</div>
+      <div class="cheat-item"><strong>Depth.</strong> Blocks to redo equal depth plus one, which is exactly what a confirmation count counts.</div>
+      <div class="cheat-item"><strong>Finality.</strong> A probability that strengthens with every block. Not a moment, and never zero risk.</div>
+      <div class="cheat-item"><strong>The limit.</strong> All of this is one machine alone. More machines than everyone else is session 8.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 5 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p4-mining.html">← Practitioner session 4 · Mining</a>
+        <a href="p6-merkle-trees.html">Practitioner session 6 · Merkle trees →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+
+  var ENTRIES = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken"
+  ];
+  var EDIT = "Consignment 41 inspected, seal BROKEN";
+
+  var box = document.getElementById("p5-forge");
+  if (!box) return;
+
+  var grid = document.getElementById("p5-grid");
+  var runsEl = document.getElementById("p5-runs");
+  var note = document.getElementById("p5-note");
+  var foot = document.getElementById("p5-foot");
+  var dbtns = box.querySelectorAll("#p5-dbtns button");
+  var runBtn = document.getElementById("p5-run");
+  var clearBtn = document.getElementById("p5-clear");
+
+  var difficulty = 1;
+  var bases = {};
+  var runs = { 1: [], 2: [], 3: [] };
+
+  function group(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function baseFor(d) {
+    if (!bases[d]) bases[d] = CHAIN.makeChain(ENTRIES, { difficulty: d });
+    return bases[d];
+  }
+
+  function cells(rows) {
+    grid.innerHTML = "";
+    rows.forEach(function (r) {
+      var el = document.createElement("div");
+      el.className = "p5-cell" + (r[2] ? " hot" : "");
+      el.innerHTML = "<b>" + r[0] + "</b><span>" + r[1] + "</span>";
+      grid.appendChild(el);
+    });
+  }
+
+  function drawRuns() {
+    var list = runs[difficulty];
+    runsEl.innerHTML = "";
+    if (!list.length) {
+      runsEl.innerHTML = "<p class=\"p5-empty\">No runs yet at this difficulty.</p>";
+      return;
+    }
+    var strip = document.createElement("div");
+    strip.className = "p5-strip";
+    list.forEach(function (v, i) {
+      var el = document.createElement("span");
+      el.className = "p5-run";
+      el.innerHTML = "<b>run " + (i + 1) + "</b>" + group(v);
+      strip.appendChild(el);
+    });
+    runsEl.appendChild(strip);
+  }
+
+  function idle() {
+    cells([
+      ["difficulty", String(difficulty), false],
+      ["blocks to re-mine", "4", false],
+      ["total attempts", "not run yet", false],
+      ["verify after", "not run yet", false]
+    ]);
+    note.textContent = "The register is rebuilt at difficulty " + difficulty
+      + ", block 2's entry is edited, and blocks 2 to 5 are re-mined for real. Nothing here is stored.";
+    foot.textContent = "Press the rewrite button, then press it again. The two totals are the lesson.";
+    drawRuns();
+  }
+
+  function run() {
+    runBtn.disabled = true;
+    runBtn.textContent = "Re-mining four blocks...";
+    setTimeout(function () {
+      var base = baseFor(difficulty);
+      var bent = CHAIN.tamper(base, 2, EDIT);
+      var before = CHAIN.verify(bent);
+
+      /* The attacker supplies their own timestamps for the blocks they forge,
+         so each block's search is over a different string and each draw is
+         genuinely independent. Without this the search starts from the same
+         nonce over the same bytes every time and returns the same answer,
+         which is a property of a fixed teaching model rather than of mining. */
+      var forging = bent.map(function (b) { var o = {}; for (var k in b) o[k] = b[k]; return o; });
+      var stamp = [];
+      for (var i = 2; i < forging.length; i++) {
+        var j = Math.floor(Math.random() * 600);
+        forging[i].timestamp = base[i].timestamp + j;
+        stamp.push(String(forging[i].timestamp));
+      }
+
+      var r = CHAIN.reforge(forging, 2, difficulty);
+      var after = CHAIN.verify(r.chain);
+      var remined = r.chain.length - 2;
+
+      runs[difficulty].push(r.attempts);
+      var list = runs[difficulty];
+      var lo = Math.min.apply(null, list);
+      var hi = Math.max.apply(null, list);
+
+      cells([
+        ["difficulty", String(difficulty), false],
+        ["blocks re-mined", String(remined), false],
+        ["total attempts this run", group(r.attempts), true],
+        ["verify before reforge", before.problems.length + " problem at block " + before.problems[0].index, false],
+        ["verify after reforge", after.ok ? "no problems" : "still broken", false],
+        ["entry now reads", EDIT, true],
+        ["timestamps the attacker stamped", stamp.join(" "), false]
+      ]);
+
+      note.textContent = list.length < 2
+        ? "One run, " + group(r.attempts) + " attempts across 4 blocks. That figure is a single sample and should not be quoted as a cost. Press it again."
+        : list.length + " runs at difficulty " + difficulty + ": lowest " + group(lo)
+          + ", highest " + group(hi) + ". Same register, same edit, same four blocks, four fresh draws.";
+
+      foot.textContent = "The rebuilt register verifies cleanly and says whatever the attacker wanted. Work made the rewrite expensive. It did not make it visible.";
+
+      drawRuns();
+      runBtn.disabled = false;
+      runBtn.textContent = "Rewrite block 2 and re-mine";
+    }, 20);
+  }
+
+  for (var i = 0; i < dbtns.length; i++) {
+    dbtns[i].addEventListener("click", function () {
+      difficulty = parseInt(this.getAttribute("data-d"), 10);
+      for (var j = 0; j < dbtns.length; j++) {
+        dbtns[j].className = (parseInt(dbtns[j].getAttribute("data-d"), 10) === difficulty) ? "btn primary" : "btn";
+      }
+      idle();
+    });
+  }
+  runBtn.addEventListener("click", run);
+  clearBtn.addEventListener("click", function () {
+    runs = { 1: [], 2: [], 3: [] };
+    idle();
+  });
+
+  idle();
+})();
+</script>
+<style>
+  #p5-forge .p5-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .7rem; }
+  #p5-forge .p5-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: .5rem;
+    margin-bottom: .8rem;
+  }
+  #p5-forge .p5-cell {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+  }
+  #p5-forge .p5-cell.hot { background: var(--amber-50); border-color: var(--amber); }
+  #p5-forge .p5-cell b {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .72rem;
+    color: var(--indigo);
+  }
+  #p5-forge .p5-cell span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .78rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+  }
+  #p5-forge .p5-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+  #p5-forge .p5-run {
+    border: 1px solid var(--indigo-mid);
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: .35rem .6rem;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .76rem;
+    color: var(--indigo-deep);
+  }
+  #p5-forge .p5-run b {
+    display: block;
+    font-size: .64rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  #p5-forge .p5-empty { font-size: .8rem; color: var(--muted); margin: 0 0 .6rem; }
+</style>
+</body>
+</html>

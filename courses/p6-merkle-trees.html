@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Practitioner session 6 of 10. Prove one record belongs to a set without sending the set. Hash pairs upward to a root, send the sibling hashes and nothing else, and recompute. 1,024 records need a 10 hash proof, and a proof that should fail does fail.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Merkle trees - learn blockchain with phoebe">
+<meta property="og:description" content="Practitioner session 6 of 10. Ten hashes prove membership of a set of 1,024, and the proof that should fail does fail.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/p6-merkle-trees.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Merkle trees - learn blockchain with phoebe">
+<meta name="twitter:description" content="Prove one record belongs to a set of 1,024 by sending 10 hashes. The best value for effort idea in the subject.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Practitioner session 6 · Merkle trees - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Practitioner session 6 of 10</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Practitioner session 6 of 10</div>
+    <h1>Merkle <span class="accent">trees</span></h1>
+    <p class="sub">Harbourgate's cold store has a handheld scanner on the loading bay. It has to answer one question about a consignment: is this record in the register, yes or no. It cannot hold the register, it cannot be sent the register, and it cannot phone somebody and take their word for it. Tonight is the structure that answers that question with a handful of hashes. Ten of them for a set of 1,024 records, and one of tonight's runs is a proof that fails, because a proof system you have never watched reject anything is not a proof system.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Working depth</span>
+      <span class="chip audience">Engineers and data people</span>
+      <span class="chip audience">Anyone designing a verifier</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-4 · Welcome</span>
+      <span class="a2" style="flex:3">4-16 · The tree</span>
+      <span class="a3" style="flex:3">16-28 · The proof</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The question a scanner on a loading bay has to answer</h2>
+    </div>
+    <p class="lede">There is a set of records and there is one record. You want to establish that the one is in the set. The obvious method is to send the whole set and let the checker look, and for four records that is fine. For a thousand it is absurd, and for a device with a small screen and a slow link it is impossible. The structure tonight removes almost all of that traffic and keeps the certainty, which is a rare combination and the reason this idea earns its place.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> The tree: hash every record, then hash pairs upward until one hash is left. The proof: the list of sibling hashes and nothing else, which is exactly log2 of the set size, so 1,024 records need 10. And a failing verification, run in front of you, so you have seen the structure say no.</p>
+    </div>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Leaf.</strong> The hash of one record. The bottom row of the tree, one leaf per record.</li>
+          <li><strong>Parent.</strong> The hash of two children joined together. Every level halves the count.</li>
+          <li><strong>Root.</strong> The single hash left at the top. One value standing for the whole set. <code>CHAIN.merkleRoot(items)</code>.</li>
+          <li><strong>Sibling.</strong> The hash next to yours at a given level. The thing you are missing and have to be told.</li>
+          <li><strong>Proof.</strong> The ordered list of siblings from your leaf up to the root, each with the side it sits on. <code>CHAIN.merkleProof(items, index)</code>.</li>
+          <li><strong>Verification.</strong> Hash the record, fold in each sibling in order, compare the result with the root. <code>CHAIN.verifyProof(item, path, root)</code>.</li>
+          <li><strong>log2.</strong> How many times a number halves before it reaches 1. The proof length, exactly.</li>
+          <li><strong>Inclusion.</strong> What a proof establishes: this record is in that set. Not that the set is right, and not that nothing is missing from it.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the tree</span>
+      <h2>Hash the records, then hash the hashes</h2>
+      <span class="tag concept">11 min live</span>
+    </div>
+    <p class="lede">Building the tree is two rules applied until they run out. Rule one: every record becomes its own hash. Rule two: take the hashes two at a time, join each pair and hash that, which halves the row. Repeat rule two until one hash is left. That last hash is the root, and changing any record anywhere below changes it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 338" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Merkle tree over four consignment records, drawn as four levels. The top level is four records: consignment 41 signed over, consignment 41 inspected, consignment 41 released, consignment 42 signed over. Below, each record becomes a leaf hash, H0 through H3. Below that, the leaves are paired: H01 is the hash of H0 joined to H1, and H23 is the hash of H2 joined to H3. At the bottom, the root is the hash of H01 joined to H23, one hash standing for all four records. A bar beneath says every level halves the row, that four records need two levels, eight need three and 1024 need ten, and that changing any record anywhere changes every hash on the path above it and therefore changes the root.">
+        <style>
+          .p6aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p6aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p6aL { font: 800 9px Inter, sans-serif; fill: #1E4D6B; }
+          .p6aB { font: 400 10px Inter, sans-serif; fill: #141C22; }
+          .p6aX { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .p6aV { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .p6aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p6aH" x="14" y="18">Four records, two rules, one root</text>
+        <text class="p6aM" x="14" y="34">Hash each record. Then hash pairs, halving the row, until one hash is left.</text>
+
+        <rect x="14" y="44" width="202" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6aL" x="28" y="60">RECORD 0</text>
+        <text class="p6aB" x="28" y="76">Consignment 41 signed over</text>
+
+        <rect x="230" y="44" width="202" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6aL" x="244" y="60">RECORD 1</text>
+        <text class="p6aB" x="244" y="76">Consignment 41 inspected</text>
+
+        <rect x="446" y="44" width="202" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6aL" x="460" y="60">RECORD 2</text>
+        <text class="p6aB" x="460" y="76">Consignment 41 released</text>
+
+        <rect x="662" y="44" width="202" height="40" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6aL" x="676" y="60">RECORD 3</text>
+        <text class="p6aB" x="676" y="76">Consignment 42 signed over</text>
+
+        <path d="M 115 86 L 115 98" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 331 86 L 331 98" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 547 86 L 547 98" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 763 86 L 763 98" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+
+        <rect x="14" y="100" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6aX" x="28" y="122">H0 = hash(record 0)</text>
+
+        <rect x="230" y="100" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6aX" x="244" y="122">H1 = hash(record 1)</text>
+
+        <rect x="446" y="100" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6aX" x="460" y="122">H2 = hash(record 2)</text>
+
+        <rect x="662" y="100" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6aX" x="676" y="122">H3 = hash(record 3)</text>
+
+        <path d="M 115 136 L 213 148" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 331 136 L 233 148" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 547 136 L 645 148" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 763 136 L 665 148" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+
+        <rect x="93" y="152" width="260" height="34" rx="8" fill="#CBDDE9" stroke="#93B4CA"></rect>
+        <text class="p6aX" x="109" y="174">H01 = hash(H0 + H1)</text>
+
+        <rect x="525" y="152" width="260" height="34" rx="8" fill="#CBDDE9" stroke="#93B4CA"></rect>
+        <text class="p6aX" x="541" y="174">H23 = hash(H2 + H3)</text>
+
+        <path d="M 223 188 L 418 200" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+        <path d="M 655 188 L 462 200" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6aAr)"></path>
+
+        <rect x="290" y="204" width="300" height="44" rx="9" fill="#0E2C3F"></rect>
+        <text class="p6aW" x="306" y="224">ROOT = hash(H01 + H23)</text>
+        <text class="p6aV" x="306" y="240">one hash standing for all four records</text>
+
+        <rect x="14" y="262" width="852" height="66" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6aK" x="30" y="284">Every level halves the row, so the height is log2 of the count.</text>
+        <text class="p6aB" x="30" y="304">Four records give two levels, eight give three, 1,024 give ten. Change any record and every hash on the</text>
+        <text class="p6aB" x="30" y="322">path above it changes, so the root changes, which is what makes one value stand for the whole set.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the root is not a summary and not a compression. It is a value that is impossible to reproduce from a different set of records.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the root is worth one hash of storage<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A block can carry a root instead of carrying every record it covers. The block stays small and fixed in size no matter how many records are behind it, and the commitment is exactly as binding, because no different set of records produces that root. So a register of blocks can commit to a mountain of detail it never stores.</p>
+        <p>That is the everyday use, and it is the reason the structure turns up in places with no chain anywhere near them. Backup systems, package repositories and file synchronisers all use it for the same reason: one small value that cannot agree with the wrong data.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What happens when the count is odd<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A row with an odd number of hashes cannot be paired off cleanly, and the engine here pairs the last hash with itself. That is one common convention and it keeps the arithmetic simple, which is why the sizes in tonight's table are all powers of two: the clean cases make the log2 relationship visible without a footnote on every row.</p>
+        <p>Conventions differ between implementations, and two verifiers that disagree about the odd case will disagree about the root of the same records. Same lesson as field order in session 2. The structure is standard; the details around its edges are decisions somebody has to write down.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Ordering is part of what the root commits to<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Pairs are joined in a fixed order, left then right, so the same records in a different order give a different root. That is usually what you want, because the order of a custody register is part of what it says, and a root that ignored order would let two entries be swapped invisibly.</p>
+        <p>It also means a root cannot answer the question people most often want to ask next: is this record absent from the set. Inclusion is cheap and absence is not, and any system that needs to prove absence has to be designed for it from the start rather than have it bolted on.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the proof</span>
+      <h2>The siblings you are missing, and nothing else</h2>
+      <span class="tag concept">11 min live</span>
+    </div>
+    <p class="lede">To rebuild the root from one record you need that record and, at every level, the hash sitting next to yours. You can compute your own side. You cannot compute theirs, so theirs is what gets sent. That list is the proof, and it has one entry per level.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Proving that record 2 belongs to a set of four. The leaf level shows H0 and H1 greyed out and marked not sent, H2 in dark blue as the leaf the holder computes for themselves, and H3 in amber as proof step one. The level above shows H01 in amber as proof step two, and H23 in pale blue as a value the verifier recomputes rather than receives. The root at the bottom is a value the verifier already holds. A panel beneath says what travels: the record itself, plus two hashes, H3 then H01, each labelled with the side it sits on. A final bar says what does not travel: records 0, 1 and 3, which the holder never sees, so the set stays private and the traffic stays small.">
+        <style>
+          .p6bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p6bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p6bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p6bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p6bX { font: 700 11px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p6bF { font: 700 11px "SF Mono", Menlo, monospace; fill: #566670; }
+          .p6bW { font: 700 11px "SF Mono", Menlo, monospace; fill: #FFFFFF; }
+          .p6bS { font: 400 9px Inter, sans-serif; fill: #FFFFFF; }
+          .p6bG { font: 400 9px Inter, sans-serif; fill: #566670; }
+        </style>
+        <defs>
+          <marker id="p6bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p6bH" x="14" y="18">Proving record 2 is in the set, without the set</text>
+        <text class="p6bM" x="14" y="34">Dark blue is computed by the holder. Amber is sent to them. Pale blue is rebuilt on the way up.</text>
+
+        <rect x="14" y="44" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6bF" x="28" y="62">H0</text>
+        <text class="p6bG" x="28" y="74">not sent, never seen</text>
+
+        <rect x="230" y="44" width="202" height="34" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6bF" x="244" y="62">H1</text>
+        <text class="p6bG" x="244" y="74">not sent, never seen</text>
+
+        <rect x="446" y="44" width="202" height="34" rx="8" fill="#0E2C3F"></rect>
+        <text class="p6bW" x="460" y="62">H2</text>
+        <text class="p6bS" x="460" y="74">the holder hashes their own record</text>
+
+        <rect x="662" y="44" width="202" height="34" rx="8" fill="#B45309"></rect>
+        <text class="p6bW" x="676" y="62">H3</text>
+        <text class="p6bS" x="676" y="74">proof step 1 · sits on the right</text>
+
+        <path d="M 547 80 L 645 96" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6bAr)"></path>
+        <path d="M 763 80 L 665 96" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6bAr)"></path>
+
+        <rect x="93" y="100" width="260" height="34" rx="8" fill="#B45309"></rect>
+        <text class="p6bW" x="109" y="118">H01</text>
+        <text class="p6bS" x="109" y="130">proof step 2 · sits on the left</text>
+
+        <rect x="525" y="100" width="260" height="34" rx="8" fill="#CBDDE9" stroke="#93B4CA"></rect>
+        <text class="p6bX" x="541" y="118">H23</text>
+        <text class="p6bG" x="541" y="130">recomputed, not received</text>
+
+        <path d="M 223 136 L 418 156" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6bAr)"></path>
+        <path d="M 655 136 L 462 156" fill="none" stroke="#B45309" stroke-width="1.5" marker-end="url(#p6bAr)"></path>
+
+        <rect x="290" y="160" width="300" height="40" rx="9" fill="#1E4D6B"></rect>
+        <text class="p6bW" x="306" y="178">ROOT</text>
+        <text class="p6bS" x="306" y="192">the value the holder already trusts</text>
+
+        <rect x="14" y="216" width="852" height="64" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6bK" x="30" y="240">What travels: the record, then two hashes, in order.</text>
+        <text class="p6bB" x="30" y="262">Step 1 is H3 and sits on the right. Step 2 is H01 and sits on the left. The side matters, because joining two</text>
+        <text class="p6bM" x="30" y="278">hashes the wrong way round produces a different parent and the rebuilt root will not match.</text>
+
+        <rect x="14" y="294" width="852" height="48" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6bB" x="30" y="316" style="font-weight:700">What does not travel: records 0, 1 and 3.</text>
+        <text class="p6bM" x="30" y="334">The holder never sees them, so the rest of the register stays private and the traffic stays small.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the proof is a list of things the verifier cannot work out for themselves. Everything they can work out, they do.</figcaption>
+    </figure>
+
+    <div class="wk" id="p6-proof">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">merkleRoot, merkleProof and verifyProof, running in this page. Switch the record to an altered one and watch it fail.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p6-btns" id="p6-sizes">
+          <button class="btn primary" type="button" data-n="8">8 records</button>
+          <button class="btn" type="button" data-n="16">16</button>
+          <button class="btn" type="button" data-n="64">64</button>
+          <button class="btn" type="button" data-n="256">256</button>
+          <button class="btn" type="button" data-n="1024">1,024</button>
+        </div>
+        <label class="sql-label" for="p6-pick">The record to prove</label>
+        <select class="sql-code" id="p6-pick"></select>
+        <div class="p6-btns" id="p6-mode">
+          <button class="btn primary" type="button" data-m="filed">Prove the record as filed</button>
+          <button class="btn" type="button" data-m="altered">Prove an altered record</button>
+        </div>
+        <div class="p6-grid" id="p6-grid"></div>
+        <div class="p6-path" id="p6-path"></div>
+        <p class="sql-note" id="p6-note">...</p>
+      </div>
+      <div class="wk-foot" id="p6-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Watch it say no<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Switch to the altered record. One word of the consignment line changes, the leaf hash it produces is unrecognisable, every parent computed from it is unrecognisable, and the root the verifier rebuilds does not match the root they hold. <code>verifyProof</code> returns false, with no partial credit and no near miss.</p>
+        <p>It is worth pressing that button before you trust anything the other button says. A verifier that only ever returns true is indistinguishable from a function that returns true, and that mistake has shipped in real systems more than once.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What a passing proof establishes, exactly<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>It establishes that this record was one of the records that produced that root. That is all, and it is a lot. It does not say the record is accurate, it does not say the set is complete, and it does not say the record is the most recent version of anything.</p>
+        <p>It also rests entirely on the root being the right root. The proof is a statement relative to a value the verifier already holds, and where that value came from is a separate question with a separate answer, which is the argument in the card two below.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The side of each sibling is part of the proof<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Each step in the path carries a hash and a side. Hashing your value joined to the sibling gives one result; hashing the sibling joined to your value gives a completely different one. A proof with the right hashes and the wrong sides fails exactly as hard as a proof with the wrong hashes.</p>
+        <p>Read the path in the live box and notice the sides changing as the index moves. An even index sits on the left and takes its sibling on the right; an odd index is the other way round. That alternation is the whole of the bookkeeping, and getting it wrong is the commonest bug in a first implementation.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the length</span>
+      <h2>Ten hashes for a thousand records</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">The proof has one entry per level, and the number of levels is the number of times the set halves before it reaches one. Double the records and the proof grows by exactly one hash. Every row below was measured against a real root, and every one of those proofs verified.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 398" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A measured table of proof length against set size. 4 records need 2 proof steps against 4 hashes if you sent everything, so you send 2 of 4. 8 records need 3 steps against 8, so 3 of 8. 16 records need 4 steps against 16, so 4 of 16. 64 records need 6 steps against 64, so 6 of 64. 256 records need 8 steps against 256, so 8 of 256. 1024 records need 10 steps against 1024, so 10 of 1024. A bar beneath says proof length is exactly log2 of the set size, that doubling the records adds exactly one hash to the proof, and that every proof in the table was verified against its root rather than assumed to work.">
+        <style>
+          .p6cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p6cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .p6cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p6cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .p6cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .p6cX { font: 700 12px "SF Mono", Menlo, monospace; fill: #0E2C3F; }
+          .p6cZ { font: 400 11px "SF Mono", Menlo, monospace; fill: #566670; }
+          .p6cA { font: 700 12px "SF Mono", Menlo, monospace; fill: #B45309; }
+        </style>
+
+        <text class="p6cH" x="14" y="18">Proof length against set size, measured</text>
+        <text class="p6cM" x="14" y="34">Every proof below was checked against its root with verifyProof. None was assumed.</text>
+
+        <text class="p6cL" x="30" y="56">RECORDS IN THE SET</text>
+        <text class="p6cL" x="220" y="56">PROOF STEPS</text>
+        <text class="p6cL" x="420" y="56">HASHES IF YOU SENT EVERYTHING</text>
+        <text class="p6cL" x="680" y="56">WHAT YOU SEND, OF WHAT EXISTS</text>
+
+        <rect x="14" y="64" width="852" height="36" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6cX" x="30" y="87">4</text>
+        <text class="p6cA" x="220" y="87">2</text>
+        <text class="p6cZ" x="420" y="87">4</text>
+        <text class="p6cZ" x="680" y="87">2 of 4</text>
+
+        <rect x="14" y="104" width="852" height="36" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6cX" x="30" y="127">8</text>
+        <text class="p6cA" x="220" y="127">3</text>
+        <text class="p6cZ" x="420" y="127">8</text>
+        <text class="p6cZ" x="680" y="127">3 of 8</text>
+
+        <rect x="14" y="144" width="852" height="36" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6cX" x="30" y="167">16</text>
+        <text class="p6cA" x="220" y="167">4</text>
+        <text class="p6cZ" x="420" y="167">16</text>
+        <text class="p6cZ" x="680" y="167">4 of 16</text>
+
+        <rect x="14" y="184" width="852" height="36" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6cX" x="30" y="207">64</text>
+        <text class="p6cA" x="220" y="207">6</text>
+        <text class="p6cZ" x="420" y="207">64</text>
+        <text class="p6cZ" x="680" y="207">6 of 64</text>
+
+        <rect x="14" y="224" width="852" height="36" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="p6cX" x="30" y="247">256</text>
+        <text class="p6cA" x="220" y="247">8</text>
+        <text class="p6cZ" x="420" y="247">256</text>
+        <text class="p6cZ" x="680" y="247">8 of 256</text>
+
+        <rect x="14" y="264" width="852" height="36" rx="8" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6cX" x="30" y="287">1,024</text>
+        <text class="p6cA" x="220" y="287">10</text>
+        <text class="p6cZ" x="420" y="287">1,024</text>
+        <text class="p6cZ" x="680" y="287">10 of 1,024</text>
+
+        <rect x="14" y="314" width="852" height="70" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6cK" x="30" y="338">Proof length is exactly log2 of the set size.</text>
+        <text class="p6cB" x="30" y="358">Double the records and the proof grows by one hash. At 1,024 records the proof is 10 hashes, which is why</text>
+        <text class="p6cB" x="30" y="376">a device that cannot hold the register can still check that its own consignment is in it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the right hand column is the one to remember. The set grows by doubling and the proof grows by one.</figcaption>
+    </figure>
+
+    <div class="wk" id="p6-scale">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">the table above, rebuilt in this browser. Each size builds a real root, takes a real proof and verifies it.</span>
+      </div>
+      <div class="wk-body">
+        <div class="p6-btns">
+          <button class="btn primary" type="button" id="p6-measure">Measure all six sizes</button>
+        </div>
+        <div class="p6-scale-grid" id="p6-scale-grid"></div>
+        <p class="sql-note" id="p6-scale-note">...</p>
+      </div>
+      <div class="wk-foot" id="p6-scale-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The scanner on the loading bay<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Give the handheld the root and nothing else. When a consignment arrives it receives that consignment's record and ten hashes, does eleven hash operations, and either matches the root or does not. It never holds the register, never asks anybody's opinion, and cannot be talked round.</p>
+        <p>That is the practical consequence worth carrying out of tonight. A device too small for the data can still verify its own slice of it, which is what makes the structure useful far outside this subject. Anywhere a small client needs certainty about a large set, this is the shape of the answer.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why log2 and not something worse<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>At each level your value has exactly one sibling, whatever the level and whatever the set size. So the proof needs one hash per level, and the levels are the halvings. Nothing about the set's content changes that, which is why the numbers in the table are exact rather than approximate.</p>
+        <p>It also means the cost of proving membership barely notices the set growing. Going from 256 records to 1,024 quadruples the register and adds two hashes to the proof, which is the sort of curve that makes an idea worth its complexity.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One camp holds that this delivers genuine independence to a small client. The device checks membership for itself, with arithmetic it performs and can repeat, and never has to trust the party that sent the proof. Ten hashes buys a verification that used to require the whole register, and that is a real transfer of power to the edge of the system.</p>
+        <p>The other camp holds that the independence is partly staged. The proof is only ever a statement relative to a root, and the device did not derive that root, it was handed it. The hard question was never whether the record is under the root; it was which root is the current and correct one, and answering that still means trusting somebody or watching the whole register. On this reading the structure moved the trust rather than removing it.</p>
+        <p>Both are describing the same ten hashes. The disagreement is about whether a verifier that cannot choose its own root counts as independent, and it is worth deciding where you stand before you design one, because it changes what the device has to be told and how often.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · covers verification</span>
+      <h2>Recompute upward, then compare once</h2>
+      <span class="tag concept">5 min live</span>
+    </div>
+    <p class="lede">Verification has no clever step in it. Hash the record. Fold in each proof hash on the side it says. Compare what you end up with against the root you already hold. One comparison, at the very end, and it is true or it is false.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 316" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two verification pipelines side by side. The first, the record as filed, runs the record through hashing to a leaf, folds in the two proof hashes on their stated sides, arrives at a rebuilt root that matches the one held, and verifyProof returns true. The second, one word of the record altered, produces a different leaf, folds in the same two proof hashes, arrives at a rebuilt root that does not match, and verifyProof returns false. A bar beneath says the proof did not detect the alteration by inspecting it but by failing to reproduce the root, that there is no partial match and no near miss, and that a verifier you have never watched return false should not be trusted to return true.">
+        <style>
+          .p6dH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .p6dM { font: 400 9.5px Inter, sans-serif; fill: #566670; }
+          .p6dL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .p6dA { font: 800 10px Inter, sans-serif; fill: #B45309; }
+          .p6dB { font: 700 10px Inter, sans-serif; fill: #141C22; }
+          .p6dW { font: 800 13px Inter, sans-serif; fill: #FFFFFF; }
+          .p6dV { font: 400 11px Inter, sans-serif; fill: #CBDDE9; }
+          .p6dK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+        <defs>
+          <marker id="p6dAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="p6dH" x="14" y="18">The same four steps, twice. One record is as filed, one is not.</text>
+
+        <text class="p6dL" x="14" y="42">THE RECORD AS FILED</text>
+
+        <rect x="14" y="50" width="174" height="56" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6dB" x="28" y="72">the record</text>
+        <text class="p6dM" x="28" y="90">exactly as written</text>
+
+        <path d="M 190 78 L 200 78" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="202" y="50" width="174" height="56" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6dB" x="216" y="72">hash it</text>
+        <text class="p6dM" x="216" y="90">the leaf the tree used</text>
+
+        <path d="M 378 78 L 388 78" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="390" y="50" width="174" height="56" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="p6dB" x="404" y="72">fold in each sibling</text>
+        <text class="p6dM" x="404" y="90">on the side the step names</text>
+
+        <path d="M 566 78 L 576 78" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="578" y="50" width="174" height="56" rx="9" fill="#1E4D6B"></rect>
+        <text class="p6dW" x="592" y="72" style="font-size:11px">root rebuilt</text>
+        <text class="p6dV" x="592" y="90" style="font-size:9.5px">matches the one held</text>
+
+        <rect x="766" y="50" width="100" height="56" rx="9" fill="#1E4D6B"></rect>
+        <text class="p6dW" x="780" y="84">true</text>
+
+        <text class="p6dA" x="14" y="136">THE SAME RECORD, ONE WORD CHANGED</text>
+
+        <rect x="14" y="144" width="174" height="56" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6dB" x="28" y="166">the record, edited</text>
+        <text class="p6dM" x="28" y="184">one word different</text>
+
+        <path d="M 190 172 L 200 172" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="202" y="144" width="174" height="56" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6dB" x="216" y="166">hash it</text>
+        <text class="p6dM" x="216" y="184">a leaf no tree ever had</text>
+
+        <path d="M 378 172 L 388 172" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="390" y="144" width="174" height="56" rx="9" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6dB" x="404" y="166">fold in each sibling</text>
+        <text class="p6dM" x="404" y="184">the same two hashes</text>
+
+        <path d="M 566 172 L 576 172" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#p6dAr)"></path>
+
+        <rect x="578" y="144" width="174" height="56" rx="9" fill="#B45309"></rect>
+        <text class="p6dW" x="592" y="166" style="font-size:11px">root rebuilt</text>
+        <text class="p6dV" x="592" y="184" style="font-size:9.5px">does not match</text>
+
+        <rect x="766" y="144" width="100" height="56" rx="9" fill="#B45309"></rect>
+        <text class="p6dW" x="780" y="178">false</text>
+
+        <rect x="14" y="216" width="852" height="88" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="p6dK" x="30" y="240">Nothing inspected the edit. The proof simply failed to reproduce the root.</text>
+        <text class="p6dB" x="30" y="262" style="font-weight:400;font-size:11px">There is no partial match and no near miss, because the leaf of an edited record has no relationship to the leaf of the</text>
+        <text class="p6dB" x="30" y="280" style="font-weight:400;font-size:11px">original, and every hash above it inherits that. One comparison at the top settles it.</text>
+        <text class="p6dM" x="30" y="296">A verifier you have never watched return false is not yet evidence of anything when it returns true.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two pipelines are the same four operations. Only the first input differs, and the last comparison is where that shows up.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ PART 5 ============ -->
+  <section class="section" id="part-5">
+    <div class="section-kicker">
+      <span class="klabel">Part 5 · build-along</span>
+      <h2>Prove it, then break it</h2>
+      <span class="tag build">14 min hands on</span>
+    </div>
+    <p class="lede">Console open on this page. Build a root, take a proof, verify it, then make it fail on purpose. The last step is the one that matters.</p>
+
+    <div class="prompt-box"><span class="label">Console</span>var ITEMS = [];
+for (var i = 0; i &lt; 1024; i++) ITEMS.push("Cold store manifest line " + i);
+var root = CHAIN.merkleRoot(ITEMS);
+var path = CHAIN.merkleProof(ITEMS, 700);
+path.length
+path.map(function (s) { return s.side; })
+CHAIN.verifyProof(ITEMS[700], path, root)
+CHAIN.verifyProof(ITEMS[700] + " amended", path, root)
+CHAIN.verifyProof(ITEMS[701], path, root)</div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Check the hash before you trust a root</h4>
+        <p>Run <code>CHAIN.selfTest().ok</code>. A root is only worth as much as the hash under it, and this takes four seconds.</p>
+      </div>
+      <div class="step">
+        <h4>Count the proof, then predict the next one</h4>
+        <p>Print <code>path.length</code> for 1,024 records and confirm it is 10. Before you run it, write down what you expect for 2,048 and for 512. Then check.</p>
+      </div>
+      <div class="step">
+        <h4>Read the sides</h4>
+        <p>Print the side of each step for index 700, then for index 701. Two neighbouring records, two different patterns. Say why the first step flips while the later steps mostly do not.</p>
+      </div>
+      <div class="step">
+        <h4>Make it fail three different ways</h4>
+        <p>Verify with an amended record, then with a different record from the same set, then with a proof for the wrong index. All three return false. A structure that rejects three different wrong things is worth more than one that accepts the right thing.</p>
+      </div>
+      <div class="step">
+        <h4>Change the set and keep the old proof</h4>
+        <p>Add one record to the end, rebuild the root, and verify the old proof against it. It fails, because the root committed to a set that no longer exists. Write one sentence about what that means for any system where the set grows.</p>
+      </div>
+      <div class="step">
+        <h4>Compare the traffic honestly</h4>
+        <p>For 1,024 records, count what a proof costs: one record and 10 hashes. Then count what sending the set costs. Write the ratio down and keep it for session 10, where the whole engine runs at once.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody shows you a verifier, ask them to make it fail in front of you. If they cannot produce a case that returns false, you have not been shown a verifier, you have been shown a function that agrees with you.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">A set holds 1,024 records. How many hashes does a proof of membership contain, and why?</p>
+      <div class="qopt">A · 1,024, since every record has to be accounted for before the root can be trusted</div>
+      <div class="qopt">B · 10, one sibling per level, because the set halves ten times before it reaches a single hash</div>
+      <div class="qopt">C · 512, one for every pair at the bottom level of the tree</div>
+      <q class="qwhy">Each level supplies exactly one sibling, whatever the size of the set, and the number of levels is the number of halvings. 1,024 halves to 512, 256, 128, 64, 32, 16, 8, 4, 2 and finally 1, which is ten steps. Proof length is exactly log2 of the set size, and every proof in tonight's table was verified against its root.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">Somebody alters a record and then presents its original proof. What happens, and how?</p>
+      <div class="qopt">A · Verification notices the edit by comparing the record against the copy stored in the tree</div>
+      <div class="qopt">B · Verification passes, because the proof hashes are unchanged and the proof is what is being checked</div>
+      <div class="qopt">C · The altered record hashes to a leaf the tree never contained, so every value computed above it differs and the rebuilt root does not match the one held; verifyProof returns false</div>
+      <q class="qwhy">Nothing inspects the edit and nothing holds a copy to compare against. The failure comes from arithmetic: an altered record gives a leaf with no relationship to the original, that difference propagates up every level, and the single comparison at the top does not match. No partial match and no near miss.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A handheld scanner verifies a proof successfully. What has it established, and what has it not?</p>
+      <div class="qopt">A · That this record is one of the records behind that root, and nothing about whether the root it was given is the right one, whether the record is accurate, or whether anything is missing from the set</div>
+      <div class="qopt">B · That the whole register is intact, since the root commits to all of it</div>
+      <div class="qopt">C · That the consignment described in the record was actually inspected, because the proof is cryptographic</div>
+      <q class="qwhy">Inclusion is the claim and it is narrow. The proof is a statement relative to the root the device already holds, and where that root came from is a separate question the proof cannot touch. Absence is not provable this way either, and accuracy was never in scope for any hash.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 7</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty five minutes, on a set of records you already have.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Build a root over your own data</h4>
+        <p>Take a few hundred rows from a table you work with, build a root, and take a proof for one row. Confirm the proof length is what log2 says it should be, and confirm an edited row fails.</p>
+      </div>
+      <div class="step">
+        <h4>Write down who hands out the root</h4>
+        <p>For any system you would actually build this into, name the party that tells a verifier which root is current, and how often. Bring that name to session 7, because it turns out to be a question about identity rather than about hashing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Building the tree</span><span class="note">Hash every record, hash pairs upward until one hash is left. merkleRoot driven live.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The proof as a list of siblings</span><span class="note">One hash per level, each with the side it sits on, and nothing else travels. merkleProof driven live.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Verification, including a failing case</span><span class="note">verifyProof returns true on the record as filed and false on an altered one, both run in the page.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Proof length is log2 of the set size</span><span class="note">4 needs 2, 8 needs 3, 16 needs 4, 64 needs 6, 256 needs 8, and 1,024 records need 10.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Who tells a verifier which root is current</span><span class="note">Named tonight as the limit of an inclusion proof. Identity is session 7.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Proving a record is absent from a set</span><span class="note">Named as a different and harder problem that has to be designed for from the start.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their tree variants</span><span class="note">They move faster than a course can, and the structure tonight does not depend on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The build.</strong> Hash every record, then hash pairs upward until one hash is left. That is the root.</div>
+      <div class="cheat-item"><strong>The proof.</strong> One sibling hash per level, each with the side it sits on. Nothing else.</div>
+      <div class="cheat-item"><strong>The length.</strong> Exactly log2 of the set size. 4 needs 2, 64 needs 6, 1,024 needs 10.</div>
+      <div class="cheat-item"><strong>The calls.</strong> <code>merkleRoot(items)</code>, <code>merkleProof(items, i)</code>, <code>verifyProof(item, path, root)</code>.</div>
+      <div class="cheat-item"><strong>Verification.</strong> Hash, fold in each sibling on its side, compare once at the top.</div>
+      <div class="cheat-item"><strong>The failure.</strong> An edited record gives an unrelated leaf, so the rebuilt root misses. No near miss.</div>
+      <div class="cheat-item"><strong>The claim.</strong> This record is under that root. Not that it is accurate, complete, or current.</div>
+      <div class="cheat-item"><strong>The use.</strong> A device too small to hold the register can still check its own consignment is in it.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Practitioner session 6 of 10 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="p5-the-cost-of-a-rewrite.html">← Practitioner session 5 · The cost of a rewrite</a>
+        <a href="p7-signatures-and-identity.html">Practitioner session 7 · Signatures and identity →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+
+  var NAMED = [
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 41 released to the buyer",
+    "Consignment 42 signed over to Ardwick Cold Store",
+    "Consignment 42 inspected, seal broken",
+    "Consignment 43 signed over to Pell and Sons",
+    "Consignment 43 inspected, seal intact",
+    "Consignment 43 released to the buyer"
+  ];
+
+  function setOf(n) {
+    var items = NAMED.slice(0, Math.min(n, NAMED.length));
+    for (var i = items.length; i < n; i++) items.push("Cold store manifest line " + i);
+    return items;
+  }
+  function cut(h) { return h.slice(0, 16); }
+  function group(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  /* ---------- prove one record ---------- */
+  var pbox = document.getElementById("p6-proof");
+  if (pbox) {
+    var sizeBtns = pbox.querySelectorAll("#p6-sizes button");
+    var modeBtns = pbox.querySelectorAll("#p6-mode button");
+    var pick = document.getElementById("p6-pick");
+    var pgrid = document.getElementById("p6-grid");
+    var ppath = document.getElementById("p6-path");
+    var pnote = document.getElementById("p6-note");
+    var pfoot = document.getElementById("p6-foot");
+
+    var size = 8;
+    var mode = "filed";
+    var index = 2;
+
+    for (var k = 0; k < NAMED.length; k++) {
+      var opt = document.createElement("option");
+      opt.value = String(k);
+      opt.textContent = "record " + k + " · " + NAMED[k];
+      pick.appendChild(opt);
+    }
+    pick.value = "2";
+
+    function render() {
+      var items = setOf(size);
+      var root = CHAIN.merkleRoot(items);
+      var path = CHAIN.merkleProof(items, index);
+      var filed = items[index];
+      var claimed = (mode === "filed") ? filed : filed.replace("Consignment", "Consignment no");
+      var ok = CHAIN.verifyProof(claimed, path, root);
+
+      var rows = [
+        ["records in the set", group(size), false],
+        ["proof steps", String(path.length), false],
+        ["root", cut(root), false],
+        ["record being claimed", claimed, mode !== "filed"],
+        ["verifyProof", ok ? "true" : "false", !ok]
+      ];
+      pgrid.innerHTML = "";
+      rows.forEach(function (r) {
+        var el = document.createElement("div");
+        el.className = "p6-cell" + (r[2] ? " bad" : "");
+        el.innerHTML = "<b>" + r[0] + "</b><span>" + r[1] + "</span>";
+        pgrid.appendChild(el);
+      });
+
+      ppath.innerHTML = "";
+      var strip = document.createElement("div");
+      strip.className = "p6-strip";
+      path.forEach(function (s, i) {
+        var el = document.createElement("span");
+        el.className = "p6-step";
+        el.innerHTML = "<b>step " + (i + 1) + " · " + s.side + "</b>" + cut(s.hash);
+        strip.appendChild(el);
+      });
+      ppath.appendChild(strip);
+
+      pnote.textContent = mode === "filed"
+        ? "The record as filed, " + path.length + " proof hashes, and a rebuilt root that matches. verifyProof returns true."
+        : "One word changed in the record. The same " + path.length
+          + " proof hashes are presented, the rebuilt root does not match, and verifyProof returns false.";
+
+      pfoot.textContent = "The set holds " + group(size) + " records and " + path.length
+        + " hashes travel, which is log2 of " + group(size) + ". Nothing else about the set is revealed.";
+    }
+
+    for (var a = 0; a < sizeBtns.length; a++) {
+      sizeBtns[a].addEventListener("click", function () {
+        size = parseInt(this.getAttribute("data-n"), 10);
+        for (var j = 0; j < sizeBtns.length; j++) {
+          sizeBtns[j].className = (parseInt(sizeBtns[j].getAttribute("data-n"), 10) === size) ? "btn primary" : "btn";
+        }
+        render();
+      });
+    }
+    for (var b = 0; b < modeBtns.length; b++) {
+      modeBtns[b].addEventListener("click", function () {
+        mode = this.getAttribute("data-m");
+        for (var j = 0; j < modeBtns.length; j++) {
+          modeBtns[j].className = (modeBtns[j].getAttribute("data-m") === mode) ? "btn primary" : "btn";
+        }
+        render();
+      });
+    }
+    pick.addEventListener("change", function () {
+      index = parseInt(pick.value, 10);
+      render();
+    });
+
+    render();
+  }
+
+  /* ---------- proof length against set size ---------- */
+  var sbox = document.getElementById("p6-scale");
+  if (sbox) {
+    var sgrid = document.getElementById("p6-scale-grid");
+    var snote = document.getElementById("p6-scale-note");
+    var sfoot = document.getElementById("p6-scale-foot");
+    var mbtn = document.getElementById("p6-measure");
+    var SIZES = [4, 8, 16, 64, 256, 1024];
+
+    function idle() {
+      sgrid.innerHTML = "";
+      snote.textContent = "Not measured yet. Six sets are built, six roots taken, six proofs verified, and one proof per size is made to fail.";
+      sfoot.textContent = "Press the button and compare what comes back with the table above.";
+    }
+
+    function measure() {
+      mbtn.disabled = true;
+      mbtn.textContent = "Building six trees...";
+      setTimeout(function () {
+        sgrid.innerHTML = "";
+        var allGood = true, allRejected = true;
+        SIZES.forEach(function (n) {
+          var items = setOf(n);
+          var root = CHAIN.merkleRoot(items);
+          var idx = n - 1;
+          var path = CHAIN.merkleProof(items, idx);
+          var good = CHAIN.verifyProof(items[idx], path, root);
+          var bad = CHAIN.verifyProof(items[idx] + " amended", path, root);
+          if (!good) allGood = false;
+          if (bad) allRejected = false;
+          var el = document.createElement("div");
+          el.className = "p6-cell";
+          el.innerHTML = "<b>" + group(n) + " records</b><span>" + path.length + " proof steps<br>"
+            + "as filed: " + (good ? "true" : "true expected, got false") + "<br>"
+            + "amended: " + (bad ? "false expected, got true" : "false") + "</span>";
+          sgrid.appendChild(el);
+        });
+        snote.textContent = allGood && allRejected
+          ? "Six sizes, six proof lengths of 2, 3, 4, 6, 8 and 10, every honest proof accepted and every amended record rejected."
+          : "At least one size did not behave as the table says. Nothing on this page should be believed until that is explained.";
+        sfoot.textContent = "The rejections are the half that matters. A run with no false in it would prove nothing at all.";
+        mbtn.disabled = false;
+        mbtn.textContent = "Measure all six sizes";
+      }, 20);
+    }
+
+    mbtn.addEventListener("click", measure);
+    idle();
+  }
+})();
+</script>
+<style>
+  #p6-proof .p6-btns, #p6-scale .p6-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .7rem; }
+  #p6-proof select.sql-code {
+    width: 100%;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    margin-bottom: .8rem;
+  }
+  #p6-proof .p6-grid, #p6-scale .p6-scale-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: .5rem;
+    margin-bottom: .8rem;
+  }
+  #p6-proof .p6-cell, #p6-scale .p6-cell {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .55rem .7rem;
+  }
+  #p6-proof .p6-cell.bad { background: var(--amber-50); border-color: var(--amber); }
+  #p6-proof .p6-cell b, #p6-scale .p6-cell b {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .72rem;
+    color: var(--indigo);
+  }
+  #p6-proof .p6-cell span, #p6-scale .p6-cell span {
+    display: block;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .76rem;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--indigo-deep);
+  }
+  #p6-proof .p6-strip { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+  #p6-proof .p6-step {
+    border: 1px solid var(--indigo-mid);
+    border-radius: 8px;
+    background: #FFFFFF;
+    padding: .35rem .6rem;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .74rem;
+    color: var(--indigo-deep);
+  }
+  #p6-proof .p6-step b {
+    display: block;
+    font-size: .64rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
+</body>
+</html>

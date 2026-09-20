@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 4 of 6. A chain on one machine is a tamper evident log. Many machines agreeing on one history with nobody in charge is the hard part: forks, a mechanical rule for choosing, finality as a probability, and why decentralised is a spectrum rather than a switch.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Who agrees, and how - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 4 of 6. Two valid chains, one mechanical rule, and four separate questions hiding inside the word decentralised.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a4-who-agrees-and-how.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Who agrees, and how - learn blockchain with phoebe">
+<meta name="twitter:description" content="Who may write, who may read, who runs the machines, who can change the rules. Four questions, four different answers.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 4 · Who agrees, and how - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 4 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 4 of 6</div>
+    <h1>Who agrees, <span class="accent">and how</span></h1>
+    <p class="sub">Everything so far works on one machine, and on one machine a chain is a tamper evident log. Useful, well understood, and available from a database with a hash column. The part that is genuinely different starts when several machines hold the register, each can add to it, and no one of them is in charge. Two of them will eventually extend it at the same moment with different entries, both results will be perfectly valid, and something has to decide. Tonight is how that decision is made, what it costs, and the four questions hiding inside the word decentralised.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:3">3-16 · Two valid chains</span>
+      <span class="a3" style="flex:2">16-24 · Finality</span>
+      <span class="a4" style="flex:5">24-45 · The spectrum, build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>One copy is a log. Several copies is a problem.</h2>
+    </div>
+    <p class="lede">Session 2 ended on an uncomfortable note: on a register held by one organisation, tamper evidence buys almost nothing against an insider, because the insider can rebuild the evidence. The answer was other copies. That answer creates a new difficulty of its own, because copies drift, and two honest parties can produce two different and equally valid versions of the same register without anybody doing anything wrong.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Why two valid chains can exist at the same time and why that is normal rather than a fault. The reason the rule for choosing between them has to be mechanical, and what the usual rule buys and costs. Finality as something that grows rather than something that arrives. And four questions to ask whenever somebody says decentralised, because the word answers none of them on its own.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What several copies are actually for<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A hash chain detects an alteration by recomputing. That works whether the register is held by one party or a hundred. What one party cannot provide is a second opinion: if the only copy is rewritten consistently, recomputation finds nothing, because the copy agrees with itself perfectly.</p>
+        <p>Several independent copies turn a private edit into a visible disagreement. The chain provides the comparison and the copies provide something to compare against. Everything difficult about this session follows from that arrangement, because independent copies do not stay identical by themselves.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Suppose the port authority, a buyer and an insurer each keep the Harbourgate register. The port authority adds an inspection at the same moment the buyer adds a release. Neither is cheating and neither is offline. For a short period there are two registers, each internally consistent, each with a different sixth entry.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Fork.</strong> Two valid continuations of the same register existing at once. Normal, frequent, and not a fault.</li>
+          <li><strong>Consensus rule.</strong> The mechanical test every holder applies to decide which branch is the accepted one.</li>
+          <li><strong>Longest chain wins.</strong> The usual rule, stated over the work accumulated in a branch rather than a raw count of entries.</li>
+          <li><strong>Reorganisation.</strong> What happens to the losing branch: its entries leave the accepted history, having never been invalid.</li>
+          <li><strong>Finality.</strong> How settled an entry is. A quantity that grows with depth, not a state that is reached.</li>
+          <li><strong>Depth.</strong> How many blocks sit after an entry. The only thing that changes as an entry ages.</li>
+          <li><strong>Permissionless.</strong> Anyone may write without being admitted first.</li>
+          <li><strong>Permissioned.</strong> Only admitted parties may write, and somebody admits them.</li>
+          <li><strong>Governance.</strong> Who can change the rules themselves, which is a separate question from who may use them.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers forks and the rule</span>
+      <h2>Two valid chains, and nothing wrong with either</h2>
+      <span class="tag concept">13 min live</span>
+    </div>
+    <p class="lede">A fork is not an attack and not a bug. It is what happens when two holders of the same register each add an entry before hearing about the other. Run verification on both results and both come back clean, because both are correctly hashed and correctly linked. The structure that makes tampering visible has nothing at all to say about which of two honest histories is the real one.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A fork. Blocks 0 to 3 are shared history. From block 3 the register splits into two branches. Branch A adds two entries, blocks 4 and 5. Branch B adds one entry, block 4. A panel on the right records that branch A has 6 blocks and verifies clean, branch B has 5 blocks and verifies clean, and that the rule selects branch A because it is longer, which is the whole of the reason. A closing note says nothing is broken and nothing is wrong with the losing branch: both are internally consistent, so the structure has no opinion about which history is real, and the entry recorded in branch B leaves the accepted history the moment the rule is applied even though it was never invalid.">
+        <style>
+          .a4aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a4aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a4aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a4aM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a4aK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a4aN { font: 700 11px Inter, sans-serif; fill: #141C22; }
+          .a4aW { font: 700 11px Inter, sans-serif; fill: #FFFFFF; }
+        </style>
+        <defs>
+          <marker id="a4aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a4aH" x="14" y="20">Two holders extend the same register before either hears about the other</text>
+
+        <text class="a4aL" x="14" y="132">SHARED HISTORY, BLOCKS 0 TO 3</text>
+
+        <rect x="14" y="140" width="86" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4aN" x="28" y="167">block 0</text>
+        <rect x="114" y="140" width="86" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4aN" x="128" y="167">block 1</text>
+        <rect x="214" y="140" width="86" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4aN" x="228" y="167">block 2</text>
+        <rect x="314" y="140" width="86" height="44" rx="8" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4aN" x="328" y="167">block 3</text>
+
+        <path d="M 100 162 L 110 162" fill="none" stroke="#93B4CA" stroke-width="1.5"></path>
+        <path d="M 200 162 L 210 162" fill="none" stroke="#93B4CA" stroke-width="1.5"></path>
+        <path d="M 300 162 L 310 162" fill="none" stroke="#93B4CA" stroke-width="1.5"></path>
+
+        <path d="M 400 162 C 416 162, 412 86, 426 86" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a4aAr)"></path>
+        <path d="M 400 162 C 416 162, 412 238, 426 238" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a4aAr)"></path>
+
+        <text class="a4aL" x="430" y="56">BRANCH A</text>
+        <text class="a4aM" x="512" y="56">the port authority adds two entries</text>
+        <rect x="430" y="64" width="86" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="a4aW" x="444" y="91">block 4</text>
+        <rect x="530" y="64" width="86" height="44" rx="8" fill="#1E4D6B"></rect>
+        <text class="a4aW" x="544" y="91">block 5</text>
+        <path d="M 516 86 L 526 86" fill="none" stroke="#93B4CA" stroke-width="1.5"></path>
+
+        <text class="a4aL" x="430" y="208">BRANCH B</text>
+        <text class="a4aM" x="512" y="208">the buyer adds one entry</text>
+        <rect x="430" y="216" width="86" height="44" rx="8" fill="#93B4CA"></rect>
+        <text class="a4aN" x="444" y="243">block 4</text>
+
+        <rect x="644" y="64" width="222" height="196" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a4aL" x="660" y="92">BRANCH A</text>
+        <text class="a4aB" x="660" y="112">6 blocks, verify: ok</text>
+        <text class="a4aL" x="660" y="140">BRANCH B</text>
+        <text class="a4aB" x="660" y="160">5 blocks, verify: ok</text>
+        <path d="M 660 178 L 850 178" fill="none" stroke="#DBE4EB" stroke-width="1"></path>
+        <text class="a4aK" x="660" y="202">The rule selects A</text>
+        <text class="a4aM" x="660" y="222">It is longer, and that is</text>
+        <text class="a4aM" x="660" y="238">the whole of the reason.</text>
+
+        <rect x="14" y="280" width="852" height="72" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a4aK" x="30" y="304">Nothing is broken, and nothing was wrong with the losing branch.</text>
+        <text class="a4aB" x="30" y="324">Both branches are correctly hashed and correctly linked, so the structure itself has no opinion about which history is real.</text>
+        <text class="a4aM" x="30" y="342">The entry in branch B leaves the accepted history the moment the rule is applied, and it was never invalid for a second.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the shared blocks are identical in both branches, which is why a fork is a split rather than two separate registers.</figcaption>
+    </figure>
+
+    <div class="wk" id="a4-fork">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Two real branches of the Harbourgate register, both built and verified in this page.</span>
+      </div>
+      <div class="wk-body">
+        <div class="a4-btns">
+          <button class="btn" type="button" id="a4-add-a">The port authority adds an entry</button>
+          <button class="btn" type="button" id="a4-add-b">The buyer adds an entry</button>
+          <button class="btn" type="button" id="a4-reset">Back to the shared history</button>
+        </div>
+        <div class="a4-branch" id="a4-branch-a"></div>
+        <div class="a4-branch" id="a4-branch-b"></div>
+        <p class="sql-note" id="a4-verdict">...</p>
+      </div>
+      <div class="wk-foot" id="a4-foot">...</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why the rule has to be mechanical<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every holder of the register has to reach the same answer, alone, from the data in front of them, without asking anyone. Any rule that needs judgement needs a judge, and a judge is the administrator the arrangement exists to do without. So the rule must be computable, deterministic, and take no input beyond the branches themselves.</p>
+        <p>That requirement rules out everything a reasonable person would prefer. Not the branch with the more plausible entry, not the branch from the more reputable party, not the branch a majority of people think is fairer. Those are all better answers and none of them can be evaluated identically by strangers.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What longest chain wins buys, and what it costs<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>What it buys is convergence with no coordination at all. Holders who cannot talk to each other, who came online at different times, and who saw the branches in a different order still end on the same history, because they are all applying the same arithmetic to the same data.</p>
+        <p>What it costs is that no entry is ever certainly permanent. An entry you saw a minute ago can leave the accepted history when a longer branch appears, and the rule will discard it without hesitation. A count of entries would be trivial to inflate, so the rule is normally stated over the work accumulated in a branch rather than the number of blocks in it, which is where session 3 rejoins this one: a branch is expensive to extend precisely so that the longest one is hard to manufacture.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Forks that are disagreements about the rules<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Everything above is an accidental fork, resolved automatically because both sides apply the same rule. There is a second kind, where the holders stop agreeing about what the rule is. One group changes the required format, or the difficulty, or who is admitted, and the other group declines.</p>
+        <p>No consensus rule can settle that, because the parties are no longer running the same test. The register simply becomes two registers with a shared past and separate futures, and which one anybody uses is a social question rather than a computable one. It is the clearest demonstration that the mechanism decides between histories, never between people.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers finality</span>
+      <h2>Finality grows. It does not arrive.</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">Ask when an entry becomes permanent and the honest answer is that it does not. What changes as the register grows past an entry is how much work removing it would take, and that is a quantity rather than an event. Nothing in the structure emits a signal saying the matter is closed, and any system that waits for one waits forever.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Six blocks in a row, from block 0 with five blocks after it to block 5 with none. An arrow beneath runs from right to left, from cheapest to remove at the newest end to dearest to remove at the oldest end. One panel says removing an entry means redoing every block after it, and at difficulty 3 each of those blocks costs a mean of 4,115 attempts over 120 trials. A second panel says no message ever arrives announcing that an entry is final, and depth is the only thing that changes. A closing note says finality is a probability that grows rather than a fact that arrives, so a business rule picks a depth it can live with.">
+        <style>
+          .a4bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a4bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a4bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a4bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a4bN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+          .a4bW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a4bV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .a4bS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+          .a4bD { font: 400 10px Inter, sans-serif; fill: #141C22; }
+        </style>
+        <defs>
+          <marker id="a4bAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+        </defs>
+
+        <text class="a4bH" x="14" y="22">Nothing announces that an entry is settled. Only its depth changes.</text>
+
+        <rect x="14" y="40" width="130" height="60" rx="9" fill="#0E2C3F"></rect>
+        <text class="a4bW" x="30" y="66">block 0</text>
+        <text class="a4bS" x="30" y="86">5 blocks after it</text>
+
+        <rect x="154" y="40" width="130" height="60" rx="9" fill="#1E4D6B"></rect>
+        <text class="a4bW" x="170" y="66">block 1</text>
+        <text class="a4bS" x="170" y="86">4 blocks after it</text>
+
+        <rect x="294" y="40" width="130" height="60" rx="9" fill="#93B4CA"></rect>
+        <text class="a4bN" x="310" y="66">block 2</text>
+        <text class="a4bD" x="310" y="86">3 blocks after it</text>
+
+        <rect x="434" y="40" width="130" height="60" rx="9" fill="#CBDDE9"></rect>
+        <text class="a4bN" x="450" y="66">block 3</text>
+        <text class="a4bD" x="450" y="86">2 blocks after it</text>
+
+        <rect x="574" y="40" width="130" height="60" rx="9" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4bN" x="590" y="66">block 4</text>
+        <text class="a4bM" x="590" y="86">1 block after it</text>
+
+        <rect x="714" y="40" width="130" height="60" rx="9" fill="#FFFFFF" stroke="#B45309"></rect>
+        <text class="a4bN" x="730" y="66">block 5</text>
+        <text class="a4bM" x="730" y="86">nothing after it</text>
+
+        <text class="a4bM" x="14" y="124">dearest to remove</text>
+        <text class="a4bM" x="844" y="124" text-anchor="end">cheapest to remove</text>
+        <path d="M 830 138 L 30 138" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a4bAr)"></path>
+
+        <rect x="14" y="156" width="418" height="76" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a4bN" x="30" y="180">What removing an entry takes</text>
+        <text class="a4bB" x="30" y="200">Every block after it has to be redone.</text>
+        <text class="a4bM" x="30" y="218">At difficulty 3 each block costs a mean of 4,115 attempts over 120 trials.</text>
+
+        <rect x="448" y="156" width="418" height="76" rx="10" fill="#0E2C3F"></rect>
+        <text class="a4bW" x="464" y="180">What never happens</text>
+        <text class="a4bV" x="464" y="200">No message arrives saying an entry is now final.</text>
+        <text class="a4bS" x="464" y="218">Depth is the only thing that changes, and it changes gradually.</text>
+
+        <rect x="14" y="244" width="852" height="50" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a4bK" x="30" y="268">Finality is a probability that grows, not a fact that arrives.</text>
+        <text class="a4bM" x="30" y="286">A business rule picks a depth it can live with and accepts the risk that remains, because nothing else is on offer.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the newest entry is always the least settled, and it is usually the one somebody has a live reason to change.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why nobody can hand you a receipt<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Displacing an entry means producing a branch that wins the rule, which means redoing that entry's block and every block after it, each at the price session 3 measured. The further back the entry sits, the more blocks that is, and the more expensive the whole exercise becomes. That is a curve, not a threshold.</p>
+        <p>So there is no depth at which the system declares an entry safe, and any number you adopt is a decision about risk appetite rather than a fact you have been told. Different businesses reading the same register choose different depths for a release of goods and for a routine note, and both are being reasonable.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What that means for a process that reads the register<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A process that acts the instant an entry appears has inherited the reorganisation risk without noticing. The entry may be removed afterwards, the process will not be consulted, and whatever it did in response has already happened in the physical world.</p>
+        <p>The fix is unglamorous: decide the depth required before acting, write it into the procedure, and make it different for actions that cannot be undone. Releasing a consignment from a cold store is not the same class of decision as recording that somebody looked at it.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the disagreement really is<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One position holds that probabilistic finality is a fair trade and possibly the only honest one. Every settlement system in the world is probabilistic underneath, payments are reversed and registrations are corrected, and a mechanism that states its residual risk openly is more truthful than one that hides the same risk behind a legal declaration.</p>
+        <p>The opposing position is that businesses cannot operate on a history that might be revised, that the word final in commerce means something specific and enforceable, and that a system which never quite provides it has moved the problem to whoever writes the contract. On that view the probability is not a feature but an unpriced liability.</p>
+        <p>Both are defensible and the choice between them depends on what happens in the physical world when an entry is wrong. Nothing in the mechanism decides it for you.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the spectrum</span>
+      <h2>Decentralised is a spectrum, not a switch</h2>
+      <span class="tag concept">9 min live</span>
+    </div>
+    <p class="lede">The word is used as though it named one property with two settings. It names at least four properties, they vary independently, and a system can sit at opposite ends on two of them at once. Asking the four questions separately is the fastest way to find out what is actually being proposed, and it usually takes under a minute.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four independent tracks, each running from open to anyone on the left to one organisation on the right. The four questions are who may write an entry, who may read the register, who runs the machines that hold copies, and who can change the rules. Two illustrative systems are plotted on every track: a register open to anyone, marked with a circle, and a register run by a consortium, marked with a square. The circle sits near the open end on writing and reading and further along on running machines and changing rules. The square sits towards the controlled end on all four. A closing note says decentralised is a spectrum rather than a switch, and that a system can be open to anyone reading it and closed to all but a few organisations writing to it, with both statements true at once.">
+        <style>
+          .a4cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a4cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a4cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a4cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+          .a4cN { font: 800 12px Inter, sans-serif; fill: #141C22; }
+        </style>
+
+        <text class="a4cH" x="14" y="20">Four separate questions, and four answers that move independently</text>
+
+        <circle cx="556" cy="38" r="7" fill="#1E4D6B"></circle>
+        <text class="a4cB" x="568" y="42">a register open to anyone</text>
+        <rect x="706" y="32" width="12" height="12" rx="2" fill="#B45309"></rect>
+        <text class="a4cB" x="724" y="42">a consortium register</text>
+
+        <rect x="14" y="60" width="852" height="56" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a4cN" x="30" y="82">Who may write an entry</text>
+        <text class="a4cM" x="30" y="100">and who decides that</text>
+        <text class="a4cM" x="430" y="76">open to anyone</text>
+        <text class="a4cM" x="830" y="76" text-anchor="end">one organisation</text>
+        <path d="M 430 94 L 830 94" fill="none" stroke="#CBD8E0" stroke-width="3" stroke-linecap="round"></path>
+        <circle cx="460" cy="94" r="7" fill="#1E4D6B"></circle>
+        <rect x="764" y="88" width="12" height="12" rx="2" fill="#B45309"></rect>
+
+        <rect x="14" y="122" width="852" height="56" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a4cN" x="30" y="144">Who may read the register</text>
+        <text class="a4cM" x="30" y="162">in full, not a summary someone prepares</text>
+        <text class="a4cM" x="430" y="138">open to anyone</text>
+        <text class="a4cM" x="830" y="138" text-anchor="end">one organisation</text>
+        <path d="M 430 156 L 830 156" fill="none" stroke="#CBD8E0" stroke-width="3" stroke-linecap="round"></path>
+        <circle cx="448" cy="156" r="7" fill="#1E4D6B"></circle>
+        <rect x="714" y="150" width="12" height="12" rx="2" fill="#B45309"></rect>
+
+        <rect x="14" y="184" width="852" height="56" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a4cN" x="30" y="206">Who runs the machines that hold copies</text>
+        <text class="a4cM" x="30" y="224">and how many separate parties do they belong to</text>
+        <text class="a4cM" x="430" y="200">open to anyone</text>
+        <text class="a4cM" x="830" y="200" text-anchor="end">one organisation</text>
+        <path d="M 430 218 L 830 218" fill="none" stroke="#CBD8E0" stroke-width="3" stroke-linecap="round"></path>
+        <circle cx="524" cy="218" r="7" fill="#1E4D6B"></circle>
+        <rect x="784" y="212" width="12" height="12" rx="2" fill="#B45309"></rect>
+
+        <rect x="14" y="246" width="852" height="56" rx="9" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a4cN" x="30" y="268">Who can change the rules</text>
+        <text class="a4cM" x="30" y="286">the difficulty, the format, the membership</text>
+        <text class="a4cM" x="430" y="262">open to anyone</text>
+        <text class="a4cM" x="830" y="262" text-anchor="end">one organisation</text>
+        <path d="M 430 280 L 830 280" fill="none" stroke="#CBD8E0" stroke-width="3" stroke-linecap="round"></path>
+        <circle cx="618" cy="280" r="7" fill="#1E4D6B"></circle>
+        <rect x="794" y="274" width="12" height="12" rx="2" fill="#B45309"></rect>
+
+        <rect x="14" y="314" width="852" height="56" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a4cK" x="30" y="338">Decentralised is a spectrum, not a switch.</text>
+        <text class="a4cB" x="30" y="358">A system can be open to anyone reading it and closed to all but four organisations writing to it, and both are true at once.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two plotted systems are illustrative shapes, and the point is that the four answers do not have to travel together.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The four questions, and why each one bites<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Who may write.</strong> The question that decides whether the register records what happened or what one party wanted recorded. If a single organisation may write, the chain is an audit trail of that organisation's own claims, which can still be worth having.</p>
+        <p><strong>Who may read.</strong> Independent verification requires the full register, not a report about it. A party who can only read a summary cannot check anything, and the tamper evidence is doing nothing for them.</p>
+        <p><strong>Who runs the machines.</strong> Copies only count as independent if they are held by parties with different interests. Four machines in one data centre are one copy with extra electricity bills.</p>
+        <p><strong>Who can change the rules.</strong> The quietest and often the most important. Whoever can change the difficulty, the format or the membership list can change what verification even means, and no amount of hashing constrains them.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Whether a permissioned chain is a blockchain at all<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One side says no, and means it as a technical objection rather than a slight. The hard problem being solved is agreement among parties who have not been vetted and cannot be excluded, and every expensive part of the design exists for that. Admit only approved writers and the problem disappears, along with the need for the mechanism. What is left is a replicated database with hash linked records, which is a fine thing to build and an older one, and calling it a blockchain imports credibility it did not earn.</p>
+        <p>The other side says yes, and that the objection confuses one implementation with the category. The properties that buyers actually want are a shared history no single member can silently revise, verification each member performs themselves, and a record whose alteration is visible to all of them. A permissioned system delivers those without paying for open membership it does not need, and refusing the name is a purity argument that leaves the useful design without a word for itself.</p>
+        <p>Both sides are arguing from the same facts about the same systems. The disagreement is about what the word is for, and it is worth knowing which side the person across the table is on before you get to the third slide.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Decentralised by design, centralised in practice<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The four answers describe what a system permits. What actually happens can be very different, because permission is not the same as participation. A register anyone may write to can end up with most of its blocks produced by a handful of parties, simply because producing blocks has a cost and costs favour scale.</p>
+        <p>So there is a fifth question, harder to answer and more revealing: not who is allowed to participate, but who actually does, and how concentrated that has become. A system open on all four axes and concentrated in practice has the governance profile of the small group doing the work, whatever its rules say.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4 ============ -->
+  <section class="section" id="part-4">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · build-along</span>
+      <h2>Ask the four questions out loud</h2>
+      <span class="tag build">13 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps using the live box above and a system you are already being asked to consider. The aim is to leave able to describe a fork without calling it a failure, and to place any proposal on all four tracks in under a minute.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Make a fork and check both halves</h4>
+        <p>Add one entry to each branch in the live box. Both verify clean. Say out loud why that is the expected result rather than a surprise, and what it tells you about what verification can and cannot decide.</p>
+      </div>
+      <div class="step">
+        <h4>Break the tie deliberately</h4>
+        <p>Give one branch a second entry. Say which branch the rule now selects, what happens to the entry in the other one, and whether anybody did anything wrong at any point.</p>
+      </div>
+      <div class="step">
+        <h4>Name the judge you removed</h4>
+        <p>Propose a better rule for choosing between the two branches, out loud. Then say who would have to evaluate it, and whether every holder of the register could apply it alone and reach the same answer.</p>
+      </div>
+      <div class="step">
+        <h4>Set a depth for a real decision</h4>
+        <p>Pick one action your organisation takes on the strength of a record. Say how many entries deep the record should be before that action is taken, and say what you are accepting by choosing that number rather than a larger one.</p>
+      </div>
+      <div class="step">
+        <h4>Place a real proposal on all four tracks</h4>
+        <p>Take a system somebody has pitched to you. Answer who may write, who may read, who runs the machines, and who can change the rules. Mark any question you cannot answer, because those are the ones to ask on the call.</p>
+      </div>
+      <div class="step">
+        <h4>Count the independent copies, honestly</h4>
+        <p>For the register you have tracked since session 1, count copies held by parties whose interests differ from yours. Machines you pay for do not count. If the number is zero, say what the arrangement is actually providing.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> When somebody says decentralised, do not argue with the word. Ask the four questions in order and write the four answers down. The gap between the answers and the word is the whole of what you needed to know.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Two holders each add a different entry to the same register at the same moment, and verification passes on both results. What has gone wrong?</p>
+      <div class="qopt">A · One of the two must have tampered, because a correct register cannot have two valid continuations</div>
+      <div class="qopt">B · Nothing has gone wrong; both branches are correctly hashed and correctly linked, and the structure has no rule inside it for choosing between them</div>
+      <div class="qopt">C · The hash function has collided, which is why two different histories both verify</div>
+      <q class="qwhy">A fork is the normal consequence of independent parties writing without hearing from each other first. Verification tests whether a chain is internally consistent, and both branches are. Choosing between them takes a separate rule, applied identically by every holder.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">An entry appeared in the accepted history a few minutes ago. Is it permanent?</p>
+      <div class="qopt">A · Yes, once an entry is in a verified chain it cannot leave it</div>
+      <div class="qopt">B · Yes, provided the chain is running at a difficulty above zero</div>
+      <div class="qopt">C · No; it is now harder to remove than it was, and that is the only thing that has changed</div>
+      <q class="qwhy">Removing an entry means redoing its block and every block after it and producing a branch that wins the rule. Each new block makes that dearer, so confidence grows with depth. No depth turns it into a fact, which is why a business rule has to choose one and accept the risk that remains.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A supplier describes their system as decentralised. What have you learned?</p>
+      <div class="qopt">A · Very little, because who may write, who may read, who runs the machines and who can change the rules are four separate answers and the word gives none of them</div>
+      <div class="qopt">B · That no single party can alter the register, since that is what the word means</div>
+      <div class="qopt">C · That the register is public, because decentralised systems are open by definition</div>
+      <q class="qwhy">The four questions vary independently. A system can be readable by anyone and writable by one organisation, or run on machines in a single data centre while anyone may read. Until the four answers are written down, the word has described a preference rather than a design.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before session 5</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Twenty minutes, on a proposal or a system that already exists near you.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Answer the four questions in writing</h4>
+        <p>One line each, for a system someone has proposed or one you already run. Leave the unanswerable ones blank rather than guessing, and bring the blanks.</p>
+      </div>
+      <div class="step">
+        <h4>Write down one entry you would not want reversed</h4>
+        <p>Something your organisation acts on physically and cannot undo. Note what depth you would want behind it, and what you would do while waiting. Session 5 is about the entries that verify perfectly and are wrong anyway.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why two valid chains can exist at once</span><span class="note">A fork is the normal result of independent writers, and both branches verify clean.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Why the choosing rule has to be mechanical</span><span class="note">Every holder must reach the same answer alone, so judgement is not available.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">What longest chain wins buys and costs</span><span class="note">Convergence with no coordination, paid for with entries that can leave the history.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Finality as a probability that grows</span><span class="note">Depth is the only thing that changes, and no depth is a declaration.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The four questions inside the word decentralised</span><span class="note">Who may write, who may read, who runs the machines, who can change the rules.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Who is permitted to add an entry, and how that is proved</span><span class="note">Signatures and identity, practitioner session 7.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Entries that verify perfectly and are wrong anyway</span><span class="note">Session 5.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Any cryptocurrency, price or market</span><span class="note">A separate subject in the crypto course, and nothing here is investment advice.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the mechanism depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>The one sentence.</strong> A chain on one machine is a log; the hard part is many machines agreeing with nobody in charge.</div>
+      <div class="cheat-item"><strong>A fork.</strong> Two valid continuations at once. Normal, frequent, and nobody's fault.</div>
+      <div class="cheat-item"><strong>Why mechanical.</strong> A rule needing judgement needs a judge, and a judge is the administrator you removed.</div>
+      <div class="cheat-item"><strong>Longest chain wins.</strong> Convergence without coordination, stated over accumulated work rather than a count.</div>
+      <div class="cheat-item"><strong>The cost of that rule.</strong> An entry you saw can leave the accepted history, and it was never invalid.</div>
+      <div class="cheat-item"><strong>Finality.</strong> A probability that grows with depth. No message ever says an entry is final.</div>
+      <div class="cheat-item"><strong>The four questions.</strong> Who may write, who may read, who runs the machines, who can change the rules.</div>
+      <div class="cheat-item"><strong>The fifth question.</strong> Not who is allowed to participate, but who actually does.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 4 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a3-the-cost-of-rewriting-history.html">← Leader session 3 · What it costs to rewrite history</a>
+        <a href="a5-what-a-chain-cannot-do.html">Leader session 5 · What a chain cannot do for you →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  if (typeof CHAIN === "undefined") return;
+  var box = document.getElementById("a4-fork");
+  if (!box) return;
+
+  var SHARED = [
+    "Harbourgate opens the register",
+    "Consignment 41 signed over to Pell and Sons",
+    "Consignment 41 inspected, seal intact",
+    "Consignment 42 signed over to Ardwick Cold Store"
+  ];
+  var A_EXTRA = [
+    "Consignment 41 released to the buyer",
+    "Consignment 42 inspected, seal broken",
+    "Consignment 42 signed over to Pell and Sons"
+  ];
+  var B_EXTRA = [
+    "Consignment 41 held pending paperwork",
+    "Consignment 42 released to the buyer",
+    "Consignment 41 released to the buyer"
+  ];
+
+  var aCount = 0, bCount = 0;
+
+  var aEl = document.getElementById("a4-branch-a");
+  var bEl = document.getElementById("a4-branch-b");
+  var verdictEl = document.getElementById("a4-verdict");
+  var footEl = document.getElementById("a4-foot");
+
+  function branch(extra, n) {
+    return CHAIN.makeChain(SHARED.concat(extra.slice(0, n)), { difficulty: 0 });
+  }
+
+  function paint(el, title, hint, chain, sharedLen, selected) {
+    var html = '<div class="a4-head"><b>' + title + '</b><span>' + hint + '</span></div><div class="a4-row">';
+    chain.forEach(function (b, i) {
+      var cls = "a4-blk" + (i >= sharedLen ? " own" : "") + (selected === false && i >= sharedLen ? " dropped" : "");
+      html += '<div class="' + cls + '"><b>block ' + i + '</b><span>' + b.data + '</span><em>'
+        + b.hash.slice(0, 16) + '</em></div>';
+    });
+    html += "</div>";
+    var res = CHAIN.verify(chain);
+    html += '<p class="a4-state">' + chain.length + " blocks · verify(): "
+      + (res.ok ? "no problems" : res.problems.length + " problem") + "</p>";
+    el.innerHTML = html;
+  }
+
+  function render() {
+    var a = branch(A_EXTRA, aCount);
+    var b = branch(B_EXTRA, bCount);
+    var winner = a.length === b.length ? null : (a.length > b.length ? "A" : "B");
+
+    paint(aEl, "Branch A · the port authority", "adds entries of its own after block 3", a, SHARED.length, winner === null ? null : winner === "A");
+    paint(bEl, "Branch B · the buyer", "adds entries of its own after block 3", b, SHARED.length, winner === null ? null : winner === "B");
+
+    if (aCount === 0 && bCount === 0) {
+      verdictEl.textContent = "One shared history, no fork yet. Both holders agree on blocks 0 to 3, and the two chains are the same chain.";
+    } else if (winner === null) {
+      verdictEl.textContent = "Both branches verify clean and both are " + a.length
+        + " blocks long, so the rule gives no answer yet. Each holder keeps the branch it saw first and waits for one of them to grow.";
+    } else {
+      var loserEntries = (winner === "A" ? B_EXTRA.slice(0, bCount) : A_EXTRA.slice(0, aCount));
+      verdictEl.textContent = "Both branches verify clean. Branch " + winner + " is longer, so the rule selects it. "
+        + (loserEntries.length
+            ? "These entries leave the accepted history, having never been invalid: " + loserEntries.join("; ") + "."
+            : "The other branch adds nothing, so nothing is lost.");
+    }
+  }
+
+  document.getElementById("a4-add-a").addEventListener("click", function () {
+    if (aCount < A_EXTRA.length) aCount++;
+    render();
+  });
+  document.getElementById("a4-add-b").addEventListener("click", function () {
+    if (bCount < B_EXTRA.length) bCount++;
+    render();
+  });
+  document.getElementById("a4-reset").addEventListener("click", function () {
+    aCount = 0; bCount = 0;
+    render();
+  });
+
+  var t = CHAIN.selfTest();
+  footEl.textContent = t.ok
+    ? "The three published test vectors pass in this browser, so both branches above were built and checked with a correct SHA-256."
+    : "The test vectors did not pass in this browser, so nothing above should be believed.";
+
+  render();
+})();
+</script>
+<style>
+  #a4-fork .a4-btns { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .9rem; }
+  #a4-fork .a4-branch { margin-bottom: 1rem; }
+  #a4-fork .a4-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; margin-bottom: .4rem; }
+  #a4-fork .a4-head b { font-size: .84rem; color: var(--indigo-deep); }
+  #a4-fork .a4-head span { font-size: .74rem; color: var(--muted); }
+  #a4-fork .a4-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .45rem; }
+  #a4-fork .a4-blk {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .5rem .6rem;
+    line-height: 1.4;
+  }
+  #a4-fork .a4-blk b { display: block; font-size: .75rem; color: var(--indigo-deep); }
+  #a4-fork .a4-blk span { display: block; font-size: .72rem; color: var(--muted); }
+  #a4-fork .a4-blk em {
+    display: block;
+    font-style: normal;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: .68rem;
+    color: var(--indigo);
+    word-break: break-all;
+  }
+  #a4-fork .a4-blk.own { background: #FFFFFF; border-color: var(--indigo-mid); }
+  #a4-fork .a4-blk.dropped { background: var(--amber-50); border-color: var(--amber); }
+  #a4-fork .a4-blk.dropped em { color: var(--amber); }
+  #a4-fork .a4-state { font-size: .76rem; font-weight: 700; color: var(--indigo); margin: .45rem 0 0; }
+</style>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- social:start -->
+<meta name="description" content="Leader session 6 of 6. Four questions that separate the registers that need a chain from the ones that need a database with good access control and an audit log, the argument that is genuinely unsettled, and four questions to ask a vendor.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Learn with Phoebe">
+<meta property="og:title" content="Deciding whether you need one - learn blockchain with phoebe">
+<meta property="og:description" content="Leader session 6 of 6. A short decision path, both sides of an argument that is not settled, and what to ask whoever is selling.">
+<meta property="og:url" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/courses/a6-deciding-whether-you-need-one.html">
+<meta property="og:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Deciding whether you need one - learn blockchain with phoebe">
+<meta name="twitter:description" content="The decision is not whether a chain works. It is whether the thing it does is the thing you need.">
+<meta name="twitter:image" content="https://phoebefu6.github.io/learn-blockchain-with-phoebe/assets/og-cover.png">
+<!-- social:end -->
+<title>Leader session 6 · Deciding whether you need one - learn blockchain with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-blockchain-with-phoebe</a> / Leader session 6 of 6</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Blockchain with Phoebe · Leader session 6 of 6</div>
+    <h1>Deciding whether <span class="accent">you need one</span></h1>
+    <p class="sub">The question is not whether a chain works. It works, precisely and narrowly, in the way the five sessions before this one described. The question is whether the narrow thing it does is the thing your situation needs, and there are four questions that settle it faster than any pilot. Most registers fail at the third question and should be a database. A few pass all four, and for those a chain is not a fashion, it is the cheapest way to stop an argument about whose copy is right.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Foundations</span>
+      <span class="chip audience">Anyone being sold a chain</span>
+      <span class="chip audience">Anyone who has to sign off on one</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · The four questions</span>
+      <span class="a3" style="flex:3">20-28 · The argument, and what to ask</span>
+      <span class="a4" style="flex:4">28-45 · Build-along and Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Neither a debunk nor a pitch</h2>
+    </div>
+    <p class="lede">Two failure modes face each other across most boardroom tables. One is buying a chain because the word carries weight, for a register that one organisation keeps and everybody already relies on. The other is refusing one on principle, in a situation where three parties are arguing about whose spreadsheet is authoritative and a shared history would end the argument tomorrow. Both are expensive. The way out of both is a short list of questions that can be answered without a proof of concept.</p>
+
+    <div class="legend">
+      <span class="pill">Live = presented in the 45 minutes</span>
+      <span class="pill">Self-study = the full depth, after class</span>
+      <span class="pill">🔍 Every diagram zooms</span>
+    </div>
+
+    <div class="callout win">
+      <p><strong>★ What you walk out with tonight.</strong> Four questions you can put to any proposal in ten minutes, with the honest answer attached to each way they can go. A clear view of the one argument in this subject that is genuinely unsettled, so you can recognise which side the person opposite you is on. And four questions to ask a vendor, chosen because the answers are hard to dress up.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What is actually being compared<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The comparison is almost never chain against nothing. It is a chain against an ordinary database with access control and an append only audit log, which is a mature, cheap, well understood thing that most organisations already run. Stated that way, the chain has to earn a specific difference rather than a general feeling of rigour.</p>
+        <p>The difference it earns is this. An audit log inside one organisation is kept by the same administrators who run the system it audits, so it answers the question "did somebody outside change this" and cannot answer "did we change this". A register that several independent parties hold and check can answer the second question. Everything else in the decision follows from whether the second question is one you actually need answered.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p>Harbourgate's six entries are worth protecting because a buyer, an insurer and the port authority may one day disagree about the seal on consignment 42. If the port authority were the only party that ever read the register, the same six entries in a table with a locked audit log would serve just as well and cost far less to run.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The words that will keep coming back<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <ul>
+          <li><strong>Trusted keeper.</strong> A party all participants accept as the custodian of the record. Where one exists, most of the argument for a chain disappears.</li>
+          <li><strong>Audit log.</strong> An append only record of every change made to a store. The direct competitor to a chain, and usually the right answer.</li>
+          <li><strong>Permissioned register.</strong> One where a named group runs the machines and decides who may write. Most enterprise proposals are this shape.</li>
+          <li><strong>Open register.</strong> One anyone may read, copy and add to. A different set of trade offs and a different set of problems.</li>
+          <li><strong>Governance.</strong> Who can change the rules: the software, what counts as a valid entry, who is admitted. The question that decides what a register really is.</li>
+          <li><strong>Point of entry verification.</strong> Whatever checks a fact before it becomes an entry. Without it, a chain preserves unchecked claims perfectly.</li>
+          <li><strong>Operating cost.</strong> Several parties running machines, agreeing on upgrades and holding keys, forever. Rarely in the business case and never small.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+  <section class="section" id="part-1">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the decision path</span>
+      <h2>Four questions, in order, and the first no is the answer</h2>
+      <span class="tag concept">17 min live</span>
+    </div>
+    <p class="lede">Each question comes from something already established. Whether a history has to be shared, and whether anyone accepts a keeper, came out of who agrees and how. Whether the threat is a participant rather than an outsider came out of the three stage attack. Whether entries can be checked as they arrive came out of the oracle problem. They are in this order because the earlier ones are cheaper to answer.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A four question decision path. Question one, is the history shared: do several parties who do not fully trust each other need to share one history of the same events? If no, one party and one history, so an ordinary database is the whole answer. Question two, who is the threat: does anyone need to detect tampering by a participant rather than only by an outsider? If no, outsiders are a perimeter problem, so access control and backups rather than a chain. Question three, is there a keeper: is there no party that all of them accept as the keeper of the record? If no, meaning such a party exists, that is the cheaper answer, a database with access control and an audit log. Question four, can the entry be checked: can the thing being recorded be verified at the point where it is entered? If no, unverified entries are preserved rather than checked, so fix the entry point first. If all four are yes, a shared chain is the reasonable answer.">
+        <style>
+          .a6aH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a6aL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a6aE { font: 800 10px Inter, sans-serif; fill: #B45309; }
+          .a6aB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a6aY { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a6aW { font: 800 12px Inter, sans-serif; fill: #FFFFFF; }
+          .a6aV { font: 400 11px Inter, sans-serif; fill: #FFFFFF; }
+          .a6aS { font: 400 10px Inter, sans-serif; fill: #CBDDE9; }
+        </style>
+        <defs>
+          <marker id="a6aAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B45309"></path></marker>
+          <marker id="a6aDn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1E4D6B"></path></marker>
+        </defs>
+
+        <text class="a6aH" x="14" y="20">Answer in order. Stop at the first no.</text>
+
+        <rect x="14" y="34" width="470" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a6aL" x="30" y="54">QUESTION 1 · IS THE HISTORY SHARED</text>
+        <text class="a6aB" x="30" y="76">Do several parties who do not fully trust each other</text>
+        <text class="a6aB" x="30" y="94">need to share one history of the same events?</text>
+        <path d="M 492 72 L 512 72" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a6aAr)"></path>
+        <rect x="520" y="34" width="346" height="76" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6aE" x="536" y="54">IF NO</text>
+        <text class="a6aB" x="536" y="76">One party, one history. An ordinary</text>
+        <text class="a6aB" x="536" y="94">database is the whole answer.</text>
+
+        <path d="M 249 112 L 249 126" fill="none" stroke="#1E4D6B" stroke-width="1.6" marker-end="url(#a6aDn)"></path>
+        <text class="a6aY" x="260" y="126">YES</text>
+
+        <rect x="14" y="130" width="470" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a6aL" x="30" y="150">QUESTION 2 · WHO IS THE THREAT</text>
+        <text class="a6aB" x="30" y="172">Does anyone need to detect tampering by a</text>
+        <text class="a6aB" x="30" y="190">participant, rather than only by an outsider?</text>
+        <path d="M 492 168 L 512 168" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a6aAr)"></path>
+        <rect x="520" y="130" width="346" height="76" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6aE" x="536" y="150">IF NO</text>
+        <text class="a6aB" x="536" y="172">Outsiders are a perimeter problem.</text>
+        <text class="a6aB" x="536" y="190">Access control and backups, not this.</text>
+
+        <path d="M 249 208 L 249 222" fill="none" stroke="#1E4D6B" stroke-width="1.6" marker-end="url(#a6aDn)"></path>
+        <text class="a6aY" x="260" y="222">YES</text>
+
+        <rect x="14" y="226" width="470" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a6aL" x="30" y="246">QUESTION 3 · IS THERE A KEEPER</text>
+        <text class="a6aB" x="30" y="268">Is there no party that all of them accept as the</text>
+        <text class="a6aB" x="30" y="286">keeper of the record?</text>
+        <path d="M 492 264 L 512 264" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a6aAr)"></path>
+        <rect x="520" y="226" width="346" height="76" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6aE" x="536" y="246">IF NO, SO SUCH A PARTY EXISTS</text>
+        <text class="a6aB" x="536" y="268">Use them. A database, access control</text>
+        <text class="a6aB" x="536" y="286">and an audit log, at a fraction of the cost.</text>
+
+        <path d="M 249 304 L 249 318" fill="none" stroke="#1E4D6B" stroke-width="1.6" marker-end="url(#a6aDn)"></path>
+        <text class="a6aY" x="260" y="318">YES</text>
+
+        <rect x="14" y="322" width="470" height="76" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a6aL" x="30" y="342">QUESTION 4 · CAN THE ENTRY BE CHECKED</text>
+        <text class="a6aB" x="30" y="364">Can the thing being recorded actually be verified</text>
+        <text class="a6aB" x="30" y="382">at the point where it is entered?</text>
+        <path d="M 492 360 L 512 360" fill="none" stroke="#B45309" stroke-width="1.6" marker-end="url(#a6aAr)"></path>
+        <rect x="520" y="322" width="346" height="76" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6aE" x="536" y="342">IF NO</text>
+        <text class="a6aB" x="536" y="364">Unchecked claims get preserved, not</text>
+        <text class="a6aB" x="536" y="382">checked. Fix the entry point first.</text>
+
+        <path d="M 249 400 L 249 414" fill="none" stroke="#1E4D6B" stroke-width="1.6" marker-end="url(#a6aDn)"></path>
+        <text class="a6aY" x="260" y="414">YES</text>
+
+        <rect x="14" y="418" width="852" height="80" rx="10" fill="#0E2C3F"></rect>
+        <text class="a6aW" x="30" y="444">FOUR YES ANSWERS, AND A SHARED CHAIN IS THE REASONABLE ENGINEERING CHOICE</text>
+        <text class="a6aV" x="30" y="466">Several suspicious parties, no keeper any of them will accept, and entries that can be checked as they arrive.</text>
+        <text class="a6aS" x="30" y="486">A shared history every party holds ends the argument about whose copy is authoritative, which is what it is for.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the questions are in cost order, so the cheapest one to answer is also the one that eliminates most proposals.</figcaption>
+    </figure>
+
+    <div class="wk" id="a6-path">
+      <div class="wk-head">
+        <b>Live</b>
+        <span class="wk-hint">Answer for a register you actually keep. The first no decides it.</span>
+      </div>
+      <div class="wk-body">
+        <div class="a6-q" data-q="0">
+          <p class="a6-qt">1 · Do several parties who do not fully trust each other need to share one history of the same events?</p>
+          <div class="a6-btns">
+            <button class="btn" type="button" data-v="yes">Yes</button>
+            <button class="btn" type="button" data-v="no">No</button>
+            <button class="btn" type="button" data-v="unsure">Not sure</button>
+          </div>
+        </div>
+        <div class="a6-q" data-q="1">
+          <p class="a6-qt">2 · Does anyone need to detect tampering by a participant, rather than only by an outsider?</p>
+          <div class="a6-btns">
+            <button class="btn" type="button" data-v="yes">Yes</button>
+            <button class="btn" type="button" data-v="no">No</button>
+            <button class="btn" type="button" data-v="unsure">Not sure</button>
+          </div>
+        </div>
+        <div class="a6-q" data-q="2">
+          <p class="a6-qt">3 · Is there no party that all of them accept as the keeper of the record?</p>
+          <div class="a6-btns">
+            <button class="btn" type="button" data-v="yes">Yes, there is no such party</button>
+            <button class="btn" type="button" data-v="no">No, there is one</button>
+            <button class="btn" type="button" data-v="unsure">Not sure</button>
+          </div>
+        </div>
+        <div class="a6-q" data-q="3">
+          <p class="a6-qt">4 · Can the thing being recorded actually be verified at the point where it is entered?</p>
+          <div class="a6-btns">
+            <button class="btn" type="button" data-v="yes">Yes</button>
+            <button class="btn" type="button" data-v="no">No</button>
+            <button class="btn" type="button" data-v="unsure">Not sure</button>
+          </div>
+        </div>
+        <p class="sql-note" id="a6-verdict">...</p>
+      </div>
+      <div class="wk-foot">Nothing here is scored and nothing is weighted. The path reads in order and stops at the first answer that settles it, which is also how the conversation should go.</div>
+    </div>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Question three does most of the work<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Most proposals die here, and they should. If every party involved already accepts one organisation as the keeper of the record, that organisation can run a database, restrict who writes to it, keep an append only audit log, and hand out read access. It is cheaper to build, cheaper to run, staffed by people who already exist, and understood by every auditor who will ever look at it.</p>
+        <p>Saying so is not cynicism and it is not a lack of ambition. A chain removes the need for an accepted keeper, at the cost of coordinating several operators forever. Paying that cost when the keeper exists and everybody is happy with them is buying a solution to a problem you do not have, which is the most common way these projects fail.</p>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The case where it genuinely is the right tool<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Now the other direction, at full strength. Take several organisations with real commercial tension between them, each holding a piece of the same history, none willing to let a competitor or a counterparty hold the master copy, and a regulator or a court likely to ask one day whose version is correct. That situation is not solved by better spreadsheets. It is solved by a shared history in which each party holds a copy, every entry is hashed and linked, and a rewrite by any one of them produces a version that disagrees with everybody else's.</p>
+        <p>What that buys is specific: the argument about whose copy is authoritative stops being an argument. Nobody has to be trusted with custody, because custody is not held by anyone. In a situation with that shape, a chain is the cheap answer and the alternatives are the expensive ones, and the people who dismiss the whole subject as hype are wrong about this case.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why a database with an audit log is not automatically enough<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The steelman for the other side of question three deserves stating properly. An audit log is a record kept by the same administrators who run the system it audits. It answers the question "did somebody without access change this" very well. It cannot answer "did the people who run this change it", because whoever can rewrite the data can generally rewrite the log, and if they cannot, they can ask the person who can.</p>
+        <p>So the keeper has to be accepted, not merely nominated. Test it by asking the other parties, not the keeper. Where the answer is that everybody genuinely trusts them, the audit log is enough. Where the answer is that everybody puts up with them, question three is a yes after all and the proposal is alive again.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+  <section class="section" id="part-2">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the argument, and the vendor</span>
+      <h2>The part that is genuinely unsettled</h2>
+      <span class="tag concept">8 min live</span>
+    </div>
+    <p class="lede">There is one live argument in this subject that competent people have not resolved, and it is worth knowing both sides rather than picking one and defending it. It is about whether a permissioned register run by a named group of organisations earns the complexity it costs.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 324" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two positions side by side. The complexity is earned: no single participant can quietly revise a history that every participant holds and checks, an audit log inside one organisation is kept by the same people who run the thing it audits, and where that asymmetry is the actual problem no amount of database hardening removes it. The complexity is not earned: most registers described as multi party have one organisation everybody already relies on, a permissioned register with a controlling group is a database with more moving parts and more people who must agree before anything changes, and the point of entry stays the weak link either way. A closing note says both positions are held by serious practitioners and the disagreement is about how often the first case is real.">
+        <style>
+          .a6bH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a6bN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a6bM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a6bB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a6bK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="a6bH" x="14" y="20">Two serious positions on permissioned registers</text>
+
+        <rect x="14" y="36" width="416" height="196" rx="10" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <text class="a6bN" x="30" y="60">The complexity is earned</text>
+        <text class="a6bM" x="30" y="86">No single participant can quietly revise a history</text>
+        <text class="a6bM" x="30" y="104">that every participant holds and checks.</text>
+        <text class="a6bM" x="30" y="128">An audit log inside one organisation is kept by</text>
+        <text class="a6bM" x="30" y="146">the same people who run the thing it audits.</text>
+        <text class="a6bM" x="30" y="170">Where that asymmetry is the actual problem, no</text>
+        <text class="a6bM" x="30" y="188">amount of database hardening removes it.</text>
+        <text class="a6bM" x="30" y="212">The cost buys one property nothing else provides.</text>
+
+        <rect x="450" y="36" width="416" height="196" rx="10" fill="#EFF5F9" stroke="#DBE4EB"></rect>
+        <text class="a6bN" x="466" y="60">The complexity is not earned</text>
+        <text class="a6bM" x="466" y="86">Most registers described as multi party have one</text>
+        <text class="a6bM" x="466" y="104">organisation everybody already relies on.</text>
+        <text class="a6bM" x="466" y="128">A permissioned register with a controlling group</text>
+        <text class="a6bM" x="466" y="146">is a database with more moving parts and more</text>
+        <text class="a6bM" x="466" y="170">people who must agree before anything changes.</text>
+        <text class="a6bM" x="466" y="188">The point of entry stays the weak link either way,</text>
+        <text class="a6bM" x="466" y="212">so the accuracy of the record is unchanged.</text>
+
+        <rect x="14" y="248" width="852" height="62" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6bK" x="30" y="272">Both positions are held by serious practitioners, and the disagreement is about how often the first case is real.</text>
+        <text class="a6bB" x="30" y="292">Which one applies to you is a question about your situation, and the four questions above are how you answer it.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - notice that the two sides agree completely about the mechanics. They disagree about how common the situation is.</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Both sides, at their strongest<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The case for is that a property exists here which nothing else in ordinary engineering provides: a history that no single participant can revise without every other participant seeing a disagreement. Where several organisations must share one record and none of them can be the custodian, that property is the requirement, and the coordination cost is the price of a requirement rather than an overhead.</p>
+        <p>The case against is that the property is real and the situation is rare. Look closely at most multi party registers and there is a dominant organisation everyone already deals with, a controlling group that can change the software and the membership, and an entry point nobody has hardened. At that point the register has the coordination cost of a chain and the trust model of a database, which is the worst of both.</p>
+        <p>The honest position is that both are right about different cases, and that the disagreement is about frequency. Anyone who tells you their side applies universally is selling something, in either direction.</p>
+      </div>
+    </details>
+
+    <p class="lede">Which brings the six sessions to the only artefact that survives contact with a sales meeting: four questions whose answers are hard to dress up, because each one has a concrete thing that has to be named.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four questions to ask a vendor, with what you are listening for. What exactly is on the chain: a hash of a document or the document itself, since a pointer to a file on somebody's server is a chain that guarantees nothing about the file. Who runs the machines that hold the copies: names, not a count, because copies held by one operator in three regions are one copy for every purpose that matters. Who can change the rules: somebody can upgrade the software, change what counts as a valid entry and decide who may write, and that group is the real governance whatever the diagram says. What happens when an entry is wrong: if the answer is that it cannot be, the answer is wrong, so ask to see the correction procedure. A closing note says the four answers together tell you whether this is a shared history or a database with extra steps.">
+        <style>
+          .a6cH { font: 800 13px Inter, sans-serif; fill: #141C22; }
+          .a6cL { font: 800 10px Inter, sans-serif; fill: #1E4D6B; }
+          .a6cN { font: 800 11px Inter, sans-serif; fill: #141C22; }
+          .a6cM { font: 400 10px Inter, sans-serif; fill: #566670; }
+          .a6cB { font: 400 11px Inter, sans-serif; fill: #141C22; }
+          .a6cK { font: 800 12px Inter, sans-serif; fill: #B45309; }
+        </style>
+
+        <text class="a6cH" x="14" y="20">Four questions for whoever is selling</text>
+
+        <text class="a6cL" x="30" y="42">WHAT TO ASK</text>
+        <text class="a6cL" x="340" y="42">WHAT YOU ARE LISTENING FOR</text>
+
+        <rect x="14" y="50" width="852" height="58" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="324" y1="58" x2="324" y2="100" stroke="#DBE4EB"></line>
+        <text class="a6cN" x="30" y="74">What exactly is on the</text>
+        <text class="a6cN" x="30" y="92">chain?</text>
+        <text class="a6cM" x="340" y="74">A hash of a document, or the document. A pointer to a file on somebody's</text>
+        <text class="a6cM" x="340" y="92">server is a register that guarantees nothing at all about the file.</text>
+
+        <rect x="14" y="114" width="852" height="58" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="324" y1="122" x2="324" y2="164" stroke="#DBE4EB"></line>
+        <text class="a6cN" x="30" y="138">Who runs the machines</text>
+        <text class="a6cN" x="30" y="156">that hold the copies?</text>
+        <text class="a6cM" x="340" y="138">Names of organisations, not a count of nodes. Copies held by one operator</text>
+        <text class="a6cM" x="340" y="156">in three regions are one copy, for every purpose that matters here.</text>
+
+        <rect x="14" y="178" width="852" height="58" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="324" y1="186" x2="324" y2="228" stroke="#DBE4EB"></line>
+        <text class="a6cN" x="30" y="202">Who can change the</text>
+        <text class="a6cN" x="30" y="220">rules?</text>
+        <text class="a6cM" x="340" y="202">Somebody upgrades the software, decides what counts as a valid entry and</text>
+        <text class="a6cM" x="340" y="220">admits new writers. That group is the governance, whatever the diagram says.</text>
+
+        <rect x="14" y="242" width="852" height="58" rx="8" fill="#FFFFFF" stroke="#DBE4EB"></rect>
+        <line x1="324" y1="250" x2="324" y2="292" stroke="#DBE4EB"></line>
+        <text class="a6cN" x="30" y="266">What happens when an</text>
+        <text class="a6cN" x="30" y="284">entry is wrong?</text>
+        <text class="a6cM" x="340" y="266">If the answer is that it cannot be, the answer is wrong. Ask to see the</text>
+        <text class="a6cM" x="340" y="284">correction procedure, and how an ordinary reader finds the correction.</text>
+
+        <rect x="14" y="316" width="852" height="62" rx="10" fill="#FFFBEB" stroke="#B45309"></rect>
+        <text class="a6cK" x="30" y="340">Four plain answers are worth more than any pilot.</text>
+        <text class="a6cB" x="30" y="360">Taken together they tell you whether what is on offer is a shared history or a database with extra steps.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - each question has a concrete noun in the answer, which is why they are hard to deflect.</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What would actually settle the argument<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Both camps could be moved by evidence, which is a good sign that the disagreement is real rather than tribal. The case for would be strengthened by registers where a participant did attempt a revision, the other copies disagreed, and the disagreement was caught and acted on. The case against would be strengthened by registers that ran for years, produced no such event, and were quietly replaced by a database with no loss.</p>
+        <p>What neither side is short of is opinion, and what both sides are short of is that evidence published in a form anyone can check. Until it exists, the four questions are the tool: they replace a general argument about the technology with a specific argument about your situation, which is the only argument that can be settled.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+  <section class="section" id="part-3">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · build-along</span>
+      <h2>Run the path on something real</h2>
+      <span class="tag build">17 min hands on</span>
+    </div>
+    <p class="lede">No code. Six steps on a proposal in front of you now, or the register you have been carrying through the earlier sessions. The output is a written recommendation with its reasoning attached, which is the thing that survives a change of sponsor.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Name the parties</h4>
+        <p>List every organisation that would hold a copy, by name. Then mark the ones who would actually check it rather than store it. A copy nobody checks provides nothing, and the marked list is your real answer to question one.</p>
+      </div>
+      <div class="step">
+        <h4>Find the keeper, or prove there is none</h4>
+        <p>Ask each party who they would accept as custodian. Ask them, not the candidate. If a single name comes back from everybody, write the recommendation for a database with access control and an audit log and stop there.</p>
+      </div>
+      <div class="step">
+        <h4>Say who the threat is</h4>
+        <p>Write down whether the worry is an outsider or a participant. If it is an outsider, say plainly which control addresses it, because it will not be the register.</p>
+      </div>
+      <div class="step">
+        <h4>Check the entry point</h4>
+        <p>For the two or three most important fields, say what checks them before they are recorded. If the honest answer is nothing, fix that first and note that the register would have preserved unchecked claims perfectly.</p>
+      </div>
+      <div class="step">
+        <h4>Put the four vendor questions in writing</h4>
+        <p>Send them ahead of the meeting rather than asking in it. Written answers are harder to improvise, and the difference between the written and the spoken answer is itself informative.</p>
+      </div>
+      <div class="step">
+        <h4>Write the recommendation, either way</h4>
+        <p>One page. The answer to each of the four questions, the recommendation that follows, and the honest claim about what the chosen option does and does not guarantee. Whether the recommendation is yes or no, the reasoning is the valuable part.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <p><strong>The habit to keep.</strong> Ask what would have to be true for the other recommendation to be right. If you are recommending a database, say what would change your mind. If you are recommending a chain, say the same. A recommendation that cannot describe its own opposite has not been thought through.</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions</h2>
+    </div>
+
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">Three organisations share a record, and all three already accept one of them as the custodian. What is the better engineering answer?</p>
+      <div class="qopt">A · A shared chain, because three parties are involved and that is what shared registers are for</div>
+      <div class="qopt">B · A database run by the accepted custodian, with access control and an append only audit log, because the thing a chain removes is the need for an accepted custodian and they already have one</div>
+      <div class="qopt">C · Either, since the two options provide the same guarantees at similar cost</div>
+      <q class="qwhy">A chain buys the removal of the custodian, at the cost of several organisations coordinating forever. Where the custodian exists and is genuinely accepted, that cost purchases nothing. Test acceptance by asking the other parties rather than the candidate.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">A proposal passes the first three questions, but nothing checks the values before they are recorded. What follows?</p>
+      <div class="qopt">A · The entry point is the thing to fix first, because the register would preserve unchecked claims perfectly and report no problems</div>
+      <div class="qopt">B · Proceed, because hashing each entry is itself a form of verification</div>
+      <div class="qopt">C · Proceed, because the parties holding copies will notice inaccurate entries when they compare</div>
+      <q class="qwhy">Comparing copies detects disagreement between copies, not disagreement with the world. Every party would hold an identical, perfectly verifying copy of the same wrong value. Accuracy is decided at the point of entry and nowhere else.</q>
+    </div>
+
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">A vendor says their register has forty nodes. What is the follow up question, and why?</p>
+      <div class="qopt">A · What difficulty they run at, since that sets the cost of rewriting history</div>
+      <div class="qopt">B · How many entries per second the network handles, since that sets whether it will scale</div>
+      <div class="qopt">C · Which organisations run those nodes, because forty machines run by one operator are one copy for every purpose that matters here</div>
+      <q class="qwhy">Independence is the property being bought, and it is a property of who operates the machines rather than of how many there are. A count is the easiest number to make impressive and the least informative one, so ask for names.</q>
+    </div>
+
+    <div class="quiz-score"></div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="homework">
+    <div class="section-kicker">
+      <span class="klabel">Before you sign anything</span>
+      <h2>Homework</h2>
+    </div>
+    <p class="lede">Thirty minutes, and it is the work that makes the six sessions pay for themselves.</p>
+    <div class="steps">
+      <div class="step">
+        <h4>Write the one page recommendation</h4>
+        <p>Four questions, four answers, one recommendation, and the honest claim about what it does and does not guarantee. Put a date on it, because the answer to question three changes when relationships between organisations change.</p>
+      </div>
+      <div class="step">
+        <h4>Send the four vendor questions</h4>
+        <p>To whoever is selling, in writing, before the next meeting. Keep the replies next to the recommendation. If there is no vendor, send them to whoever internally is proposing the build, which is the same exercise with less politeness required.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OFFICIAL ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Covered tonight</span>
+      <h2>What this session covers</h2>
+    </div>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The four question decision path</span><span class="note">Shared history, who the threat is, whether a keeper exists, and whether entries can be checked.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">When a database is the better answer</span><span class="note">An accepted keeper plus access control plus an audit log, and why saying so is not cynicism.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">When a chain genuinely is the right tool</span><span class="note">Several suspicious parties, no acceptable custodian, and entries that can be checked as they arrive.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">The argument that is not settled</span><span class="note">Whether permissioned registers earn their complexity, stated at full strength on both sides.</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Four questions for a vendor</span><span class="note">What is on it, who runs the machines, who changes the rules, and what happens when an entry is wrong.</span></div>
+      <div class="covered-row"><span class="status pill inkpill">◐</span><span class="name">Doing all of it by hand</span><span class="note">Hashing, building, breaking, mining, proving. The practitioner track, starting with p1.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Key management, rotation and certificate hygiene</span><span class="note">A discipline of its own, covered in the security and access control courses.</span></div>
+      <div class="covered-row"><span class="status pill light">○</span><span class="name">Named commercial chains and their roadmaps</span><span class="note">They move faster than a course can, and none of the decision depends on which one.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="section" id="cheatsheet">
+    <div class="section-kicker">
+      <span class="klabel">Take this with you</span>
+      <h2>Cheat sheet</h2>
+    </div>
+    <div class="cheat">
+      <div class="cheat-item"><strong>Question 1.</strong> Do several parties who do not fully trust each other share one history?</div>
+      <div class="cheat-item"><strong>Question 2.</strong> Is the threat a participant, or only an outsider?</div>
+      <div class="cheat-item"><strong>Question 3.</strong> Is there no party all of them accept as keeper? This is where most proposals end.</div>
+      <div class="cheat-item"><strong>Question 4.</strong> Can the entry be verified at the point it is made?</div>
+      <div class="cheat-item"><strong>The usual answer.</strong> A database, access control, an audit log. Recommending it is not cynicism.</div>
+      <div class="cheat-item"><strong>The real case.</strong> No acceptable custodian, and the argument about whose copy is right needs to stop.</div>
+      <div class="cheat-item"><strong>The open argument.</strong> Whether permissioned registers earn their complexity. Both sides are serious.</div>
+      <div class="cheat-item"><strong>Ask the vendor.</strong> What is on it, who runs the machines, who changes the rules, what happens when an entry is wrong.</div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      <p>Leader session 6 of 6 · learn-blockchain-with-phoebe · by Phoebe Fu</p>
+      <nav class="pagenav">
+        <a href="a5-what-a-chain-cannot-do.html">← Leader session 5 · What a chain cannot do for you</a>
+        <a href="p1-hashing-hands-on.html">Practitioner session 1 · Hashing, hands on →</a>
+      </nav>
+    </div>
+  </footer>
+
+</main>
+
+<script src="../assets/chain-live.js?v=1"></script>
+<script src="../assets/app.js?v=1"></script>
+<script>
+(function () {
+  var box = document.getElementById("a6-path");
+  if (!box) return;
+
+  var state = [null, null, null, null];
+  var verdictEl = document.getElementById("a6-verdict");
+  var rows = box.querySelectorAll(".a6-q");
+
+  var NO = [
+    "Question 1 is a no. One party keeping one history needs a database, and everything after this is a cost with nothing on the other side of it.",
+    "Question 2 is a no. An outsider changing your records is a perimeter problem: access control, backups and monitoring answer it, and a chain does not.",
+    "Question 3 is a no, so a party everybody accepts as keeper exists. Use them. A database with access control and an append only audit log does the job at a fraction of the cost, and recommending it is the correct engineering answer rather than a lack of ambition.",
+    "Question 4 is a no. Entries that nothing checks would be preserved perfectly and never verified, so every party would hold an identical copy of the same wrong value. Fix the point of entry first, then ask again."
+  ];
+  var UNSURE = [
+    "Question 1 is unresolved. Name every organisation that would hold a copy and mark the ones that would actually check it, then answer again.",
+    "Question 2 is unresolved. Decide whether the worry is somebody outside or somebody inside the arrangement, because the two have entirely different answers.",
+    "Question 3 is unresolved, and it decides most cases. Ask each party who they would accept as custodian, and ask them rather than the candidate.",
+    "Question 4 is unresolved. For the two or three fields that matter most, write down what checks them before they are recorded."
+  ];
+  var ALL_YES = "All four are yes, and a shared chain is the reasonable engineering choice here. Several parties with real tension, no custodian any of them will accept, and entries that can be checked as they arrive. What it buys is that the argument about whose copy is authoritative stops. What it still does not buy is accuracy, and the running cost of several operators coordinating forever belongs in the business case.";
+
+  function render() {
+    for (var i = 0; i < rows.length; i++) {
+      var q = parseInt(rows[i].getAttribute("data-q"), 10);
+      var btns = rows[i].querySelectorAll("button");
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].className = (btns[j].getAttribute("data-v") === state[q]) ? "btn primary" : "btn";
+      }
+    }
+    for (var k = 0; k < 4; k++) {
+      if (state[k] === null) { verdictEl.textContent = "Question " + (k + 1) + " is unanswered."; return; }
+      if (state[k] === "no") { verdictEl.textContent = NO[k]; return; }
+      if (state[k] === "unsure") { verdictEl.textContent = UNSURE[k]; return; }
+    }
+    verdictEl.textContent = ALL_YES;
+  }
+
+  box.addEventListener("click", function (e) {
+    var b = e.target;
+    if (!b || b.tagName !== "BUTTON") return;
+    var row = b.parentNode.parentNode;
+    var q = parseInt(row.getAttribute("data-q"), 10);
+    if (isNaN(q)) return;
+    state[q] = b.getAttribute("data-v");
+    render();
+  });
+
+  render();
+})();
+</script>
+<style>
+  #a6-path .a6-q {
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--indigo-50);
+    padding: .6rem .75rem;
+    margin-bottom: .55rem;
+  }
+  #a6-path .a6-qt { font-size: .86rem; color: var(--ink); margin: 0 0 .5rem; line-height: 1.5; }
+  #a6-path .a6-btns { display: flex; flex-wrap: wrap; gap: .4rem; }
+</style>
+</body>
+</html>
