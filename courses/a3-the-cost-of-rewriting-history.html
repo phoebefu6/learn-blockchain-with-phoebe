@@ -449,26 +449,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">What does a machine actually do when it mines a block at difficulty 3?</p>
-      <div class="qopt">A · It computes the nonce that will produce a hash beginning with three zeros, then writes it into the block</div>
-      <div class="qopt">B · It compresses the block until the hash is short enough to begin with zeros</div>
-      <div class="qopt">C · It sets the nonce to one value after another, hashing the whole block each time, until a hash comes back beginning with three zeros</div>
-      <q class="qwhy">There is no method for computing a suitable nonce, because neighbouring nonces do not produce neighbouring digests. The expected number of tries at difficulty 3 is 4,096 and the measured mean over 120 trials is 4,115, which is what trying rather than solving looks like.</q>
+      <button class="qopt" type="button">A · It computes the nonce that will produce a hash beginning with three zeros, then writes it into the block</button>
+      <button class="qopt" type="button">B · It compresses the block until the hash is short enough to begin with zeros</button>
+      <button class="qopt" type="button">C · It sets the nonce to one value after another, hashing the whole block each time, until a hash comes back beginning with three zeros</button>
+      <p class="qwhy">There is no method for computing a suitable nonce, because neighbouring nonces do not produce neighbouring digests. The expected number of tries at difficulty 3 is 4,096 and the measured mean over 120 trials is 4,115, which is what trying rather than solving looks like.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A single mining run at difficulty 3 comes back at 12,462 attempts. What have you learned?</p>
-      <div class="qopt">A · That this configuration is roughly three times more expensive than expected, and the expectation needs revising</div>
-      <div class="qopt">B · Almost nothing, because single runs at difficulty 3 were measured anywhere from 40 attempts to 17,343 around a mean of 4,115</div>
-      <div class="qopt">C · That the hash function is behaving incorrectly, since the result is far from 4,096</div>
-      <q class="qwhy">12,462 was a real first run and it sits inside the measured range. A draw that far from the mean is unremarkable in a process with this spread, and treating it as evidence about the cost is the exact mistake the trial counts exist to prevent.</q>
+      <button class="qopt" type="button">A · That this configuration is roughly three times more expensive than expected, and the expectation needs revising</button>
+      <button class="qopt" type="button">B · Almost nothing, because single runs at difficulty 3 were measured anywhere from 40 attempts to 17,343 around a mean of 4,115</button>
+      <button class="qopt" type="button">C · That the hash function is behaving incorrectly, since the result is far from 4,096</button>
+      <p class="qwhy">12,462 was a real first run and it sits inside the measured range. A draw that far from the mean is unremarkable in a process with this spread, and treating it as evidence about the cost is the exact mistake the trial counts exist to prevent.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Why does raising difficulty change what an attacker faces, when session 2 showed the rewrite succeeding at difficulty 0?</p>
-      <div class="qopt">A · Because the four blocks that must be redone each acquire a price, a mean of 4,115 attempts at difficulty 3 over 120 trials, while the honest register keeps adding blocks the attacker must also redo</div>
-      <div class="qopt">B · Because a higher difficulty makes the hashes harder to reverse, so the edit can no longer be made at all</div>
-      <div class="qopt">C · Because verification checks the difficulty and refuses to report problems below it</div>
-      <q class="qwhy">Difficulty changes price, not detectability and not reversibility. The edit is still possible and still visible; what changes is that the attacker now pays per block, four times over, against a target that keeps moving.</q>
+      <button class="qopt" type="button">A · Because the four blocks that must be redone each acquire a price, a mean of 4,115 attempts at difficulty 3 over 120 trials, while the honest register keeps adding blocks the attacker must also redo</button>
+      <button class="qopt" type="button">B · Because a higher difficulty makes the hashes harder to reverse, so the edit can no longer be made at all</button>
+      <button class="qopt" type="button">C · Because verification checks the difficulty and refuses to report problems below it</button>
+      <p class="qwhy">Difficulty changes price, not detectability and not reversibility. The edit is still possible and still visible; what changes is that the attacker now pays per block, four times over, against a target that keeps moving.</p>
     </div>
 
     <div class="quiz-score"></div>

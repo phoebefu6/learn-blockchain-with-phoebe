@@ -436,26 +436,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">An inspector writes that the seal was intact without opening the container, and the entry is added to the register normally. What does verification report?</p>
-      <div class="qopt">A · A hash mismatch, because the entry does not describe what happened</div>
-      <div class="qopt">B · A link mismatch at the following block, since the false entry breaks the sequence</div>
-      <div class="qopt">C · Nothing at all, because the register is internally consistent and has no access to the container</div>
-      <q class="qwhy">The false entry was written normally, hashed normally and linked normally, so every check passes. A register full of accurate copies of wrong statements verifies exactly as cleanly as a truthful one, and that is the failure that no amount of hashing catches.</q>
+      <button class="qopt" type="button">A · A hash mismatch, because the entry does not describe what happened</button>
+      <button class="qopt" type="button">B · A link mismatch at the following block, since the false entry breaks the sequence</button>
+      <button class="qopt" type="button">C · Nothing at all, because the register is internally consistent and has no access to the container</button>
+      <p class="qwhy">The false entry was written normally, hashed normally and linked normally, so every check passes. A register full of accurate copies of wrong statements verifies exactly as cleanly as a truthful one, and that is the failure that no amount of hashing catches.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A door sensor reports whether a container was opened, and its readings go straight onto the register. What has the register added to the trustworthiness of those readings?</p>
-      <div class="qopt">A · A great deal, because a reading on a chain cannot be disputed</div>
-      <div class="qopt">B · Nothing, because the reading is worth what the sensor is worth, and the register only preserves what it was handed</div>
-      <div class="qopt">C · It depends on the difficulty setting, since more work makes an entry more reliable</div>
-      <q class="qwhy">Whatever a register knows about the physical world got there because a person or a device put it there, and that step is exactly as trustworthy as it would be with no register at all. Improving the sensor improves the record. Hashing the sensor's output does not.</q>
+      <button class="qopt" type="button">A · A great deal, because a reading on a chain cannot be disputed</button>
+      <button class="qopt" type="button">B · Nothing, because the reading is worth what the sensor is worth, and the register only preserves what it was handed</button>
+      <button class="qopt" type="button">C · It depends on the difficulty setting, since more work makes an entry more reliable</button>
+      <p class="qwhy">Whatever a register knows about the physical world got there because a person or a device put it there, and that step is exactly as trustworthy as it would be with no register at all. Improving the sensor improves the record. Hashing the sensor's output does not.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Block 5 is found to be wrong. What does correcting it look like, and what does a reader now have to do?</p>
-      <div class="qopt">A · A new entry is appended saying block 5 was wrong; block 5 stays exactly where it is, so answering a question about that subject means reading forward to the end</div>
-      <div class="qopt">B · Block 5 is rewritten with the correct text and re-hashed, which is what append only means in practice</div>
-      <div class="qopt">C · Block 5 is removed and the following blocks are relinked, leaving no trace of the error</div>
-      <q class="qwhy">Immutability cuts both ways. The property that stops a hostile party revising an old entry is the same property that stops your own team repairing a mistake, so correction means appending and the current answer on any subject is a conclusion drawn from the whole register rather than a row to look up.</q>
+      <button class="qopt" type="button">A · A new entry is appended saying block 5 was wrong; block 5 stays exactly where it is, so answering a question about that subject means reading forward to the end</button>
+      <button class="qopt" type="button">B · Block 5 is rewritten with the correct text and re-hashed, which is what append only means in practice</button>
+      <button class="qopt" type="button">C · Block 5 is removed and the following blocks are relinked, leaving no trace of the error</button>
+      <p class="qwhy">Immutability cuts both ways. The property that stops a hostile party revising an old entry is the same property that stops your own team repairing a mistake, so correction means appending and the current answer on any subject is a conclusion drawn from the whole register rather than a row to look up.</p>
     </div>
 
     <div class="quiz-score"></div>

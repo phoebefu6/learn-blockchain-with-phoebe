@@ -590,26 +590,26 @@ CHAIN.reforge(CHAIN.makeChain(TRUNK, { difficulty: 2 }), 2, 2).attempts</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Two branches of the same register are built and <code>verify()</code> returns ok on both. What has verification decided?</p>
-      <div class="qopt">A · That both branches are the accepted history, since both are valid</div>
-      <div class="qopt">B · That one of them must be tampered with, because two valid continuations cannot coexist</div>
-      <div class="qopt">C · Nothing about which is the history; verification takes one chain and tests it for internal consistency, and both branches are internally consistent</div>
-      <q class="qwhy">Validity is local. The function has one argument and every field it inspects looks down or inward, so the information needed to choose between branches is not present in either of them. Choosing is a separate rule applied from outside over both at once.</q>
+      <button class="qopt" type="button">A · That both branches are the accepted history, since both are valid</button>
+      <button class="qopt" type="button">B · That one of them must be tampered with, because two valid continuations cannot coexist</button>
+      <button class="qopt" type="button">C · Nothing about which is the history; verification takes one chain and tests it for internal consistency, and both branches are internally consistent</button>
+      <p class="qwhy">Validity is local. The function has one argument and every field it inspects looks down or inward, so the information needed to choose between branches is not present in either of them. Choosing is a separate rule applied from outside over both at once.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">An entry was in the accepted history this morning and is not in it this afternoon. What happened to it?</p>
-      <div class="qopt">A · Its branch lost the selection rule, so it left the accepted history; it was never invalid, nothing about it changed, and no tool built so far reports it</div>
-      <div class="qopt">B · It failed verification, which is why it was removed</div>
-      <div class="qopt">C · It was deleted by whoever runs the register, since somebody must have decided</div>
-      <q class="qwhy">Invalid and absent are different words. A rejected entry fails arithmetic, is reported with an index, and stays wrong. An entry that leaves the accepted history is still correctly hashed, still correctly linked and still signed, and its departure raises no alarm anywhere, which is what makes it the more unsettling of the two.</q>
+      <button class="qopt" type="button">A · Its branch lost the selection rule, so it left the accepted history; it was never invalid, nothing about it changed, and no tool built so far reports it</button>
+      <button class="qopt" type="button">B · It failed verification, which is why it was removed</button>
+      <button class="qopt" type="button">C · It was deleted by whoever runs the register, since somebody must have decided</button>
+      <p class="qwhy">Invalid and absent are different words. A rejected entry fails arithmetic, is reported with an index, and stays wrong. An entry that leaves the accepted history is still correctly hashed, still correctly linked and still signed, and its departure raises no alarm anywhere, which is what makes it the more unsettling of the two.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Somebody asks how much protection depth gives against a party with more capacity than everyone else combined. What can be answered from the material measured here?</p>
-      <div class="qopt">A · Multiply the mean attempts per block by the blocks to redo and quote the total</div>
-      <div class="qopt">B · Nothing; every figure measured here prices one machine working alone, so the mechanism can be described and no number here bounds it</div>
-      <div class="qopt">C · Depth protects regardless, since the arithmetic of hashing does not change</div>
-      <q class="qwhy">Depth is protective because an attacker redoing old blocks falls behind holders adding new ones. Reverse the capacity and the race reverses with it, which is a different problem rather than a larger number in the same table. The figures on these pages come from one browser with no competitor, so quoting them as a bound would be quoting the wrong measurement.</q>
+      <button class="qopt" type="button">A · Multiply the mean attempts per block by the blocks to redo and quote the total</button>
+      <button class="qopt" type="button">B · Nothing; every figure measured here prices one machine working alone, so the mechanism can be described and no number here bounds it</button>
+      <button class="qopt" type="button">C · Depth protects regardless, since the arithmetic of hashing does not change</button>
+      <p class="qwhy">Depth is protective because an attacker redoing old blocks falls behind holders adding new ones. Reverse the capacity and the race reverses with it, which is a different problem rather than a larger number in the same table. The figures on these pages come from one browser with no competitor, so quoting them as a bound would be quoting the wrong measurement.</p>
     </div>
 
     <div class="quiz-score"></div>

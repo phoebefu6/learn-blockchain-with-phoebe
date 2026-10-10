@@ -592,26 +592,26 @@ CHAIN.verifyProof(ITEMS[701], path, root)</div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A set holds 1,024 records. How many hashes does a proof of membership contain, and why?</p>
-      <div class="qopt">A · 1,024, since every record has to be accounted for before the root can be trusted</div>
-      <div class="qopt">B · 10, one sibling per level, because the set halves ten times before it reaches a single hash</div>
-      <div class="qopt">C · 512, one for every pair at the bottom level of the tree</div>
-      <q class="qwhy">Each level supplies exactly one sibling, whatever the size of the set, and the number of levels is the number of halvings. 1,024 halves to 512, 256, 128, 64, 32, 16, 8, 4, 2 and finally 1, which is ten steps. Proof length is exactly log2 of the set size, and every proof in tonight's table was verified against its root.</q>
+      <button class="qopt" type="button">A · 1,024, since every record has to be accounted for before the root can be trusted</button>
+      <button class="qopt" type="button">B · 10, one sibling per level, because the set halves ten times before it reaches a single hash</button>
+      <button class="qopt" type="button">C · 512, one for every pair at the bottom level of the tree</button>
+      <p class="qwhy">Each level supplies exactly one sibling, whatever the size of the set, and the number of levels is the number of halvings. 1,024 halves to 512, 256, 128, 64, 32, 16, 8, 4, 2 and finally 1, which is ten steps. Proof length is exactly log2 of the set size, and every proof in tonight's table was verified against its root.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Somebody alters a record and then presents its original proof. What happens, and how?</p>
-      <div class="qopt">A · Verification notices the edit by comparing the record against the copy stored in the tree</div>
-      <div class="qopt">B · Verification passes, because the proof hashes are unchanged and the proof is what is being checked</div>
-      <div class="qopt">C · The altered record hashes to a leaf the tree never contained, so every value computed above it differs and the rebuilt root does not match the one held; verifyProof returns false</div>
-      <q class="qwhy">Nothing inspects the edit and nothing holds a copy to compare against. The failure comes from arithmetic: an altered record gives a leaf with no relationship to the original, that difference propagates up every level, and the single comparison at the top does not match. No partial match and no near miss.</q>
+      <button class="qopt" type="button">A · Verification notices the edit by comparing the record against the copy stored in the tree</button>
+      <button class="qopt" type="button">B · Verification passes, because the proof hashes are unchanged and the proof is what is being checked</button>
+      <button class="qopt" type="button">C · The altered record hashes to a leaf the tree never contained, so every value computed above it differs and the rebuilt root does not match the one held; verifyProof returns false</button>
+      <p class="qwhy">Nothing inspects the edit and nothing holds a copy to compare against. The failure comes from arithmetic: an altered record gives a leaf with no relationship to the original, that difference propagates up every level, and the single comparison at the top does not match. No partial match and no near miss.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A handheld scanner verifies a proof successfully. What has it established, and what has it not?</p>
-      <div class="qopt">A · That this record is one of the records behind that root, and nothing about whether the root it was given is the right one, whether the record is accurate, or whether anything is missing from the set</div>
-      <div class="qopt">B · That the whole register is intact, since the root commits to all of it</div>
-      <div class="qopt">C · That the consignment described in the record was actually inspected, because the proof is cryptographic</div>
-      <q class="qwhy">Inclusion is the claim and it is narrow. The proof is a statement relative to the root the device already holds, and where that root came from is a separate question the proof cannot touch. Absence is not provable this way either, and accuracy was never in scope for any hash.</q>
+      <button class="qopt" type="button">A · That this record is one of the records behind that root, and nothing about whether the root it was given is the right one, whether the record is accurate, or whether anything is missing from the set</button>
+      <button class="qopt" type="button">B · That the whole register is intact, since the root commits to all of it</button>
+      <button class="qopt" type="button">C · That the consignment described in the record was actually inspected, because the proof is cryptographic</button>
+      <p class="qwhy">Inclusion is the claim and it is narrow. The proof is a statement relative to the root the device already holds, and where that root came from is a separate question the proof cannot touch. Absence is not provable this way either, and accuracy was never in scope for any hash.</p>
     </div>
 
     <div class="quiz-score"></div>

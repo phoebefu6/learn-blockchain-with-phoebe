@@ -465,26 +465,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Two holders each add a different entry to the same register at the same moment, and verification passes on both results. What has gone wrong?</p>
-      <div class="qopt">A · One of the two must have tampered, because a correct register cannot have two valid continuations</div>
-      <div class="qopt">B · Nothing has gone wrong; both branches are correctly hashed and correctly linked, and the structure has no rule inside it for choosing between them</div>
-      <div class="qopt">C · The hash function has collided, which is why two different histories both verify</div>
-      <q class="qwhy">A fork is the normal consequence of independent parties writing without hearing from each other first. Verification tests whether a chain is internally consistent, and both branches are. Choosing between them takes a separate rule, applied identically by every holder.</q>
+      <button class="qopt" type="button">A · One of the two must have tampered, because a correct register cannot have two valid continuations</button>
+      <button class="qopt" type="button">B · Nothing has gone wrong; both branches are correctly hashed and correctly linked, and the structure has no rule inside it for choosing between them</button>
+      <button class="qopt" type="button">C · The hash function has collided, which is why two different histories both verify</button>
+      <p class="qwhy">A fork is the normal consequence of independent parties writing without hearing from each other first. Verification tests whether a chain is internally consistent, and both branches are. Choosing between them takes a separate rule, applied identically by every holder.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">An entry appeared in the accepted history a few minutes ago. Is it permanent?</p>
-      <div class="qopt">A · Yes, once an entry is in a verified chain it cannot leave it</div>
-      <div class="qopt">B · Yes, provided the chain is running at a difficulty above zero</div>
-      <div class="qopt">C · No; it is now harder to remove than it was, and that is the only thing that has changed</div>
-      <q class="qwhy">Removing an entry means redoing its block and every block after it and producing a branch that wins the rule. Each new block makes that dearer, so confidence grows with depth. No depth turns it into a fact, which is why a business rule has to choose one and accept the risk that remains.</q>
+      <button class="qopt" type="button">A · Yes, once an entry is in a verified chain it cannot leave it</button>
+      <button class="qopt" type="button">B · Yes, provided the chain is running at a difficulty above zero</button>
+      <button class="qopt" type="button">C · No; it is now harder to remove than it was, and that is the only thing that has changed</button>
+      <p class="qwhy">Removing an entry means redoing its block and every block after it and producing a branch that wins the rule. Each new block makes that dearer, so confidence grows with depth. No depth turns it into a fact, which is why a business rule has to choose one and accept the risk that remains.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A supplier describes their system as decentralised. What have you learned?</p>
-      <div class="qopt">A · Very little, because who may write, who may read, who runs the machines and who can change the rules are four separate answers and the word gives none of them</div>
-      <div class="qopt">B · That no single party can alter the register, since that is what the word means</div>
-      <div class="qopt">C · That the register is public, because decentralised systems are open by definition</div>
-      <q class="qwhy">The four questions vary independently. A system can be readable by anyone and writable by one organisation, or run on machines in a single data centre while anyone may read. Until the four answers are written down, the word has described a preference rather than a design.</q>
+      <button class="qopt" type="button">A · Very little, because who may write, who may read, who runs the machines and who can change the rules are four separate answers and the word gives none of them</button>
+      <button class="qopt" type="button">B · That no single party can alter the register, since that is what the word means</button>
+      <button class="qopt" type="button">C · That the register is public, because decentralised systems are open by definition</button>
+      <p class="qwhy">The four questions vary independently. A system can be readable by anyone and writable by one organisation, or run on machines in a single data centre while anyone may read. Until the four answers are written down, the word has described a preference rather than a design.</p>
     </div>
 
     <div class="quiz-score"></div>

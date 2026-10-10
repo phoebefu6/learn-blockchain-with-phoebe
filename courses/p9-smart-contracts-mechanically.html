@@ -580,26 +580,26 @@ CHAIN.verify(edited).problems</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why can a rule of this kind not ask the network for a value while it is running?</p>
-      <div class="qopt">A · Because network calls are slow, and a register cannot afford the delay</div>
-      <div class="qopt">B · Because the register has no way to store the answer once it arrives</div>
-      <div class="qopt">C · Because each participant would ask at a slightly different moment, get a different answer, and compute a different output, which is the end of the agreement that made the arrangement worth anything</div>
-      <q class="qwhy">Every restriction of this kind comes from one requirement: same inputs, same output, on every machine. A value that is not already in the register is not shared, and anything not shared cannot be agreed. Speed is not the issue and storage is not the issue.</q>
+      <button class="qopt" type="button">A · Because network calls are slow, and a register cannot afford the delay</button>
+      <button class="qopt" type="button">B · Because the register has no way to store the answer once it arrives</button>
+      <button class="qopt" type="button">C · Because each participant would ask at a slightly different moment, get a different answer, and compute a different output, which is the end of the agreement that made the arrangement worth anything</button>
+      <p class="qwhy">Every restriction of this kind comes from one requirement: same inputs, same output, on every machine. A value that is not already in the register is not shared, and anything not shared cannot be agreed. Speed is not the issue and storage is not the issue.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">A rule releases a consignment when an inspection entry records the seal intact. The inspector never opened the door and filed the entry anyway. What does the system report?</p>
-      <div class="qopt">A · A verification failure at the inspection block, since the entry does not match reality</div>
-      <div class="qopt">B · Nothing at all. The entry is genuine, the rule ran correctly on it, and every hash and link checks out</div>
-      <div class="qopt">C · A warning, because the rule cannot confirm the entry against an external source</div>
-      <q class="qwhy">Nothing has gone wrong from inside the system. The entry was filed by somebody entitled to file it, the rule read it and did what it was written to do, and verification has nothing to object to. This is the oracle problem from session a5 with a consignment attached to the outcome.</q>
+      <button class="qopt" type="button">A · A verification failure at the inspection block, since the entry does not match reality</button>
+      <button class="qopt" type="button">B · Nothing at all. The entry is genuine, the rule ran correctly on it, and every hash and link checks out</button>
+      <button class="qopt" type="button">C · A warning, because the rule cannot confirm the entry against an external source</button>
+      <p class="qwhy">Nothing has gone wrong from inside the system. The entry was filed by somebody entitled to file it, the rule read it and did what it was written to do, and verification has nothing to object to. This is the oracle problem from session a5 with a consignment attached to the outcome.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Which statement about "the code is the agreement" is honest?</p>
-      <div class="qopt">A · It is a live disagreement: one side values removing costly ambiguity, the other values keeping a way to say that letter and intent came apart, and both understand the mechanism</div>
-      <div class="qopt">B · It is settled in favour of the code, because a rule that runs cannot be argued with</div>
-      <div class="qopt">C · It is settled against the code, because no automatic rule can ever be fair</div>
-      <q class="qwhy">The two camps agree completely about what the mechanism does and disagree about how much a missing escape hatch costs, which depends on how often the letter and the intent come apart in your own operation. That is an empirical question about you, not a question about chains.</q>
+      <button class="qopt" type="button">A · It is a live disagreement: one side values removing costly ambiguity, the other values keeping a way to say that letter and intent came apart, and both understand the mechanism</button>
+      <button class="qopt" type="button">B · It is settled in favour of the code, because a rule that runs cannot be argued with</button>
+      <button class="qopt" type="button">C · It is settled against the code, because no automatic rule can ever be fair</button>
+      <p class="qwhy">The two camps agree completely about what the mechanism does and disagree about how much a missing escape hatch costs, which depends on how often the letter and the intent come apart in your own operation. That is an empirical question about you, not a question about chains.</p>
     </div>
 
     <div class="quiz-score"></div>

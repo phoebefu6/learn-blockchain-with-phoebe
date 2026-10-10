@@ -424,26 +424,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Three organisations share a record, and all three already accept one of them as the custodian. What is the better engineering answer?</p>
-      <div class="qopt">A · A shared chain, because three parties are involved and that is what shared registers are for</div>
-      <div class="qopt">B · A database run by the accepted custodian, with access control and an append only audit log, because the thing a chain removes is the need for an accepted custodian and they already have one</div>
-      <div class="qopt">C · Either, since the two options provide the same guarantees at similar cost</div>
-      <q class="qwhy">A chain buys the removal of the custodian, at the cost of several organisations coordinating forever. Where the custodian exists and is genuinely accepted, that cost purchases nothing. Test acceptance by asking the other parties rather than the candidate.</q>
+      <button class="qopt" type="button">A · A shared chain, because three parties are involved and that is what shared registers are for</button>
+      <button class="qopt" type="button">B · A database run by the accepted custodian, with access control and an append only audit log, because the thing a chain removes is the need for an accepted custodian and they already have one</button>
+      <button class="qopt" type="button">C · Either, since the two options provide the same guarantees at similar cost</button>
+      <p class="qwhy">A chain buys the removal of the custodian, at the cost of several organisations coordinating forever. Where the custodian exists and is genuinely accepted, that cost purchases nothing. Test acceptance by asking the other parties rather than the candidate.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A proposal passes the first three questions, but nothing checks the values before they are recorded. What follows?</p>
-      <div class="qopt">A · The entry point is the thing to fix first, because the register would preserve unchecked claims perfectly and report no problems</div>
-      <div class="qopt">B · Proceed, because hashing each entry is itself a form of verification</div>
-      <div class="qopt">C · Proceed, because the parties holding copies will notice inaccurate entries when they compare</div>
-      <q class="qwhy">Comparing copies detects disagreement between copies, not disagreement with the world. Every party would hold an identical, perfectly verifying copy of the same wrong value. Accuracy is decided at the point of entry and nowhere else.</q>
+      <button class="qopt" type="button">A · The entry point is the thing to fix first, because the register would preserve unchecked claims perfectly and report no problems</button>
+      <button class="qopt" type="button">B · Proceed, because hashing each entry is itself a form of verification</button>
+      <button class="qopt" type="button">C · Proceed, because the parties holding copies will notice inaccurate entries when they compare</button>
+      <p class="qwhy">Comparing copies detects disagreement between copies, not disagreement with the world. Every party would hold an identical, perfectly verifying copy of the same wrong value. Accuracy is decided at the point of entry and nowhere else.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A vendor says their register has forty nodes. What is the follow up question, and why?</p>
-      <div class="qopt">A · What difficulty they run at, since that sets the cost of rewriting history</div>
-      <div class="qopt">B · How many entries per second the network handles, since that sets whether it will scale</div>
-      <div class="qopt">C · Which organisations run those nodes, because forty machines run by one operator are one copy for every purpose that matters here</div>
-      <q class="qwhy">Independence is the property being bought, and it is a property of who operates the machines rather than of how many there are. A count is the easiest number to make impressive and the least informative one, so ask for names.</q>
+      <button class="qopt" type="button">A · What difficulty they run at, since that sets the cost of rewriting history</button>
+      <button class="qopt" type="button">B · How many entries per second the network handles, since that sets whether it will scale</button>
+      <button class="qopt" type="button">C · Which organisations run those nodes, because forty machines run by one operator are one copy for every purpose that matters here</button>
+      <p class="qwhy">Independence is the property being bought, and it is a property of who operates the machines rather than of how many there are. A count is the easiest number to make impressive and the least informative one, so ask for names.</p>
     </div>
 
     <div class="quiz-score"></div>

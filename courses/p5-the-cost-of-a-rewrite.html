@@ -551,26 +551,26 @@ r.chain.length - 2</div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">An attacker edits block 2 of the six block Harbourgate register. How many blocks must be re-mined, and is that number random?</p>
-      <div class="qopt">A · One, because only the edited block's hash changed and the others still verify against each other</div>
-      <div class="qopt">B · Four, blocks 2 through 5, and the count is fixed arithmetic; only the price of each of those four is random</div>
-      <div class="qopt">C · Six, because any edit invalidates the whole register including the blocks below the edit</div>
-      <q class="qwhy">An edit propagates upward through the prev field and never downward, so blocks 0 and 1 are untouched. Blocks 2, 3, 4 and 5 all have to be produced again, which is 4. That count comes from the position of the edit and the length of the register, and it is the one quantity tonight that is not a lottery.</q>
+      <button class="qopt" type="button">A · One, because only the edited block's hash changed and the others still verify against each other</button>
+      <button class="qopt" type="button">B · Four, blocks 2 through 5, and the count is fixed arithmetic; only the price of each of those four is random</button>
+      <button class="qopt" type="button">C · Six, because any edit invalidates the whole register including the blocks below the edit</button>
+      <p class="qwhy">An edit propagates upward through the prev field and never downward, so blocks 0 and 1 are untouched. Blocks 2, 3, 4 and 5 all have to be produced again, which is 4. That count comes from the position of the edit and the length of the register, and it is the one quantity tonight that is not a lottery.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">At difficulty 3 one block has a mean of 4,115 attempts over 120 trials. What can you say about the cost of a four block rewrite at that difficulty?</p>
-      <div class="qopt">A · It is four times 4,115, because expectations add and that is the answer to quote</div>
-      <div class="qopt">B · It is somewhere between 40 and 17,343, since those were the measured extremes</div>
-      <div class="qopt">C · It is four independent draws, so any single total is one sample of a quantity with a very long tail, and the figure worth having is your own run set beside your other runs</div>
-      <q class="qwhy">A single block at difficulty 3 was measured at 40 attempts at one extreme and 17,343 at the other, a factor of more than 400 around the mean. Drawing that four times gives a total nobody can hand you in advance. The per block mean with its trial count is a real figure; a rewrite total from one run is a sample, and should be labelled as one.</q>
+      <button class="qopt" type="button">A · It is four times 4,115, because expectations add and that is the answer to quote</button>
+      <button class="qopt" type="button">B · It is somewhere between 40 and 17,343, since those were the measured extremes</button>
+      <button class="qopt" type="button">C · It is four independent draws, so any single total is one sample of a quantity with a very long tail, and the figure worth having is your own run set beside your other runs</button>
+      <p class="qwhy">A single block at difficulty 3 was measured at 40 attempts at one extreme and 17,343 at the other, a factor of more than 400 around the mean. Drawing that four times gives a total nobody can hand you in advance. The per block mean with its trial count is a real figure; a rewrite total from one run is a sample, and should be labelled as one.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Why are confirmations counted at all, and what does a high count actually give you?</p>
-      <div class="qopt">A · Because every block written on top adds one more full draw an attacker has to win, so depth raises the cost without limit and without ever reaching certainty</div>
-      <div class="qopt">B · Because each confirmation independently re-checks the entry, so enough of them prove the entry is accurate</div>
-      <div class="qopt">C · Because after a fixed number of blocks the register locks the entry and rewriting it becomes impossible</div>
-      <q class="qwhy">Depth is the count of blocks on top, and the count of blocks to redo is that depth plus one. Nothing re-checks the entry and nothing locks. A draw with a long tail can always come in short, so waiting buys a probability that keeps strengthening and never arrives at a guarantee. Any specific confirmation count is a risk appetite somebody chose.</q>
+      <button class="qopt" type="button">A · Because every block written on top adds one more full draw an attacker has to win, so depth raises the cost without limit and without ever reaching certainty</button>
+      <button class="qopt" type="button">B · Because each confirmation independently re-checks the entry, so enough of them prove the entry is accurate</button>
+      <button class="qopt" type="button">C · Because after a fixed number of blocks the register locks the entry and rewriting it becomes impossible</button>
+      <p class="qwhy">Depth is the count of blocks on top, and the count of blocks to redo is that depth plus one. Nothing re-checks the entry and nothing locks. A draw with a long tail can always come in short, so waiting buys a probability that keeps strengthening and never arrives at a guarantee. Any specific confirmation count is a risk appetite somebody chose.</p>
     </div>
 
     <div class="quiz-score"></div>

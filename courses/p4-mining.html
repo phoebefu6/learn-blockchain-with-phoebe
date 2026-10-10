@@ -567,26 +567,26 @@ Math.max.apply(null, runs)</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">You mine one block at difficulty 3 and it takes 12,462 attempts. What may you conclude about what difficulty 3 costs?</p>
-      <div class="qopt">A · That difficulty 3 costs about 12,000 attempts, since the run was real and the engine is correct</div>
-      <div class="qopt">B · That your machine is slower than the one the table was measured on, since the table says 4,115</div>
-      <div class="qopt">C · Very little. That figure is one draw, and single draws at difficulty 3 were measured from 40 to 17,343 around a mean of 4,115 over 120 trials</div>
-      <q class="qwhy">12,462 is exactly what the first run of this bench produced at difficulty 3, and it would have been quoted as the cost if nobody had run it again. Attempts are counted in hashes rather than seconds, so machine speed does not enter into it at all.</q>
+      <button class="qopt" type="button">A · That difficulty 3 costs about 12,000 attempts, since the run was real and the engine is correct</button>
+      <button class="qopt" type="button">B · That your machine is slower than the one the table was measured on, since the table says 4,115</button>
+      <button class="qopt" type="button">C · Very little. That figure is one draw, and single draws at difficulty 3 were measured from 40 to 17,343 around a mean of 4,115 over 120 trials</button>
+      <p class="qwhy">12,462 is exactly what the first run of this bench produced at difficulty 3, and it would have been quoted as the cost if nobody had run it again. Attempts are counted in hashes rather than seconds, so machine speed does not enter into it at all.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Why does the mining loop have to count nonces upwards rather than calculate one?</p>
-      <div class="qopt">A · Because the digest for one nonce carries no information about the digest for the next, so there is nothing to calculate from and no way to run the hash backwards</div>
-      <div class="qopt">B · Because counting upwards guarantees the smallest nonce, which keeps the block compact</div>
-      <div class="qopt">C · Because the hash function refuses inputs that have already been tried, so the search cannot repeat itself</div>
-      <q class="qwhy">The loop is pure guessing and the order of the guesses is arbitrary; starting anywhere works equally well. What makes the search necessary is the absence of any gradient to climb, which is the same property that makes a near miss useless to an attacker.</q>
+      <button class="qopt" type="button">A · Because the digest for one nonce carries no information about the digest for the next, so there is nothing to calculate from and no way to run the hash backwards</button>
+      <button class="qopt" type="button">B · Because counting upwards guarantees the smallest nonce, which keeps the block compact</button>
+      <button class="qopt" type="button">C · Because the hash function refuses inputs that have already been tried, so the search cannot repeat itself</button>
+      <p class="qwhy">The loop is pure guessing and the order of the guesses is arbitrary; starting anywhere works equally well. What makes the search necessary is the absence of any gradient to climb, which is the same property that makes a near miss useless to an attacker.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Difficulty 4 was measured at a mean of 74,190 attempts over 150 trials, with runs from 149 to 339,789. What did raising the difficulty buy?</p>
-      <div class="qopt">A · A guarantee that every block at difficulty 4 costs more than any block at difficulty 3</div>
-      <div class="qopt">B · A higher expected cost per block, with no floor under any individual block: the smallest run measured was 149 attempts, cheaper than the average block at difficulty 3</div>
-      <div class="qopt">C · A narrower spread, because more work makes the outcome more predictable</div>
-      <q class="qwhy">Each extra zero multiplies the expectation by sixteen and widens the range at the same time. The measured bars overlap heavily, so any claim about a particular block is unsupportable. Over many blocks the luck averages out, which is why the mechanism works despite a figure nobody should quote from one run.</q>
+      <button class="qopt" type="button">A · A guarantee that every block at difficulty 4 costs more than any block at difficulty 3</button>
+      <button class="qopt" type="button">B · A higher expected cost per block, with no floor under any individual block: the smallest run measured was 149 attempts, cheaper than the average block at difficulty 3</button>
+      <button class="qopt" type="button">C · A narrower spread, because more work makes the outcome more predictable</button>
+      <p class="qwhy">Each extra zero multiplies the expectation by sixteen and widens the range at the same time. The measured bars overlap heavily, so any claim about a particular block is unsupportable. Over many blocks the luck averages out, which is why the mechanism works despite a figure nobody should quote from one run.</p>
     </div>
 
     <div class="quiz-score"></div>

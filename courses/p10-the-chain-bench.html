@@ -236,26 +236,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">You edit block 2, then recompute block 2's hash. The check still reports exactly one problem. What changed?</p>
-      <div class="qopt">A · Nothing meaningful; the register reports one problem either way, so the second step was pointless</div>
-      <div class="qopt">B · The kind and location moved: a hash mismatch at block 2 became a link mismatch at block 3, because block 3 still records the old hash as its predecessor</div>
-      <div class="qopt">C · The problem count stayed at one because the engine reports only the first failure it finds</div>
-      <q class="qwhy">Fixing the hash makes block 2 internally consistent and pushes the inconsistency into its successor. The failure moves rather than disappearing, which is why hiding an edit means redoing every later block.</q>
+      <button class="qopt" type="button">A · Nothing meaningful; the register reports one problem either way, so the second step was pointless</button>
+      <button class="qopt" type="button">B · The kind and location moved: a hash mismatch at block 2 became a link mismatch at block 3, because block 3 still records the old hash as its predecessor</button>
+      <button class="qopt" type="button">C · The problem count stayed at one because the engine reports only the first failure it finds</button>
+      <p class="qwhy">Fixing the hash makes block 2 internally consistent and pushes the inconsistency into its successor. The failure moves rather than disappearing, which is why hiding an edit means redoing every later block.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">At difficulty 0 you reforge the tail and the register verifies clean with the edited entry in place. What does that establish?</p>
-      <div class="qopt">A · That the engine has a bug, since a tampered chain should never verify</div>
-      <div class="qopt">B · That tamper evidence failed, so the chain structure does not work</div>
-      <div class="qopt">C · That the structure alone is fully rewritable, and the work required to rebuild it is the only thing making a rewrite unattractive</div>
-      <q class="qwhy">The chain was always rewritable. Mining adds a price rather than a different guarantee, which is why "it is on a chain so it cannot change" skips the part doing the work.</q>
+      <button class="qopt" type="button">A · That the engine has a bug, since a tampered chain should never verify</button>
+      <button class="qopt" type="button">B · That tamper evidence failed, so the chain structure does not work</button>
+      <button class="qopt" type="button">C · That the structure alone is fully rewritable, and the work required to rebuild it is the only thing making a rewrite unattractive</button>
+      <p class="qwhy">The chain was always rewritable. Mining adds a price rather than a different guarantee, which is why "it is on a chain so it cannot change" skips the part doing the work.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A supplier says their register proves every inspection really happened. Which column does that claim belong in?</p>
-      <div class="qopt">A · The right column: the register can show the inspection entry has not been altered since it was written, and has nothing to say about whether the inspector looked</div>
-      <div class="qopt">B · The left column, because a verified chain means the entries in it are verified</div>
-      <div class="qopt">C · The left column, provided the difficulty is high enough</div>
-      <q class="qwhy">No amount of work factor makes an entry true. Whether the inspection happened is settled by the inspector, and the register faithfully preserves whatever they wrote.</q>
+      <button class="qopt" type="button">A · The right column: the register can show the inspection entry has not been altered since it was written, and has nothing to say about whether the inspector looked</button>
+      <button class="qopt" type="button">B · The left column, because a verified chain means the entries in it are verified</button>
+      <button class="qopt" type="button">C · The left column, provided the difficulty is high enough</button>
+      <p class="qwhy">No amount of work factor makes an entry true. Whether the inspection happened is settled by the inspector, and the register faithfully preserves whatever they wrote.</p>
     </div>
 
     <div class="quiz-score"></div>

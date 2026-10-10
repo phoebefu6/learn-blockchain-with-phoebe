@@ -554,26 +554,26 @@ CHAIN.verify(chain).ok</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">What is a block's hash taken over?</p>
-      <div class="qopt">A · The entry text only, which is why the entry can be read straight out of the digest</div>
-      <div class="qopt">B · The entry text and the previous hash, with the other fields stored alongside but not hashed</div>
-      <div class="qopt">C · The whole assembled block: index, timestamp, data, prev and nonce, joined in a fixed order</div>
-      <q class="qwhy">Five stored fields go in and the hash comes out, which is why the sixth field cannot be one of the inputs. It also explains why the digest of "Consignment 41 inspected, seal intact" is not block 2's hash: the entry is one of five things in the digest, not the only thing.</q>
+      <button class="qopt" type="button">A · The entry text only, which is why the entry can be read straight out of the digest</button>
+      <button class="qopt" type="button">B · The entry text and the previous hash, with the other fields stored alongside but not hashed</button>
+      <button class="qopt" type="button">C · The whole assembled block: index, timestamp, data, prev and nonce, joined in a fixed order</button>
+      <p class="qwhy">Five stored fields go in and the hash comes out, which is why the sixth field cannot be one of the inputs. It also explains why the digest of "Consignment 41 inspected, seal intact" is not block 2's hash: the entry is one of five things in the digest, not the only thing.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">The genesis block's prev field holds 64 zero characters. Where did that value come from?</p>
-      <div class="qopt">A · From hashing the empty string, which is the natural choice for a block with no predecessor</div>
-      <div class="qopt">B · From a convention. Nothing computed it, and no verifier can check it against anything</div>
-      <div class="qopt">C · From hashing the first entry before the block was assembled</div>
-      <q class="qwhy">The hash of the empty string is e3b0c442 and so on, and it is not what sits in block 0. The zeros are written there because the field has to hold something and there is nothing to put in it. That makes block 0 identifiable as the start, and supplies no confidence in block 0 itself.</q>
+      <button class="qopt" type="button">A · From hashing the empty string, which is the natural choice for a block with no predecessor</button>
+      <button class="qopt" type="button">B · From a convention. Nothing computed it, and no verifier can check it against anything</button>
+      <button class="qopt" type="button">C · From hashing the first entry before the block was assembled</button>
+      <p class="qwhy">The hash of the empty string is e3b0c442 and so on, and it is not what sits in block 0. The zeros are written there because the field has to hold something and there is nothing to put in it. That makes block 0 identifiable as the start, and supplies no confidence in block 0 itself.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">Rebuilding the Harbourgate register from the same six entries gives the same six hashes every time. Why, and what should you conclude about real registers?</p>
-      <div class="qopt">A · Because the timestamps are fixed by the assembly loop; a real register reads a clock, so its hashes are unique to the moment and cannot be reproduced this way</div>
-      <div class="qopt">B · Because SHA-256 ignores timestamps, so any register is reproducible from its entries alone</div>
-      <div class="qopt">C · Because difficulty 0 removes the nonce from the digest, and the nonce is the only source of variation</div>
-      <q class="qwhy">Timestamps start at 1758000000 and advance 600 seconds per block, which is what lets a printed hash be checked against your screen. It is a property of the teaching model. Every other property on this page survives a real clock; this one does not.</q>
+      <button class="qopt" type="button">A · Because the timestamps are fixed by the assembly loop; a real register reads a clock, so its hashes are unique to the moment and cannot be reproduced this way</button>
+      <button class="qopt" type="button">B · Because SHA-256 ignores timestamps, so any register is reproducible from its entries alone</button>
+      <button class="qopt" type="button">C · Because difficulty 0 removes the nonce from the digest, and the nonce is the only source of variation</button>
+      <p class="qwhy">Timestamps start at 1758000000 and advance 600 seconds per block, which is what lets a printed hash be checked against your screen. It is a property of the teaching model. Every other property on this page survives a real clock; this one does not.</p>
     </div>
 
     <div class="quiz-score"></div>

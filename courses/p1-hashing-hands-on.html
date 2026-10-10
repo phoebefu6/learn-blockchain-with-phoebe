@@ -452,26 +452,26 @@ CHAIN.sha256("placeholder")</div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">An implementation has one constant mistyped. What does its output look like?</p>
-      <div class="qopt">A · Shorter than 64 characters, which is how the mistake is spotted</div>
-      <div class="qopt">B · 64 hexadecimal characters, deterministic and different for different inputs, and indistinguishable from correct output by eye</div>
-      <div class="qopt">C · The same digest for every input, since a broken function collapses</div>
-      <q class="qwhy">This is the whole reason vectors ship inside the implementation. A wrong hash is still a function: same input, same output, plausible hex, no warning. The only way to tell is to compare against a published value, which is what selfTest does at load time.</q>
+      <button class="qopt" type="button">A · Shorter than 64 characters, which is how the mistake is spotted</button>
+      <button class="qopt" type="button">B · 64 hexadecimal characters, deterministic and different for different inputs, and indistinguishable from correct output by eye</button>
+      <button class="qopt" type="button">C · The same digest for every input, since a broken function collapses</button>
+      <p class="qwhy">This is the whole reason vectors ship inside the implementation. A wrong hash is still a function: same input, same output, plausible hex, no warning. The only way to tell is to compare against a published value, which is what selfTest does at load time.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">The digests of abc and abd differ in 58 of 64 characters rather than all 64. Why is that the expected result?</p>
-      <div class="qopt">A · Because the inputs share two of their three letters, so part of the digest is shared too</div>
-      <div class="qopt">B · Because SHA-256 leaves six characters fixed as a header</div>
-      <div class="qopt">C · Because two unrelated digests agree at any position about one time in sixteen, so a handful of accidental matches is what randomness looks like</div>
-      <q class="qwhy">Sixteen possible characters per position means roughly four coincidental matches across 64 positions. A count of 58 or 60 says the second digest behaves like an unrelated draw. A count of exactly 64 every time would be a pattern, and patterns are what an attacker wants.</q>
+      <button class="qopt" type="button">A · Because the inputs share two of their three letters, so part of the digest is shared too</button>
+      <button class="qopt" type="button">B · Because SHA-256 leaves six characters fixed as a header</button>
+      <button class="qopt" type="button">C · Because two unrelated digests agree at any position about one time in sixteen, so a handful of accidental matches is what randomness looks like</button>
+      <p class="qwhy">Sixteen possible characters per position means roughly four coincidental matches across 64 positions. A count of 58 or 60 says the second digest behaves like an unrelated draw. A count of exactly 64 every time would be a pattern, and patterns are what an attacker wants.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">The digest f0c5a3b1 and so on was measured for the text "Consignment 41 inspected, seal intact". Where does that digest appear in the Harbourgate register?</p>
-      <div class="qopt">A · Nowhere. It is the hash of the entry text alone, and a block hash is taken over the whole assembled block</div>
-      <div class="qopt">B · As block 2's hash, since block 2 holds that entry</div>
-      <div class="qopt">C · As block 3's previous hash field, since block 3 follows the entry</div>
-      <q class="qwhy">Block 2's hash begins f325e5d96bee6a1d, which is a different value entirely, because the block carries its index, timestamp, previous hash and nonce alongside the entry text and all of them go into the digest. Conflating the two is the most common error when reading a register, and session 2 is built on the difference.</q>
+      <button class="qopt" type="button">A · Nowhere. It is the hash of the entry text alone, and a block hash is taken over the whole assembled block</button>
+      <button class="qopt" type="button">B · As block 2's hash, since block 2 holds that entry</button>
+      <button class="qopt" type="button">C · As block 3's previous hash field, since block 3 follows the entry</button>
+      <p class="qwhy">Block 2's hash begins f325e5d96bee6a1d, which is a different value entirely, because the block carries its index, timestamp, previous hash and nonce alongside the entry text and all of them go into the digest. Conflating the two is the most common error when reading a register, and session 2 is built on the difference.</p>
     </div>
 
     <div class="quiz-score"></div>

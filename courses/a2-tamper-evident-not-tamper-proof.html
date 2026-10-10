@@ -366,26 +366,26 @@
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Block 2's entry is edited and every stored hash is left alone. What does verification report?</p>
-      <div class="qopt">A · Four problems, one at block 2 and one at each block after it, because the damage spreads down the register</div>
-      <div class="qopt">B · One problem, a hash mismatch at block 2, because block 2's stored hash no longer matches its own contents</div>
-      <div class="qopt">C · Nothing, because the stored hashes were not altered and the links are all still intact</div>
-      <q class="qwhy">Every later block still records the hash its predecessor stored, and none of those stored hashes changed, so every link still joins. The only disagreement is inside block 2, between its contents and the fingerprint sitting in it.</q>
+      <button class="qopt" type="button">A · Four problems, one at block 2 and one at each block after it, because the damage spreads down the register</button>
+      <button class="qopt" type="button">B · One problem, a hash mismatch at block 2, because block 2's stored hash no longer matches its own contents</button>
+      <button class="qopt" type="button">C · Nothing, because the stored hashes were not altered and the links are all still intact</button>
+      <p class="qwhy">Every later block still records the hash its predecessor stored, and none of those stored hashes changed, so every link still joins. The only disagreement is inside block 2, between its contents and the fingerprint sitting in it.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">The attacker then recomputes block 2's hash so the block agrees with itself again. What happens to the detection?</p>
-      <div class="qopt">A · It clears, because a block that is internally consistent passes verification</div>
-      <div class="qopt">B · It doubles, because both the old and the new hash are now wrong somewhere</div>
-      <div class="qopt">C · It moves to a link mismatch at block 3, because block 3 still records the hash block 2 had before the edit</div>
-      <q class="qwhy">Fixing the hash does not hide the edit, it relocates the failure one block along. Block 3 recorded its predecessor's fingerprint when it was written and nothing about editing block 2 updates that copy. The problem count stays at one throughout.</q>
+      <button class="qopt" type="button">A · It clears, because a block that is internally consistent passes verification</button>
+      <button class="qopt" type="button">B · It doubles, because both the old and the new hash are now wrong somewhere</button>
+      <button class="qopt" type="button">C · It moves to a link mismatch at block 3, because block 3 still records the hash block 2 had before the edit</button>
+      <p class="qwhy">Fixing the hash does not hide the edit, it relocates the failure one block along. Block 3 recorded its predecessor's fingerprint when it was written and nothing about editing block 2 updates that copy. The problem count stays at one throughout.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">To make the six block register internally consistent after an edit at block 2, how much must the attacker redo, and what does that prove?</p>
-      <div class="qopt">A · 4 blocks, 2 through 5, and at difficulty 0 it is instant, which shows the structure makes an edit visible rather than impossible</div>
-      <div class="qopt">B · All six blocks, including the genesis block, because the whole register depends on it</div>
-      <div class="qopt">C · Only block 2 and block 3, since the failure was at block 3 and repairing it ends the chain of consequences</div>
-      <q class="qwhy">Each repair creates the next mismatch, so the sequence only terminates at the end of the register: blocks 2, 3, 4 and 5. With no work attached to a hash, redoing four of them costs nothing, which is why difficulty exists and why detection alone is not protection.</q>
+      <button class="qopt" type="button">A · 4 blocks, 2 through 5, and at difficulty 0 it is instant, which shows the structure makes an edit visible rather than impossible</button>
+      <button class="qopt" type="button">B · All six blocks, including the genesis block, because the whole register depends on it</button>
+      <button class="qopt" type="button">C · Only block 2 and block 3, since the failure was at block 3 and repairing it ends the chain of consequences</button>
+      <p class="qwhy">Each repair creates the next mismatch, so the sequence only terminates at the end of the register: blocks 2, 3, 4 and 5. With no work attached to a hash, redoing four of them costs nothing, which is why difficulty exists and why detection alone is not protection.</p>
     </div>
 
     <div class="quiz-score"></div>

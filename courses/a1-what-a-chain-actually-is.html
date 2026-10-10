@@ -373,26 +373,26 @@
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">Why does a hash function have to produce a completely different digest for a nearly identical input?</p>
-      <div class="qopt">A · So that longer inputs get longer digests, which is how the length of the original is recovered</div>
-      <div class="qopt">B · So that two different inputs can never produce the same digest under any circumstances</div>
-      <div class="qopt">C · Because a digest that changed a little for a small change would let an attacker nudge an altered entry back towards the original digest, one step at a time</div>
-      <q class="qwhy">A gradient is a ladder. If getting closer to the original input produced a digest closer to the original digest, forging an entry would be a search with feedback rather than a blind one. The avalanche property removes the feedback, which is why every attempt is independent of the last.</q>
+      <button class="qopt" type="button">A · So that longer inputs get longer digests, which is how the length of the original is recovered</button>
+      <button class="qopt" type="button">B · So that two different inputs can never produce the same digest under any circumstances</button>
+      <button class="qopt" type="button">C · Because a digest that changed a little for a small change would let an attacker nudge an altered entry back towards the original digest, one step at a time</button>
+      <p class="qwhy">A gradient is a ladder. If getting closer to the original input produced a digest closer to the original digest, forging an entry would be a search with feedback rather than a blind one. The avalanche property removes the feedback, which is why every attempt is independent of the last.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Harbourgate's register runs at difficulty 0, so no mining was done. What does that mean for tamper evidence?</p>
-      <div class="qopt">A · Nothing is protected until mining is switched on, because the hashes are not real until then</div>
-      <div class="qopt">B · Every hash and every link still holds, so an edit is still detectable; what is missing is any cost to redoing the hashes afterwards</div>
-      <div class="qopt">C · Only the genesis block is protected, since the others were not worked for</div>
-      <q class="qwhy">Detection and cost are separate. The six hashes in the register were computed with no mining and they check out exactly as they would at any difficulty. Mining changes what a rewrite costs, which is session 3, not whether a rewrite is visible.</q>
+      <button class="qopt" type="button">A · Nothing is protected until mining is switched on, because the hashes are not real until then</button>
+      <button class="qopt" type="button">B · Every hash and every link still holds, so an edit is still detectable; what is missing is any cost to redoing the hashes afterwards</button>
+      <button class="qopt" type="button">C · Only the genesis block is protected, since the others were not worked for</button>
+      <p class="qwhy">Detection and cost are separate. The six hashes in the register were computed with no mining and they check out exactly as they would at any difficulty. Mining changes what a rewrite costs, which is session 3, not whether a rewrite is visible.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A buyer recomputes every hash in the register and every link matches. What have they established?</p>
-      <div class="qopt">A · That the six entries are byte for byte the entries that were written, in that order, and nothing about whether those entries describe what actually happened</div>
-      <div class="qopt">B · That the seal on consignment 42 was genuinely broken, since the entry is on a chain</div>
-      <div class="qopt">C · That no entry was ever left out, because a chain records everything</div>
-      <q class="qwhy">The hash covers the bytes it was taken over. It has no access to the cold store, the inspector or the entries nobody wrote. An accurate chain of inaccurate entries verifies perfectly, which is the failure mode session 5 is built around.</q>
+      <button class="qopt" type="button">A · That the six entries are byte for byte the entries that were written, in that order, and nothing about whether those entries describe what actually happened</button>
+      <button class="qopt" type="button">B · That the seal on consignment 42 was genuinely broken, since the entry is on a chain</button>
+      <button class="qopt" type="button">C · That no entry was ever left out, because a chain records everything</button>
+      <p class="qwhy">The hash covers the bytes it was taken over. It has no access to the cold store, the inspector or the entries nobody wrote. An accurate chain of inaccurate entries verifies perfectly, which is the failure mode session 5 is built around.</p>
     </div>
 
     <div class="quiz-score"></div>

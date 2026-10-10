@@ -552,26 +552,26 @@ CHAIN.verify(forged.chain)</div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Block 2's entry is edited and every stored hash is left alone. What does verification return?</p>
-      <div class="qopt">A · Four problems, one for each block from 2 to the end, because everything after the edit is affected</div>
-      <div class="qopt">B · One problem: index 2, kind hash, because block 2's stored hash no longer matches a fresh hash of its own fields</div>
-      <div class="qopt">C · One problem: index 3, kind link, because block 3 is the first block that can notice</div>
-      <q class="qwhy">The link check at block 3 compares block 3's prev with block 2's stored hash, and that stored hash was not touched, so the link still matches. Only block 2's own consistency has broken. The link failure is what stage two produces, after the attacker repairs the hash.</q>
+      <button class="qopt" type="button">A · Four problems, one for each block from 2 to the end, because everything after the edit is affected</button>
+      <button class="qopt" type="button">B · One problem: index 2, kind hash, because block 2's stored hash no longer matches a fresh hash of its own fields</button>
+      <button class="qopt" type="button">C · One problem: index 3, kind link, because block 3 is the first block that can notice</button>
+      <p class="qwhy">The link check at block 3 compares block 3's prev with block 2's stored hash, and that stored hash was not touched, so the link still matches. Only block 2's own consistency has broken. The link failure is what stage two produces, after the attacker repairs the hash.</p>
     </div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A register you did not build reports exactly one problem: index 4, kind link. What can you say?</p>
-      <div class="qopt">A · Block 4 was edited in place, and nothing else was touched</div>
-      <div class="qopt">B · The whole register from block 4 onwards was rebuilt, so nothing after block 3 can be trusted</div>
-      <div class="qopt">C · Block 3 was rebuilt and the rebuild stopped there, leaving block 4 holding the hash block 3 used to have</div>
-      <q class="qwhy">A link problem at N is about the join between N minus 1 and N, and it points upwards. Block 3 is internally consistent, otherwise a hash problem would be reported at 3 as well, so block 3 was rebuilt rather than merely edited. What the report cannot tell you is what block 3 now says or why.</q>
+      <button class="qopt" type="button">A · Block 4 was edited in place, and nothing else was touched</button>
+      <button class="qopt" type="button">B · The whole register from block 4 onwards was rebuilt, so nothing after block 3 can be trusted</button>
+      <button class="qopt" type="button">C · Block 3 was rebuilt and the rebuild stopped there, leaving block 4 holding the hash block 3 used to have</button>
+      <p class="qwhy">A link problem at N is about the join between N minus 1 and N, and it points upwards. Block 3 is internally consistent, otherwise a hash problem would be reported at 3 as well, so block 3 was rebuilt rather than merely edited. What the report cannot tell you is what block 3 now says or why.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">After reforging from block 2 the register verifies clean. What has that established?</p>
-      <div class="qopt">A · That at difficulty 0 a rewrite is fully recoverable by anyone with write access, so detection depends on somebody else holding a copy rather than on this copy checking out</div>
-      <div class="qopt">B · That the reforge repaired the damage, since verification passes and the register is valid again</div>
-      <div class="qopt">C · That the edit is still detectable, because the new hashes differ from the ones recorded earlier in the register</div>
-      <q class="qwhy">A clean result is a statement about internal consistency and nothing else. The rebuilt register is consistent with a history that did not happen, and this copy has no memory of the old hashes to disagree with. Comparing against a copy held elsewhere is the check that survives a full rewrite.</q>
+      <button class="qopt" type="button">A · That at difficulty 0 a rewrite is fully recoverable by anyone with write access, so detection depends on somebody else holding a copy rather than on this copy checking out</button>
+      <button class="qopt" type="button">B · That the reforge repaired the damage, since verification passes and the register is valid again</button>
+      <button class="qopt" type="button">C · That the edit is still detectable, because the new hashes differ from the ones recorded earlier in the register</button>
+      <p class="qwhy">A clean result is a statement about internal consistency and nothing else. The rebuilt register is consistent with a history that did not happen, and this copy has no memory of the old hashes to disagree with. Comparing against a copy held elsewhere is the check that survives a full rewrite.</p>
     </div>
 
     <div class="quiz-score"></div>

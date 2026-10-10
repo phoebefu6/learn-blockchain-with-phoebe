@@ -527,26 +527,26 @@ tag === CHAIN.sha256(SHARED + "|" + ENTRY + " and the door was locked")</div>
 
     <div class="quiz-q" data-answer="2">
       <p class="qtext">A buyer recomputes every hash and every link in the Harbourgate register and finds no problems. What does that establish about who wrote block 2?</p>
-      <div class="qopt">A · That an authorised writer produced it, since an unauthorised entry would break the chain</div>
-      <div class="qopt">B · That the port authority wrote it, because the register is theirs</div>
-      <div class="qopt">C · Nothing at all; a hash covers the bytes of a block and records nothing about who assembled them</div>
-      <q class="qwhy">Integrity and authenticity are separate guarantees. A block hash is taken over the whole assembled block, and the identity of the writer is not one of the things in it. An entry written by the wrong hands verifies exactly as cleanly as one written by the right hands.</q>
+      <button class="qopt" type="button">A · That an authorised writer produced it, since an unauthorised entry would break the chain</button>
+      <button class="qopt" type="button">B · That the port authority wrote it, because the register is theirs</button>
+      <button class="qopt" type="button">C · Nothing at all; a hash covers the bytes of a block and records nothing about who assembled them</button>
+      <p class="qwhy">Integrity and authenticity are separate guarantees. A block hash is taken over the whole assembled block, and the identity of the writer is not one of the things in it. An entry written by the wrong hands verifies exactly as cleanly as one written by the right hands.</p>
     </div>
 
     <div class="quiz-q" data-answer="1">
       <p class="qtext">Two parties hold the same shared value and use it to tag entries. A tag checks out. Who could have produced it?</p>
-      <div class="qopt">A · Only the party that wrote the entry, since the tag depends on the entry</div>
-      <div class="qopt">B · Anyone holding the shared value, which includes the party doing the checking</div>
-      <div class="qopt">C · Nobody but the original writer, because the hash function is one way</div>
-      <q class="qwhy">Checking means recomputing, and recomputing means producing. The ability to check and the ability to forge arrive together and leave together, which is exactly what the live box demonstrates. A signature is the arrangement that separates them, by making the checking value different from the producing value.</q>
+      <button class="qopt" type="button">A · Only the party that wrote the entry, since the tag depends on the entry</button>
+      <button class="qopt" type="button">B · Anyone holding the shared value, which includes the party doing the checking</button>
+      <button class="qopt" type="button">C · Nobody but the original writer, because the hash function is one way</button>
+      <p class="qwhy">Checking means recomputing, and recomputing means producing. The ability to check and the ability to forge arrive together and leave together, which is exactly what the live box demonstrates. A signature is the arrangement that separates them, by making the checking value different from the producing value.</p>
     </div>
 
     <div class="quiz-q" data-answer="0">
       <p class="qtext">A signed inspection entry verifies against the inspector's public key. What has been established?</p>
-      <div class="qopt">A · That the holder of that private key produced the entry and it has not changed since, and nothing about whether the key was in the right hands or whether anybody looked at the seal</div>
-      <div class="qopt">B · That the inspector personally attested to the condition of the consignment</div>
-      <div class="qopt">C · That the entry is accurate, since a signature is cryptographic proof</div>
-      <q class="qwhy">The claim names a key holder, not a person and not an event. Whether the key was where it should have been is an operational assumption owned by key management, and whether anybody opened the container is the oracle problem from leader session 5, untouched by any signature.</q>
+      <button class="qopt" type="button">A · That the holder of that private key produced the entry and it has not changed since, and nothing about whether the key was in the right hands or whether anybody looked at the seal</button>
+      <button class="qopt" type="button">B · That the inspector personally attested to the condition of the consignment</button>
+      <button class="qopt" type="button">C · That the entry is accurate, since a signature is cryptographic proof</button>
+      <p class="qwhy">The claim names a key holder, not a person and not an event. Whether the key was where it should have been is an operational assumption owned by key management, and whether anybody opened the container is the oracle problem from leader session 5, untouched by any signature.</p>
     </div>
 
     <div class="quiz-score"></div>
